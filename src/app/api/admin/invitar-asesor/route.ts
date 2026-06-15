@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
+import { sendInvitacionAsesor } from "@/lib/email/sendInvitacion";
 
 const bodySchema = z.object({
   nombre: z.string().min(2),
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { rol: true },
+    select: { rol: true, nombre: true, email: true },
   });
 
   if (dbUser?.rol !== "admin_nucleo") {
@@ -34,44 +35,45 @@ export async function POST(req: NextRequest) {
   }
 
   const { nombre, email } = parsed.data;
-
   const adminSupabase = createAdminClient();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
 
-  // Invitar usuario vía magic link de Supabase con rol asesor
-  const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(
+  // Generar link de invitación sin que Supabase envíe su propio email
+  const { data: linkData, error: linkError } = await adminSupabase.auth.admin.generateLink({
+    type: "invite",
     email,
-    {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?next=/onboarding`,
+    options: {
+      redirectTo: `${appUrl}/api/auth/callback?next=/onboarding`,
       data: {
         nombre,
         rol: "asesor",
         is_asesor_invite: true,
       },
-    }
-  );
+    },
+  });
 
-  if (inviteError) {
-    console.error("[invitar-asesor] Error Supabase invite:", inviteError);
+  if (linkError || !linkData.user) {
+    console.error("[invitar-asesor] Error generando link:", linkError);
     return NextResponse.json(
-      { error: inviteError.message ?? "No se pudo enviar la invitación." },
+      { error: linkError?.message ?? "No se pudo generar la invitación." },
       { status: 500 }
     );
   }
 
   // Crear o actualizar el User en la BD con rol asesor
   await prisma.user.upsert({
-    where: { id: inviteData.user.id },
-    create: {
-      id: inviteData.user.id,
-      email,
-      nombre,
-      rol: "asesor",
-    },
-    update: {
-      nombre,
-      rol: "asesor",
-    },
+    where: { id: linkData.user.id },
+    create: { id: linkData.user.id, email, nombre, rol: "asesor" },
+    update: { nombre, rol: "asesor" },
   });
 
-  return NextResponse.json({ ok: true, user_id: inviteData.user.id });
+  // Enviar email brandedizado via Resend
+  const invitadoPor = dbUser.nombre ?? dbUser.email ?? "Núcleo Sur";
+  const linkAcceso = linkData.properties?.action_link ?? `${appUrl}/login`;
+
+  void sendInvitacionAsesor({ to: email, nombre, invitadoPor, linkAcceso }).catch((err) =>
+    console.error("[invitar-asesor] Error Resend:", err)
+  );
+
+  return NextResponse.json({ ok: true, user_id: linkData.user.id });
 }

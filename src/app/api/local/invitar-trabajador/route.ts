@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
+import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
 
 const bodySchema = z.object({
   email: z.string().email("Email inválido"),
@@ -108,34 +109,55 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Caso 2: nuevo usuario → invitar por email
+  // Caso 2: nuevo usuario → generar link y enviar email brandedizado
   const supabaseAdmin = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nucleosur.cl";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
     select: { nombre: true },
   });
 
-  const { data: inviteData, error: inviteError } =
-    await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${appUrl}/onboarding?next=/`,
-      data: {
-        tenant_id: tenantId,
-        rol,
-        ...(nombre ? { nombre } : {}),
+  const { data: linkData, error: linkError } =
+    await supabaseAdmin.auth.admin.generateLink({
+      type: "invite",
+      email,
+      options: {
+        redirectTo: `${appUrl}/api/auth/callback?next=/onboarding`,
+        data: {
+          tenant_id: tenantId,
+          rol,
+          ...(nombre ? { nombre } : {}),
+        },
       },
     });
 
-  if (inviteError || !inviteData.user) {
-    console.error("[invitar-trabajador] Error Supabase invite:", inviteError);
+  if (linkError || !linkData.user) {
+    console.error("[invitar-trabajador] Error generando link:", linkError);
     return NextResponse.json(
-      { error: `Error al enviar invitación: ${inviteError?.message ?? "desconocido"}` },
+      { error: `Error al enviar invitación: ${linkError?.message ?? "desconocido"}` },
       { status: 500 }
     );
   }
 
-  await syncUserClaims(inviteData.user.id);
+  await syncUserClaims(linkData.user.id);
+
+  // Obtener datos del invitador para el email
+  const invitador = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { nombre: true, email: true },
+  });
+  const invitadoPor = invitador?.nombre ?? invitador?.email ?? "Núcleo Sur";
+  const linkAcceso = linkData.properties?.action_link ?? `${appUrl}/login`;
+
+  void sendInvitacionLocal({
+    to: email,
+    nombre: nombre ?? email,
+    nombreLocal: tenant?.nombre ?? "el local",
+    rol,
+    invitadoPor,
+    linkAcceso,
+  }).catch((err) => console.error("[invitar-trabajador] Error Resend:", err));
 
   return NextResponse.json({
     success: true,

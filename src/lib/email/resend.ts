@@ -8,7 +8,7 @@ export const FROM_EMAIL = "Núcleo Sur <notificaciones@nucleosur.cl>";
  */
 export function isEmailConfigured(): boolean {
   const key = process.env.RESEND_API_KEY;
-  return Boolean(key && key.startsWith("re_") && !key.startsWith("re_..."));
+  return Boolean(key && key.length > 10 && key !== "re_...");
 }
 
 let client: Resend | null = null;
