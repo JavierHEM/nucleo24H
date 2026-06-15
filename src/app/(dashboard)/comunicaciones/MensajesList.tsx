@@ -106,7 +106,7 @@ export function MensajesList({ userId, tenantId }: Props) {
   }
 
   // Agrupar por fecha
-  type Grupo = { fecha: string; items: typeof mensajes };
+  type Grupo = { fecha: string; items: NonNullable<typeof mensajes> };
   const grupos: Grupo[] = [];
   for (const m of mensajes) {
     const fechaLabel = formatFecha(m.created_at);
