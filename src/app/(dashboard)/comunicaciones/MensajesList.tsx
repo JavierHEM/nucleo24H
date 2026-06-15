@@ -51,7 +51,7 @@ export function MensajesList({ userId, tenantId }: Props) {
   // Marcar como leídos al cargar o cuando llegan mensajes nuevos
   useEffect(() => {
     if (!mensajes) return;
-    const hayNoLeidos = mensajes.some((m) => !m.leido && m.para === userId);
+    const hayNoLeidos = mensajes.some((m: { leido: boolean; para: string }) => !m.leido && m.para === userId);
     if (hayNoLeidos) marcarTodos.mutate();
     // Scroll al fondo
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
