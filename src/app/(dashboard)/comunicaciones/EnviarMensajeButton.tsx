@@ -91,7 +91,7 @@ export function EnviarMensajeButton() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {contactos.map((c) => (
+                    {contactos.map((c: { id: string; nombre: string; rol: string }) => (
                       <button
                         key={c.id}
                         type="button"
