@@ -1,0 +1,353 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Core ──────────────────────────────────────────────────────────────
+
+model Tenant {
+  id         String   @id @default(uuid())
+  nombre     String
+  rut        String   // RUT de la empresa — compartido entre casa central y sucursales
+  direccion  String
+  ciudad     String   @default("Osorno")
+  plan       String   // 'calidad' | 'integral'
+  estado     String   @default("activo") // 'activo' | 'suspendido' | 'baja'
+  created_at DateTime @default(now())
+
+  user_tenants      UserTenant[]
+  registros         Registro[]
+  sellos            Sello[]
+  documentos        Documento[]
+  visitas           Visita[]
+  mensajes          Mensaje[]
+  tareas            Tarea[]
+  consentimientos   Consentimiento[]
+  solicitudesArsopb SolicitudArsopb[]
+  asignaciones      AsignacionAsesor[]
+  suscripcion       Suscripcion?
+  pagos             Pago[]
+
+  @@index([rut])
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  nombre     String
+  rol        String   // 'trabajador_local' | 'admin_local' | 'asesor' | 'admin_nucleo'
+  activo     Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  user_tenants         UserTenant[]
+  tarea_completaciones TareaCompletacion[]
+  mensajes_enviados    Mensaje[]           @relation("MensajeRemitente")
+  mensajes_recibidos   Mensaje[]           @relation("MensajeDestinatario")
+}
+
+// Relación many-to-many User ↔ Tenant (soporta multi-local)
+model UserTenant {
+  id        String @id @default(uuid())
+  user_id   String
+  tenant_id String
+
+  user   User   @relation(fields: [user_id], references: [id])
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@unique([user_id, tenant_id])
+  @@index([user_id])
+  @@index([tenant_id])
+}
+
+// Asignación de asesores a locales (N:M)
+model AsignacionAsesor {
+  id        String   @id @default(uuid())
+  asesor_id String   // user.id con rol='asesor'
+  tenant_id String
+  activo    Boolean  @default(true)
+  desde     DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@unique([asesor_id, tenant_id])
+  @@index([asesor_id])
+  @@index([tenant_id])
+}
+
+// ── Sellos ────────────────────────────────────────────────────────────
+
+model Sello {
+  id                   String   @id @default(uuid())
+  tenant_id            String
+  periodo              String   // 'YYYY-MM'
+  nivel                String   // 'inicial' | 'intermedio' | 'avanzado' | 'premium'
+  score_general        Float
+  score_documentacion  Float
+  score_condiciones    Float
+  score_capacitaciones Float
+  score_tareas         Float
+  plan_mejoras         String[] @default([])
+  descargos_habilitados Boolean @default(false)
+  pesos_usados         Json
+  inputs_snapshot      Json
+  emitido_por          String
+  emitido_at           DateTime @default(now())
+
+  revisiones RevisionSello[]
+  tenant     Tenant          @relation(fields: [tenant_id], references: [id])
+
+  @@unique([tenant_id, periodo])
+  @@index([tenant_id])
+}
+
+model RevisionSello {
+  id             String   @id @default(uuid())
+  sello_id       String
+  solicitado_por String
+  motivo         String
+  respuesta      String?
+  estado         String   @default("pendiente") // 'pendiente' | 'resuelta'
+  created_at     DateTime @default(now())
+
+  sello Sello @relation(fields: [sello_id], references: [id])
+}
+
+model ConfiguracionSellos {
+  id                   String   @id @default(uuid())
+  peso_documentacion   Float    @default(0.30)
+  peso_condiciones     Float    @default(0.25)
+  peso_capacitaciones  Float    @default(0.25)
+  peso_tareas          Float    @default(0.20)
+  umbral_intermedio    Float    @default(60)
+  umbral_avanzado      Float    @default(75)
+  umbral_premium       Float    @default(90)
+  updated_by           String
+  updated_at           DateTime @updatedAt
+}
+
+// ── Registros BPM ─────────────────────────────────────────────────────
+
+model Registro {
+  id          String   @id @default(uuid())
+  tenant_id   String
+  tipo        String   // 'temperatura' | 'limpieza' | 'plagas' | 'capacitacion'
+  fecha       DateTime
+  datos       Json
+  estado      String   @default("completo")
+  adjunto_url String?
+  created_by  String   // user_id (trabajador_local o admin_local)
+  created_at  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, tipo])
+}
+
+model Documento {
+  id          String    @id @default(uuid())
+  tenant_id   String
+  nombre      String
+  categoria   String
+  mes         String    // 'YYYY-MM'
+  url         String    // Cloudflare R2
+  vencimiento DateTime?
+  estado      String    @default("pendiente") // 'pendiente' | 'aprobado' | 'observado' | 'rechazado'
+  observacion String?
+  version     Int       @default(1)
+  created_by  String
+  created_at  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, mes])
+}
+
+model Visita {
+  id         String   @id @default(uuid())
+  tenant_id  String
+  asesor_id  String
+  tipo       String   // 'programada' | 'sorpresa'
+  fecha      DateTime
+  hallazgos  String?
+  created_at DateTime @default(now())
+
+  no_conformidades NoConformidad[]
+  tenant           Tenant          @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id])
+}
+
+model NoConformidad {
+  id                String    @id @default(uuid())
+  visita_id         String
+  descripcion       String
+  severidad         String    // 'menor' | 'mayor'
+  estado            String    @default("abierta") // 'abierta' | 'en_proceso' | 'cerrada'
+  fecha_limite      DateTime?
+  evidencia_cierre  String?
+  cerrada_at        DateTime?
+
+  visita Visita @relation(fields: [visita_id], references: [id])
+}
+
+model Mensaje {
+  id          String   @id @default(uuid())
+  tenant_id   String
+  de          String   @db.Uuid // user_id
+  para        String   @db.Uuid // user_id
+  contenido   String
+  adjunto_url String?
+  leido       Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  tenant       Tenant @relation(fields: [tenant_id], references: [id])
+  remitente    User   @relation("MensajeRemitente", fields: [de], references: [id])
+  destinatario User   @relation("MensajeDestinatario", fields: [para], references: [id])
+
+  @@index([tenant_id])
+  @@index([de])
+  @@index([para])
+}
+
+// ── Compliance Ley 21.719 ─────────────────────────────────────────────
+
+// Art. 12 — consentimiento expreso con registro de IP y versión del documento
+model Consentimiento {
+  id                String   @id @default(uuid())
+  tenant_id         String
+  titular_id        String   // user_id
+  tipo              String   // 'otorgamiento' | 'revocacion' | 'actualizacion'
+  documento_version String
+  timestamp_evento  DateTime
+  ip_origen         String
+  canal             String   // 'web' | 'mobile_pwa'
+  created_at        DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, titular_id])
+}
+
+// Art. 5, 6, 7, 9 — derechos ARSOPB del titular
+model SolicitudArsopb {
+  id              String    @id @default(uuid())
+  tenant_id       String
+  titular_id      String
+  tipo_derecho    String    // 'acceso' | 'rectificacion' | 'supresion' | 'oposicion' | 'portabilidad' | 'bloqueo'
+  descripcion     String?
+  estado          String    @default("pendiente") // 'pendiente' | 'en_revision' | 'resuelta' | 'rechazada'
+  fecha_ingreso   DateTime
+  fecha_limite    DateTime  // ingreso + 30 días corridos
+  respondida_por  String?
+  fecha_respuesta DateTime?
+  resolucion      String?
+  created_at      DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([estado, fecha_limite])
+}
+
+// Art. 14ter — encargados de tratamiento (DPAs)
+model DataProcessor {
+  id                String   @id @default(uuid())
+  nombre            String
+  pais              String
+  tipo_datos        String[]
+  finalidad         String
+  base_contractual  String
+  dpa_firmado_fecha DateTime
+  dpa_url           String?
+  activo            Boolean  @default(true)
+  updated_at        DateTime @updatedAt
+}
+
+// Art. 14 sexies — incidentes de seguridad
+model IncidenteSeguridad {
+  id                    String    @id @default(uuid())
+  descripcion           String
+  datos_afectados       String[]
+  titulares_afectados   Int?
+  fecha_deteccion       DateTime
+  notificacion_agencia  DateTime?
+  medidas_adoptadas     String
+  estado                String
+  created_at            DateTime  @default(now())
+}
+
+// ── Pagos / Suscripciones (Flow.cl) ───────────────────────────────────
+
+model Suscripcion {
+  id         String    @id @default(uuid())
+  tenant_id  String    @unique
+  plan       String    // 'calidad' | 'integral'
+  monto_clp  Int       // monto mensual en CLP
+  estado     String    @default("activa") // 'activa' | 'morosa' | 'suspendida' | 'cancelada'
+  dia_cobro  Int       @default(5) // día del mes en que vence el pago
+  desde      DateTime  @default(now())
+  hasta      DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  pagos  Pago[]
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+}
+
+model Pago {
+  id             String    @id @default(uuid())
+  tenant_id      String
+  suscripcion_id String?
+  periodo        String    // 'YYYY-MM'
+  monto_clp      Int
+  metodo         String    @default("flow") // 'flow' | 'transferencia'
+  estado         String    @default("pendiente") // 'pendiente' | 'pagado' | 'rechazado' | 'anulado'
+  flow_token     String?   @unique
+  flow_order     Int?
+  pagado_at      DateTime?
+  registrado_por String?   // user_id de admin_nucleo cuando metodo='transferencia'
+  observacion    String?
+  created_at     DateTime  @default(now())
+
+  suscripcion Suscripcion? @relation(fields: [suscripcion_id], references: [id])
+  tenant      Tenant       @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, periodo])
+  @@index([estado])
+}
+
+// Módulo de tareas — checklist diario para trabajador_local
+model Tarea {
+  id           String    @id @default(uuid())
+  tenant_id    String
+  titulo       String
+  descripcion  String?
+  frecuencia   String    @default("diaria") // 'diaria' | 'semanal' | 'mensual'
+  activa       Boolean   @default(true)
+  orden        Int       @default(0)
+  created_at   DateTime  @default(now())
+
+  completaciones TareaCompletacion[]
+  tenant         Tenant  @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, activa])
+}
+
+model TareaCompletacion {
+  id          String   @id @default(uuid())
+  tarea_id    String
+  user_id     String
+  fecha       DateTime @default(now())
+  observacion String?
+
+  tarea Tarea @relation(fields: [tarea_id], references: [id])
+  user  User  @relation(fields: [user_id], references: [id])
+
+  @@index([tarea_id, fecha])
+  @@index([user_id])
+}

@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  /* Núcleo Sur — design system v2.0 */
+
+  /* Paleta primaria */
+  --color-navy-dark:    #0D1F3C;
+  --color-navy-mid:     #1A3559;
+  --color-green-dark:   #2D5A27;
+  --color-green-mid:    #3D7A35;
+  --color-green-light:  #EAF3E0;
+
+  /* Sellos — colores exactos por nivel */
+  --color-sello-inicial:    #DC2626;
+  --color-sello-intermedio: #D97706;
+  --color-sello-avanzado:   #16A34A;
+  --color-sello-premium:    #1C1917;
+
+  /* Neutrales */
+  --color-gray-bg:     #F5F6F8;
+  --color-gray-border: #E2E8F0;
+  --color-gray-text:   #64748B;
+
+  /* shadcn/ui tokens — mapeados a paleta Núcleo Sur */
+  --color-background:         #F5F6F8;
+  --color-foreground:         #0D1F3C;
+  --color-card:               #FFFFFF;
+  --color-card-foreground:    #0D1F3C;
+  --color-popover:            #FFFFFF;
+  --color-popover-foreground: #0D1F3C;
+  --color-primary:            #3D7A35;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary:          #EAF3E0;
+  --color-secondary-foreground: #2D5A27;
+  --color-muted:              #F1F5F9;
+  --color-muted-foreground:   #64748B;
+  --color-accent:             #EAF3E0;
+  --color-accent-foreground:  #2D5A27;
+  --color-destructive:        #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border:             #E2E8F0;
+  --color-input:              #E2E8F0;
+  --color-ring:               #3D7A35;
+
+  --radius: 0.5rem;
+
+  /* Tipografía — Inter */
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar navy */
+.sidebar-nav-item {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 150ms ease;
+}
+
+.sidebar-nav-item:hover {
+  color: #FFFFFF;
+  background-color: #1A3559;
+}
+
+.sidebar-nav-item.active {
+  color: #FFFFFF;
+  background-color: #1A3559;
+  border-left: 3px solid #3D7A35;
+}
+
+/* Formularios de cocina — inputs grandes para dedos */
+.input-cocina {
+  min-height: 48px;
+  font-size: 1rem;
+}
