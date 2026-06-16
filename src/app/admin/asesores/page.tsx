@@ -33,7 +33,7 @@ export default async function AdminAsesoresPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#0D1F3C]">Asesores</h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Profesionales Núcleo Sur y sus locales asignados
+            Profesionales Nucleo 24H y sus locales asignados
           </p>
         </div>
         <InvitarAsesorButton />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { APP_NAME } from "@/lib/branding";
 import {
   IconLayoutDashboard,
   IconThermometer,
@@ -174,7 +175,7 @@ export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
           N
         </div>
         <div>
-          <p className="font-semibold text-sm leading-tight">Núcleo Sur</p>
+          <p className="font-semibold text-sm leading-tight">{APP_NAME}</p>
           <p className="text-[11px] text-white/50">
             {mode === "admin" ? "Panel Admin" : "Gestión sanitaria"}
           </p>

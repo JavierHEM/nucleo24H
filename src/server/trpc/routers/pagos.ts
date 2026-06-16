@@ -9,6 +9,7 @@ import {
   PLAN_PRECIOS_CLP,
   FlowNotConfiguredError,
 } from "@/lib/payments/flow";
+import { APP_NAME } from "@/lib/branding";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const adminLocalProcedure = protectedProcedure.use(
@@ -70,7 +71,7 @@ export const pagosRouter = router({
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
           message:
-            "Los pagos en línea aún no están disponibles. Contacta a Núcleo Sur para pagar por transferencia.",
+            `Los pagos en línea aún no están disponibles. Contacta a ${APP_NAME} para pagar por transferencia.`,
         });
       }
 
@@ -139,7 +140,7 @@ export const pagosRouter = router({
       try {
         const flowPayment = await createFlowPayment({
           commerceOrder: pago.id,
-          subject: `Núcleo Sur — ${tenant.nombre} — ${input.periodo}`,
+          subject: `${APP_NAME} — ${tenant.nombre} — ${input.periodo}`,
           amount: monto,
           email: user.email,
           urlConfirmation: `${appUrl}/api/webhooks/flow`,

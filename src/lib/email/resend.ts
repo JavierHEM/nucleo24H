@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-export const FROM_EMAIL = "Núcleo Sur <notificaciones@nucleosur.cl>";
+import { APP_NAME } from "@/lib/branding";
+
+export const FROM_EMAIL = `${APP_NAME} <notificaciones@nucleosur.cl>`;
 
 /**
  * El cliente aún no crea la cuenta Resend — mientras tanto la API key

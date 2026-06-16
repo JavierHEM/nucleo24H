@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
+import { APP_NAME } from "@/lib/branding";
 
 const bodySchema = z.object({
   email: z.string().email("Email inválido"),
@@ -147,7 +148,7 @@ export async function POST(req: NextRequest) {
     where: { id: user.id },
     select: { nombre: true, email: true },
   });
-  const invitadoPor = invitador?.nombre ?? invitador?.email ?? "Núcleo Sur";
+  const invitadoPor = invitador?.nombre ?? invitador?.email ?? APP_NAME;
   const linkAcceso = linkData.properties?.action_link ?? `${appUrl}/login`;
 
   void sendInvitacionLocal({

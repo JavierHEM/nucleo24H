@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Núcleo Sur — design system v2.0 */
+  /* Nucleo 24H — design system v2.0 */
 
   /* Paleta primaria */
   --color-navy-dark:    #0D1F3C;
@@ -21,7 +21,7 @@
   --color-gray-border: #E2E8F0;
   --color-gray-text:   #64748B;
 
-  /* shadcn/ui tokens — mapeados a paleta Núcleo Sur */
+  /* shadcn/ui tokens — mapeados a paleta Nucleo 24H */
   --color-background:         #F5F6F8;
   --color-foreground:         #0D1F3C;
   --color-card:               #FFFFFF;

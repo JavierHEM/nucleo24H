@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { sendInvitacionAsesor } from "@/lib/email/sendInvitacion";
+import { APP_NAME } from "@/lib/branding";
 
 const bodySchema = z.object({
   nombre: z.string().min(2),
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Enviar email brandedizado via Resend
-  const invitadoPor = dbUser.nombre ?? dbUser.email ?? "Núcleo Sur";
+  const invitadoPor = dbUser.nombre ?? dbUser.email ?? APP_NAME;
   const linkAcceso = linkData.properties?.action_link ?? `${appUrl}/login`;
 
   void sendInvitacionAsesor({ to: email, nombre, invitadoPor, linkAcceso }).catch((err) =>

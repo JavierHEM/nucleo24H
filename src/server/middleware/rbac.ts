@@ -35,7 +35,7 @@ export const requireAuth = t.middleware(({ ctx, next }) => {
   return next({ ctx: { ...ctx, userId: ctx.userId, userRole: ctx.userRole } });
 });
 
-/** Solo staff Núcleo Sur */
+/** Solo staff Nucleo 24H */
 export const requireNucleo = requireRole("admin_nucleo");
 
 /** Asesor o admin Núcleo */

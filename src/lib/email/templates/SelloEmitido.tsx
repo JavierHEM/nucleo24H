@@ -11,6 +11,7 @@ import {
   Column,
   Button,
 } from "@react-email/components";
+import { APP_NAME_UPPER, APP_FOOTER } from "@/lib/branding";
 
 interface Props {
   nombreLocal: string;
@@ -79,7 +80,7 @@ export function SelloEmitidoEmail({
             <Text
               style={{ color: "#3D7A35", fontWeight: 700, fontSize: 13, margin: 0 }}
             >
-              NÚCLEO SUR
+              {APP_NAME_UPPER}
             </Text>
             <Heading
               style={{
@@ -276,7 +277,7 @@ export function SelloEmitidoEmail({
             }}
           >
             <Text style={{ fontSize: 12, color: "#94A3B8", margin: 0 }}>
-              Núcleo Sur · Asesoría BPM para establecimientos de alimentos · Osorno, Chile
+              {APP_FOOTER}
             </Text>
             <Text style={{ fontSize: 12, color: "#94A3B8", margin: "4px 0 0 0" }}>
               Este mensaje fue generado automáticamente. No respondas a este correo.

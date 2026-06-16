@@ -9,6 +9,7 @@ import {
   Hr,
   Button,
 } from "@react-email/components";
+import { APP_NAME_UPPER, APP_FOOTER } from "@/lib/branding";
 
 interface Props {
   nombreLocal: string;
@@ -44,7 +45,7 @@ export function AlertaMorosidadEmail({
             }}
           >
             <Text style={{ color: "#FCA5A5", fontWeight: 700, fontSize: 13, margin: 0 }}>
-              NÚCLEO SUR · AVISO IMPORTANTE
+              {APP_NAME_UPPER} · AVISO IMPORTANTE
             </Text>
             <Heading
               style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, margin: "8px 0 0 0" }}
@@ -133,7 +134,7 @@ export function AlertaMorosidadEmail({
             }}
           >
             <Text style={{ fontSize: 12, color: "#94A3B8", margin: 0 }}>
-              Núcleo Sur · Asesoría BPM para establecimientos de alimentos · Osorno, Chile
+              {APP_FOOTER}
             </Text>
             <Text style={{ fontSize: 12, color: "#94A3B8", margin: "4px 0 0 0" }}>
               Este mensaje fue generado automáticamente.

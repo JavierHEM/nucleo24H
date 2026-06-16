@@ -93,7 +93,7 @@ export const arsopbRouter = router({
       });
     }),
 
-  // RF-63: Panel ARSOPB para Admin Núcleo Sur
+  // RF-63: Panel ARSOPB para Admin Nucleo 24H
   panelAdmin: adminProcedure
     .input(
       z.object({

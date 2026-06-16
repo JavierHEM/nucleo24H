@@ -3,9 +3,9 @@ import { IconShield, IconArrowLeft } from "@tabler/icons-react";
 import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad — Núcleo Sur",
+  title: "Política de Privacidad — Nucleo 24H",
   description:
-    "Política de privacidad y tratamiento de datos personales de Núcleo Sur, conforme a la Ley 21.719.",
+    "Política de privacidad y tratamiento de datos personales de Nucleo 24H, conforme a la Ley 21.719.",
 };
 
 export const viewport: Viewport = {
@@ -22,7 +22,7 @@ export default function PoliticaPrivacidadPage() {
             <div className="w-8 h-8 rounded-lg bg-[#3D7A35] flex items-center justify-center font-bold text-white text-sm">
               N
             </div>
-            <span className="font-bold text-white">Núcleo Sur</span>
+            <span className="font-bold text-white">Nucleo 24H</span>
           </div>
           <Link
             href="/login"
@@ -50,7 +50,7 @@ export default function PoliticaPrivacidadPage() {
                 1. Responsable del tratamiento
               </h2>
               <p className="text-sm leading-relaxed">
-                <strong>Núcleo Sur SpA</strong> (en adelante, &quot;Núcleo Sur&quot;), RUT XX.XXX.XXX-X,
+                <strong>Nucleo 24H SpA</strong> (en adelante, &quot;Nucleo 24H&quot;), RUT XX.XXX.XXX-X,
                 con domicilio en Osorno, Región de Los Lagos, Chile, es el responsable del
                 tratamiento de sus datos personales.
               </p>
@@ -185,7 +185,7 @@ export default function PoliticaPrivacidadPage() {
                 7. Retención de datos
               </h2>
               <p className="text-sm leading-relaxed">
-                Conservamos sus datos mientras mantenga un contrato activo con Núcleo Sur.
+                Conservamos sus datos mientras mantenga un contrato activo con Nucleo 24H.
                 Tras la baja del servicio, sus datos se eliminan automáticamente dentro de los
                 90 días siguientes, salvo obligación legal de conservación.
               </p>

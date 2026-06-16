@@ -2,6 +2,7 @@ import { render } from "@react-email/render";
 import { getResend, FROM_EMAIL } from "./resend";
 import { InvitacionAsesorEmail } from "./templates/InvitacionAsesor";
 import { InvitacionLocalEmail } from "./templates/InvitacionLocal";
+import { APP_NAME } from "@/lib/branding";
 
 export async function sendInvitacionAsesor(params: {
   to: string;
@@ -26,7 +27,7 @@ export async function sendInvitacionAsesor(params: {
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Invitación para unirte a Núcleo Sur como Asesor`,
+    subject: `Invitación para unirte a ${APP_NAME} como Asesor`,
     html,
   });
 
@@ -68,7 +69,7 @@ export async function sendInvitacionLocal(params: {
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Invitación a ${params.nombreLocal} — ${rolLabel} en Núcleo Sur`,
+    subject: `Invitación a ${params.nombreLocal} — ${rolLabel} en ${APP_NAME}`,
     html,
   });
 

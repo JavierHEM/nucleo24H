@@ -42,7 +42,7 @@ export default async function AdminLocalesPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#0D1F3C]">Locales</h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Gestión de todos los locales suscritos a Núcleo Sur
+            Gestión de todos los locales suscritos a Nucleo 24H
           </p>
         </div>
         <InvitarLocalButton />

@@ -89,7 +89,7 @@ export default function RegisterPage() {
           <div className="w-10 h-10 rounded-xl bg-[#0D1F3C] flex items-center justify-center">
             <IconShieldCheck size={22} className="text-[#3D7A35]" />
           </div>
-          <span className="text-xl font-bold text-[#0D1F3C]">Núcleo Sur</span>
+          <span className="text-xl font-bold text-[#0D1F3C]">Nucleo 24H</span>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
@@ -253,7 +253,7 @@ export default function RegisterPage() {
                     Política de Privacidad
                     <IconExternalLink size={11} />
                   </Link>{" "}
-                  de Núcleo Sur.
+                  de Nucleo 24H.
                 </span>
               </label>
               {errors.consentimiento_datos && (
@@ -270,7 +270,7 @@ export default function RegisterPage() {
                   onChange={(e) => setValue("consentimiento_terminos", e.target.checked)}
                 />
                 <span className="text-xs text-[#64748B]">
-                  Acepto los términos y condiciones del servicio de Núcleo Sur.
+                  Acepto los términos y condiciones del servicio de Nucleo 24H.
                 </span>
               </label>
               {errors.consentimiento_terminos && (

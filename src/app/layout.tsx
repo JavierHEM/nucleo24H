@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TRPCProvider } from "@/lib/trpc/provider";
+import { APP_PAGE_TITLE } from "@/lib/branding";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -10,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Núcleo Sur — Gestión y Cumplimiento Integral",
+  title: APP_PAGE_TITLE,
   description:
     "Plataforma de cumplimiento sanitario BPM y gestión documental para restaurantes y locales de comida.",
 };

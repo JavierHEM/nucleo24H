@@ -9,6 +9,7 @@ import {
   Hr,
   Button,
 } from "@react-email/components";
+import { APP_NAME, APP_NAME_UPPER, APP_FOOTER } from "@/lib/branding";
 
 interface Props {
   nombre: string;
@@ -31,7 +32,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
             }}
           >
             <Text style={{ color: "#3D7A35", fontWeight: 700, fontSize: 13, margin: 0 }}>
-              NÚCLEO SUR
+              {APP_NAME_UPPER}
             </Text>
             <Heading
               style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, margin: "8px 0 0 0" }}
@@ -47,7 +48,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
             </Text>
             <Text style={{ fontSize: 15, color: "#334155", margin: "0 0 16px 0" }}>
               <strong>{invitadoPor}</strong> te ha invitado a unirte a{" "}
-              <strong>Núcleo Sur</strong> como <strong>Asesor BPM</strong>. Podrás
+              <strong>{APP_NAME}</strong> como <strong>Asesor BPM</strong>. Podrás
               gestionar y supervisar los locales que se te asignen desde el portal.
             </Text>
 
@@ -116,7 +117,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
             }}
           >
             <Text style={{ fontSize: 12, color: "#94A3B8", margin: 0 }}>
-              Núcleo Sur · Asesoría BPM para establecimientos de alimentos · Osorno, Chile
+              {APP_FOOTER}
             </Text>
           </Section>
         </Container>

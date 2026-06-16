@@ -78,7 +78,7 @@ function OnboardingForm() {
           <div className="w-10 h-10 rounded-xl bg-[#0D1F3C] flex items-center justify-center">
             <IconShieldCheck size={22} className="text-[#3D7A35]" />
           </div>
-          <span className="text-xl font-bold text-[#0D1F3C]">Núcleo Sur</span>
+          <span className="text-xl font-bold text-[#0D1F3C]">Nucleo 24H</span>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
@@ -98,7 +98,7 @@ function OnboardingForm() {
             <>
               {/* Header */}
               <div className="bg-[#0D1F3C] px-6 py-5">
-                <h1 className="text-white font-bold text-lg">Bienvenido a Núcleo Sur</h1>
+                <h1 className="text-white font-bold text-lg">Bienvenido a Nucleo 24H</h1>
                 <p className="text-white/60 text-sm mt-0.5">
                   Configura tu cuenta para comenzar
                 </p>

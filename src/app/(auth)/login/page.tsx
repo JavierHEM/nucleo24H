@@ -62,7 +62,7 @@ function LoginForm() {
           <div className="w-10 h-10 rounded-xl bg-[#0D1F3C] flex items-center justify-center">
             <IconShieldCheck size={22} className="text-[#3D7A35]" />
           </div>
-          <span className="text-xl font-bold text-[#0D1F3C]">Núcleo Sur</span>
+          <span className="text-xl font-bold text-[#0D1F3C]">Nucleo 24H</span>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
@@ -169,7 +169,7 @@ function LoginForm() {
         </div>
 
         <p className="text-xs text-center text-[#94A3B8] mt-6">
-          Núcleo Sur · Gestión BPM para establecimientos de alimentos
+          Nucleo 24H · Gestión BPM para establecimientos de alimentos
         </p>
       </div>
     </div>

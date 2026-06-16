@@ -85,7 +85,7 @@ export default async function CertificadoPage({ params }: PageProps) {
           <div className="w-9 h-9 rounded-lg bg-[#0D1F3C] flex items-center justify-center">
             <IconShieldCheck size={20} className="text-[#3D7A35]" />
           </div>
-          <span className="text-lg font-bold text-[#0D1F3C]">Núcleo Sur</span>
+          <span className="text-lg font-bold text-[#0D1F3C]">Nucleo 24H</span>
         </div>
 
         {/* Certificado */}
@@ -165,7 +165,7 @@ export default async function CertificadoPage({ params }: PageProps) {
               <p className="text-xs text-[#64748B] font-medium">Verificar autenticidad</p>
               <p className="text-[10px] text-[#94A3B8] mt-0.5 break-all">{certificadoUrl}</p>
               <p className="text-[10px] text-[#94A3B8] mt-1">
-                Certificado emitido por Núcleo Sur SpA ·{" "}
+                Certificado emitido por Nucleo 24H SpA ·{" "}
                 <span className="font-mono">{id.slice(0, 8).toUpperCase()}</span>
               </p>
             </div>

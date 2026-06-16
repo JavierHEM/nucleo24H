@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
+import { APP_NAME, APP_FOOTER } from "@/lib/branding";
 
 const querySchema = z.object({
   tenantId: z.string().uuid(),
@@ -129,7 +130,7 @@ export async function GET(req: NextRequest) {
 <body>
 <div class="page">
   <div class="header">
-    <div class="header-badge">Núcleo Sur · BPM</div>
+    <div class="header-badge">${APP_NAME} · BPM</div>
     <h1>${tenant?.nombre ?? "Local"}</h1>
     <p>${tenant?.direccion ?? ""} &nbsp;·&nbsp; Informe mensual ${periodoDisplay}</p>
   </div>
@@ -193,7 +194,7 @@ export async function GET(req: NextRequest) {
   </div>
 
   <div class="footer">
-    <p>Núcleo Sur · Asesoría BPM para establecimientos de alimentos · Osorno, Chile</p>
+    <p>${APP_FOOTER}</p>
     <p>Generado el ${new Date().toLocaleDateString("es-CL")}</p>
   </div>
 </div>
