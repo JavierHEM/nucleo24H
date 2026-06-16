@@ -5,7 +5,7 @@ import { withTenant } from "@/server/middleware/tenant";
 import { requireNucleo, requireAsesor, requireRole } from "@/server/middleware/rbac";
 import { syncUserClaims } from "@/lib/supabase/claims";
 
-const nucleoProcedure = publicProcedure.use(withTenant).use(requireNucleo);
+const nucleoProcedure = publicProcedure.use(requireNucleo);
 const asesorProcedure = publicProcedure.use(withTenant).use(requireAsesor);
 
 export const localesRouter = router({

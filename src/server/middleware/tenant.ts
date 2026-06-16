@@ -13,16 +13,16 @@ export const withTenant = t.middleware(async ({ ctx, next }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  // admin_nucleo opera a nivel sistema — no requiere tenant activo
-  if (ctx.userRole === "admin_nucleo") {
-    return next({ ctx });
-  }
-
   if (!ctx.tenantActivo) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "No hay un local activo seleccionado.",
     });
+  }
+
+  // admin_nucleo bypasea la verificación de pertenencia al tenant
+  if (ctx.userRole === "admin_nucleo") {
+    return next({ ctx });
   }
 
   // Verificar que el usuario tenga acceso al tenant activo

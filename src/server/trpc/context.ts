@@ -17,6 +17,26 @@ export type TRPCContext = {
   req?: NextRequest;
 };
 
+/** Resuelve el tenant activo para admin_nucleo (cookie o primer local activo). */
+async function resolveAdminNucleoTenant(
+  tenantActivoCookie: string | undefined
+): Promise<string | null> {
+  if (tenantActivoCookie) {
+    const fromCookie = await prisma.tenant.findFirst({
+      where: { id: tenantActivoCookie, estado: { not: "baja" } },
+      select: { id: true },
+    });
+    if (fromCookie) return fromCookie.id;
+  }
+
+  const first = await prisma.tenant.findFirst({
+    where: { estado: "activo" },
+    select: { id: true },
+    orderBy: { nombre: "asc" },
+  });
+  return first?.id ?? null;
+}
+
 export async function createContext(req?: NextRequest): Promise<TRPCContext> {
   const supabase = await createClient();
   const {
@@ -41,9 +61,20 @@ export async function createContext(req?: NextRequest): Promise<TRPCContext> {
   const metaTenants = user.app_metadata?.tenants as string[] | undefined;
   const metaRol = user.app_metadata?.rol as UserRole | undefined;
 
-  // admin_nucleo no requiere tenants; el resto de roles sí
-  if (metaRol && (metaRol === "admin_nucleo" || (metaTenants && metaTenants.length > 0))) {
-    const tenants = metaTenants ?? [];
+  if (metaRol === "admin_nucleo") {
+    const tenantActivo = await resolveAdminNucleoTenant(tenantActivoCookie);
+    return {
+      tenants: [],
+      tenantActivo,
+      userId: user.id,
+      userRole: metaRol,
+      prisma,
+      req,
+    };
+  }
+
+  if (metaRol && metaTenants && metaTenants.length > 0) {
+    const tenants = metaTenants;
     const tenantActivo =
       tenantActivoCookie && tenants.includes(tenantActivoCookie)
         ? tenantActivoCookie
@@ -66,6 +97,20 @@ export async function createContext(req?: NextRequest): Promise<TRPCContext> {
     >`SELECT * FROM get_user_context(${user.id}::uuid)`;
 
     if (rows.length > 0 && rows[0].rol) {
+      const rol = rows[0].rol as UserRole;
+
+      if (rol === "admin_nucleo") {
+        const tenantActivo = await resolveAdminNucleoTenant(tenantActivoCookie);
+        return {
+          tenants: [],
+          tenantActivo,
+          userId: user.id,
+          userRole: rol,
+          prisma,
+          req,
+        };
+      }
+
       const tenants = rows[0].tenant_ids ?? [];
       const tenantActivo =
         tenantActivoCookie && tenants.includes(tenantActivoCookie)
@@ -76,7 +121,7 @@ export async function createContext(req?: NextRequest): Promise<TRPCContext> {
         tenants,
         tenantActivo,
         userId: user.id,
-        userRole: rows[0].rol as UserRole,
+        userRole: rol,
         prisma,
         req,
       };
