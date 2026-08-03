@@ -45,7 +45,7 @@ export function DescargarPdfButton({ tenantId, periodo }: Props) {
       size="sm"
       onClick={handleDownload}
       disabled={loading}
-      className="gap-2 border-[#E2E8F0] text-[#334155] hover:bg-[#F5F6F8]"
+      className="gap-2 border-[#E2E8F0] text-[#334155] hover:bg-[#F8F9FA]"
     >
       {loading ? (
         <IconLoader2 size={15} className="animate-spin" />

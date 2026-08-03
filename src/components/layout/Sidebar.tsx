@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_NAME } from "@/lib/branding";
+import { BrandLogo } from "@/components/BrandLogo";
 import {
   IconLayoutDashboard,
   IconThermometer,
@@ -168,16 +169,14 @@ export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
   );
 
   return (
-    <aside className="hidden md:flex flex-col w-64 min-h-screen bg-[#0D1F3C] text-white shrink-0">
+    <aside className="hidden md:flex flex-col w-64 min-h-screen bg-[#0B2545] text-white shrink-0">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <div className="w-9 h-9 rounded-lg bg-[#3D7A35] flex items-center justify-center font-bold text-lg">
-          N
-        </div>
-        <div>
-          <p className="font-semibold text-sm leading-tight">{APP_NAME}</p>
-          <p className="text-[11px] text-white/50">
-            {mode === "admin" ? "Panel Admin" : "Gestión sanitaria"}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10">
+        <BrandLogo variant="mark" className="w-11 h-11" priority />
+        <div className="min-w-0">
+          <p className="font-semibold text-sm leading-tight truncate">{APP_NAME}</p>
+          <p className="text-[11px] text-white/50 truncate">
+            {mode === "admin" ? "Panel Admin" : "Gestión y cumplimiento"}
           </p>
         </div>
       </div>
@@ -198,8 +197,8 @@ export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all
                 ${
                   isActive
-                    ? "bg-[#1A3559] text-white border-l-[3px] border-[#3D7A35] pl-[9px]"
-                    : "text-white/70 hover:bg-[#1A3559] hover:text-white"
+                    ? "bg-[#143556] text-white border-l-[3px] border-[#4B8B2E] pl-[9px]"
+                    : "text-white/70 hover:bg-[#143556] hover:text-white"
                 }`}
             >
               <Icon size={18} />
@@ -215,7 +214,7 @@ export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
           {mode !== "dashboard" && (
             <Link
               href="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#1A3559] hover:text-white transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#143556] hover:text-white transition-all"
             >
               <IconArrowLeft size={18} />
               Dashboard
@@ -224,7 +223,7 @@ export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
           {userRole === "asesor" && mode !== "asesor" && (
             <Link
               href="/asesor/informes"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#1A3559] hover:text-white transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#143556] hover:text-white transition-all"
             >
               <IconChartBar size={18} />
               Mis Informes
@@ -233,7 +232,7 @@ export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
           {userRole === "admin_nucleo" && mode !== "admin" && (
             <Link
               href="/admin"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#1A3559] hover:text-white transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#143556] hover:text-white transition-all"
             >
               <IconSettings size={18} />
               Panel Admin

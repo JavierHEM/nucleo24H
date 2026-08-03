@@ -77,7 +77,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs text-[#1A3559] hover:text-[#3D7A35] border border-[#E2E8F0] rounded-lg px-2.5 py-1.5 hover:bg-[#EAF3E0] transition-colors"
+        className="flex items-center gap-1 text-xs text-[#143556] hover:text-[#4B8B2E] border border-[#E2E8F0] rounded-lg px-2.5 py-1.5 hover:bg-[#EBF5E6] transition-colors"
         title="Revisar documento"
       >
         <IconClipboardCheck size={13} />
@@ -90,19 +90,19 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
-                <IconClipboardCheck size={20} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C]">Revisar documento</p>
+                <IconClipboardCheck size={20} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545]">Revisar documento</p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B] hover:text-[#0D1F3C]">
+              <button onClick={() => setOpen(false)} className="text-[#64748B] hover:text-[#0B2545]">
                 <IconX size={20} />
               </button>
             </div>
 
             <div className="p-5 space-y-5">
               {/* Nombre del doc */}
-              <div className="bg-[#F5F6F8] rounded-xl px-4 py-3">
+              <div className="bg-[#F8F9FA] rounded-xl px-4 py-3">
                 <p className="text-xs text-[#64748B] mb-0.5">Documento</p>
-                <p className="text-sm font-medium text-[#0D1F3C] truncate">{docNombre}</p>
+                <p className="text-sm font-medium text-[#0B2545] truncate">{docNombre}</p>
                 <p className="text-xs text-[#94A3B8] mt-0.5 capitalize">
                   Estado actual: {estadoActual}
                 </p>
@@ -151,7 +151,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
                       ? "Explica qué debe corregirse..."
                       : "Comentario para el local..."
                   }
-                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                 />
                 {needsObservacion && observacion.trim().length < 5 && observacion.length > 0 && (
                   <p className="text-xs text-[#DC2626] mt-1">Mínimo 5 caracteres.</p>
@@ -188,7 +188,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
                       observacion: observacion.trim() || undefined,
                     })
                   }
-                  className="flex-1 bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2"
+                  className="flex-1 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
                 >
                   {revisar.isPending ? (
                     <IconLoader2 size={15} className="animate-spin" />

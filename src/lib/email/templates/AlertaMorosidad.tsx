@@ -34,7 +34,7 @@ export function AlertaMorosidadEmail({
   return (
     <Html lang="es">
       <Head />
-      <Body style={{ backgroundColor: "#F5F6F8", fontFamily: "Inter, sans-serif" }}>
+      <Body style={{ backgroundColor: "#F8F9FA", fontFamily: "Inter, sans-serif" }}>
         <Container style={{ maxWidth: 600, margin: "0 auto", padding: "32px 0" }}>
           {/* Header */}
           <Section
@@ -127,7 +127,7 @@ export function AlertaMorosidadEmail({
           {/* Footer */}
           <Section
             style={{
-              backgroundColor: "#F5F6F8",
+              backgroundColor: "#F8F9FA",
               borderRadius: "0 0 12px 12px",
               padding: "18px 32px",
               textAlign: "center",

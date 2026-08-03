@@ -99,7 +99,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2 shrink-0"
+        className="bg-[#143556] hover:bg-[#0B2545] text-white gap-2 shrink-0"
         size="sm"
       >
         <IconMedal size={16} />
@@ -112,8 +112,8 @@ export function EmitirSelloButton({ tenantId }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] sticky top-0 bg-white rounded-t-2xl z-10">
               <div className="flex items-center gap-2">
-                <IconMedal size={20} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C]">Emitir sello mensual</p>
+                <IconMedal size={20} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545]">Emitir sello mensual</p>
               </div>
               <button onClick={() => setOpen(false)} className="text-[#64748B]">
                 <IconX size={20} />
@@ -128,7 +128,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
                   id="periodo"
                   type="month"
                   {...register("periodo")}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                 />
                 {errors.periodo && (
                   <p className="text-xs text-[#DC2626] mt-1">{errors.periodo.message}</p>
@@ -136,7 +136,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
               </div>
 
               {/* Info */}
-              <div className="flex items-start gap-2 bg-[#EAF3E0] rounded-xl p-3 text-xs text-[#2D5A27]">
+              <div className="flex items-start gap-2 bg-[#EBF5E6] rounded-xl p-3 text-xs text-[#3A6E24]">
                 <IconInfoCircle size={15} className="shrink-0 mt-0.5" />
                 <p>
                   Ingresa el porcentaje de cumplimiento de cada dimensión según lo observado en la visita.
@@ -233,7 +233,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
                   <p className="text-xs text-[#64748B] mb-1">Vista previa del sello</p>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-[#0D1F3C]">
+                      <span className="text-2xl font-bold text-[#0B2545]">
                         {preview.score_general.toFixed(1)}%
                       </span>
                       <span
@@ -258,7 +258,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
               >
                 <IconMedal size={18} />
                 {isPending ? "Emitiendo sello..." : "✅ Confirmar y emitir sello"}

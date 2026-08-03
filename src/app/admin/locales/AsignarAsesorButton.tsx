@@ -58,7 +58,7 @@ export function AsignarAsesorButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs text-[#1A3559] font-medium hover:text-[#3D7A35] transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#143556] font-medium hover:text-[#4B8B2E] transition-colors"
       >
         <IconUserCheck size={14} />
         {asesorActualId ? "Cambiar asesor" : "Asignar asesor"}
@@ -69,8 +69,8 @@ export function AsignarAsesorButton({
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
-                <IconUserCheck size={18} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C] text-sm">Asignar asesor</p>
+                <IconUserCheck size={18} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545] text-sm">Asignar asesor</p>
               </div>
               <button onClick={() => setOpen(false)} className="text-[#64748B]">
                 <IconX size={20} />
@@ -78,9 +78,9 @@ export function AsignarAsesorButton({
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-[#F5F6F8] rounded-xl p-3">
+              <div className="bg-[#F8F9FA] rounded-xl p-3">
                 <p className="text-xs text-[#64748B]">Local</p>
-                <p className="text-sm font-semibold text-[#0D1F3C]">{tenantNombre}</p>
+                <p className="text-sm font-semibold text-[#0B2545]">{tenantNombre}</p>
               </div>
 
               <div>
@@ -98,13 +98,13 @@ export function AsignarAsesorButton({
                         onClick={() => setSelectedAsesorId(a.id)}
                         className={`w-full text-left rounded-xl border-2 p-3 transition-colors ${
                           selectedAsesorId === a.id
-                            ? "border-[#3D7A35] bg-[#EAF3E0]"
-                            : "border-[#E2E8F0] hover:border-[#3D7A35]/50"
+                            ? "border-[#4B8B2E] bg-[#EBF5E6]"
+                            : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium text-sm text-[#0D1F3C]">{a.nombre}</p>
+                            <p className="font-medium text-sm text-[#0B2545]">{a.nombre}</p>
                             <p className="text-xs text-[#64748B]">{a.email}</p>
                           </div>
                           {selectedAsesorId === a.id && (
@@ -136,7 +136,7 @@ export function AsignarAsesorButton({
                   type="button"
                   disabled={!selectedAsesorId || asignar.isPending}
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                 >
                   {asignar.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

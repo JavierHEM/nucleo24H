@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  IconShieldCheck,
   IconLoader2,
   IconExternalLink,
 } from "@tabler/icons-react";
@@ -16,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/BrandLogo";
+import { APP_NAME } from "@/lib/branding";
 
 const PLANES = [
   {
@@ -82,19 +83,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F6F8] px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4 py-10">
       <div className="w-full max-w-lg">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#0D1F3C] flex items-center justify-center">
-            <IconShieldCheck size={22} className="text-[#3D7A35]" />
-          </div>
-          <span className="text-xl font-bold text-[#0D1F3C]">Nucleo 24H</span>
+        <div className="flex flex-col items-center mb-8">
+          <BrandLogo className="w-36 h-auto" priority />
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
           {/* Header */}
-          <div className="bg-[#0D1F3C] px-6 py-5">
+          <div className="bg-[#0B2545] px-6 py-5">
             <h1 className="text-white font-bold text-lg">Crear cuenta</h1>
             <p className="text-white/60 text-sm mt-0.5">
               Comienza a gestionar el cumplimiento sanitario de tu local
@@ -123,12 +121,12 @@ export default function RegisterPage() {
                     className={cn(
                       "rounded-xl border-2 p-4 text-left transition-colors",
                       selectedPlan === plan.value
-                        ? "border-[#3D7A35] bg-[#EAF3E0]"
-                        : "border-[#E2E8F0] hover:border-[#3D7A35]/50"
+                        ? "border-[#4B8B2E] bg-[#EBF5E6]"
+                        : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
                     )}
                   >
-                    <p className="font-semibold text-[#0D1F3C] text-sm">{plan.label}</p>
-                    <p className="text-sm font-medium text-[#3D7A35] mt-0.5">
+                    <p className="font-semibold text-[#0B2545] text-sm">{plan.label}</p>
+                    <p className="text-sm font-medium text-[#4B8B2E] mt-0.5">
                       {plan.precio}
                     </p>
                     <p className="text-xs text-[#64748B] mt-1">{plan.descripcion}</p>
@@ -231,15 +229,15 @@ export default function RegisterPage() {
             </div>
 
             {/* Consentimientos Ley 21.719 */}
-            <div className="space-y-3 rounded-xl border border-[#E2E8F0] bg-[#F5F6F8] p-4">
-              <p className="text-xs font-semibold text-[#0D1F3C]">
+            <div className="space-y-3 rounded-xl border border-[#E2E8F0] bg-[#F8F9FA] p-4">
+              <p className="text-xs font-semibold text-[#0B2545]">
                 Consentimientos requeridos (Art. 12 Ley 21.719)
               </p>
 
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] accent-[#3D7A35]"
+                  className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] accent-[#4B8B2E]"
                   checked={consentimientoDatos ?? false}
                   onChange={(e) => setValue("consentimiento_datos", e.target.checked)}
                 />
@@ -248,12 +246,12 @@ export default function RegisterPage() {
                   <Link
                     href="/politica-de-privacidad"
                     target="_blank"
-                    className="text-[#3D7A35] font-medium hover:underline inline-flex items-center gap-0.5"
+                    className="text-[#4B8B2E] font-medium hover:underline inline-flex items-center gap-0.5"
                   >
                     Política de Privacidad
                     <IconExternalLink size={11} />
                   </Link>{" "}
-                  de Nucleo 24H.
+                  de {APP_NAME}.
                 </span>
               </label>
               {errors.consentimiento_datos && (
@@ -265,12 +263,12 @@ export default function RegisterPage() {
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] accent-[#3D7A35]"
+                  className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] accent-[#4B8B2E]"
                   checked={consentimientoTerminos ?? false}
                   onChange={(e) => setValue("consentimiento_terminos", e.target.checked)}
                 />
                 <span className="text-xs text-[#64748B]">
-                  Acepto los términos y condiciones del servicio de Nucleo 24H.
+                  Acepto los términos y condiciones del servicio de {APP_NAME}.
                 </span>
               </label>
               {errors.consentimiento_terminos && (
@@ -283,7 +281,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+              className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -296,7 +294,7 @@ export default function RegisterPage() {
 
             <p className="text-sm text-[#64748B] text-center">
               ¿Ya tienes cuenta?{" "}
-              <Link href="/login" className="text-[#3D7A35] font-medium hover:underline">
+              <Link href="/login" className="text-[#4B8B2E] font-medium hover:underline">
                 Inicia sesión aquí
               </Link>
             </p>

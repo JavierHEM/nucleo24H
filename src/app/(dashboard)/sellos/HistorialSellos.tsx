@@ -37,7 +37,7 @@ export function HistorialSellos() {
       {historial.length >= 2 && <EvolucionChart data={chartData} />}
 
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-[#E2E8F0] bg-[#F5F6F8]">
+        <div className="px-5 py-3 border-b border-[#E2E8F0] bg-[#F8F9FA]">
           <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide">
             Historial completo
           </p>
@@ -46,13 +46,13 @@ export function HistorialSellos() {
           {historial.map((sello) => (
             <div
               key={sello.id}
-              className="flex items-center gap-4 px-5 py-3 hover:bg-[#F5F6F8] transition-colors"
+              className="flex items-center gap-4 px-5 py-3 hover:bg-[#F8F9FA] transition-colors"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#EAF3E0] flex items-center justify-center shrink-0">
-                <IconMedal size={16} className="text-[#3D7A35]" />
+              <div className="w-8 h-8 rounded-lg bg-[#EBF5E6] flex items-center justify-center shrink-0">
+                <IconMedal size={16} className="text-[#4B8B2E]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#0D1F3C]">
+                <p className="text-sm font-semibold text-[#0B2545]">
                   {formatPeriodo(sello.periodo)}
                 </p>
                 <div className="flex items-center gap-3 mt-0.5 text-xs text-[#64748B]">
@@ -63,7 +63,7 @@ export function HistorialSellos() {
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <div className="text-right">
-                  <p className="text-lg font-bold text-[#0D1F3C] leading-none">
+                  <p className="text-lg font-bold text-[#0B2545] leading-none">
                     {sello.score_general.toFixed(0)}%
                   </p>
                   <div className="mt-1">
@@ -75,7 +75,7 @@ export function HistorialSellos() {
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Ver certificado público"
-                  className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#3D7A35] hover:bg-[#EAF3E0] transition-colors"
+                  className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#4B8B2E] hover:bg-[#EBF5E6] transition-colors"
                 >
                   <IconExternalLink size={15} />
                 </Link>

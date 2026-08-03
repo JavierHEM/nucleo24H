@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 const PUBLIC_PREFIXES = [
+  "/inicio",
   "/login",
   "/register",
   "/onboarding",
@@ -46,11 +47,21 @@ export async function proxy(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Visitante sin sesión en la raíz → landing público (rewrite, la URL sigue siendo "/")
+  if (!user && pathname === "/") {
+    return NextResponse.rewrite(new URL("/inicio", req.url));
+  }
+
   if (!user && !isPublic(pathname)) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
+  }
+
+  // Usuario autenticado que entra al landing → su panel
+  if (user && pathname === "/inicio") {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   // /admin → solo admin_nucleo

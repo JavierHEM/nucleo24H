@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  /* Nucleo 24H — design system v2.0 */
+  /* Nucleo 24H — design system (paleta logo oficial) */
 
   /* Paleta primaria */
-  --color-navy-dark:    #0D1F3C;
-  --color-navy-mid:     #1A3559;
-  --color-green-dark:   #2D5A27;
-  --color-green-mid:    #3D7A35;
-  --color-green-light:  #EAF3E0;
+  --color-navy-dark:    #0B2545;
+  --color-navy-mid:     #143556;
+  --color-green-dark:   #3A6E24;
+  --color-green-mid:    #4B8B2E;
+  --color-green-light:  #EBF5E6;
 
   /* Sellos — colores exactos por nivel */
   --color-sello-inicial:    #DC2626;
@@ -17,30 +17,30 @@
   --color-sello-premium:    #1C1917;
 
   /* Neutrales */
-  --color-gray-bg:     #F5F6F8;
+  --color-gray-bg:     #F8F9FA;
   --color-gray-border: #E2E8F0;
   --color-gray-text:   #64748B;
 
   /* shadcn/ui tokens — mapeados a paleta Nucleo 24H */
-  --color-background:         #F5F6F8;
-  --color-foreground:         #0D1F3C;
+  --color-background:         #F8F9FA;
+  --color-foreground:         #0B2545;
   --color-card:               #FFFFFF;
-  --color-card-foreground:    #0D1F3C;
+  --color-card-foreground:    #0B2545;
   --color-popover:            #FFFFFF;
-  --color-popover-foreground: #0D1F3C;
-  --color-primary:            #3D7A35;
+  --color-popover-foreground: #0B2545;
+  --color-primary:            #4B8B2E;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary:          #EAF3E0;
-  --color-secondary-foreground: #2D5A27;
+  --color-secondary:          #EBF5E6;
+  --color-secondary-foreground: #3A6E24;
   --color-muted:              #F1F5F9;
   --color-muted-foreground:   #64748B;
-  --color-accent:             #EAF3E0;
-  --color-accent-foreground:  #2D5A27;
+  --color-accent:             #EBF5E6;
+  --color-accent-foreground:  #3A6E24;
   --color-destructive:        #DC2626;
   --color-destructive-foreground: #FFFFFF;
   --color-border:             #E2E8F0;
   --color-input:              #E2E8F0;
-  --color-ring:               #3D7A35;
+  --color-ring:               #4B8B2E;
 
   --radius: 0.5rem;
 
@@ -67,13 +67,13 @@ body {
 
 .sidebar-nav-item:hover {
   color: #FFFFFF;
-  background-color: #1A3559;
+  background-color: #143556;
 }
 
 .sidebar-nav-item.active {
   color: #FFFFFF;
-  background-color: #1A3559;
-  border-left: 3px solid #3D7A35;
+  background-color: #143556;
+  border-left: 3px solid #4B8B2E;
 }
 
 /* Formularios de cocina — inputs grandes para dedos */

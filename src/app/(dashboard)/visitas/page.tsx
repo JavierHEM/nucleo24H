@@ -76,8 +76,8 @@ export default async function VisitasPage() {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <IconMapPin size={16} className="text-[#3D7A35] shrink-0" />
-                    <span className="font-semibold text-[#0D1F3C] text-sm">
+                    <IconMapPin size={16} className="text-[#4B8B2E] shrink-0" />
+                    <span className="font-semibold text-[#0B2545] text-sm">
                       Visita {visita.tipo === "programada" ? "Programada" : "Sorpresa"}
                     </span>
                   </div>
@@ -105,7 +105,7 @@ export default async function VisitasPage() {
 
               {/* Hallazgos */}
               {visita.hallazgos && (
-                <p className="text-sm text-[#334155] mb-4 bg-[#F5F6F8] rounded-lg p-3">
+                <p className="text-sm text-[#334155] mb-4 bg-[#F8F9FA] rounded-lg p-3">
                   {visita.hallazgos}
                 </p>
               )}
@@ -122,7 +122,7 @@ export default async function VisitasPage() {
                           key={nc.id}
                           className={`rounded-xl p-3 text-sm border ${
                             nc.estado === "cerrada"
-                              ? "bg-[#F5F6F8] border-[#E2E8F0] opacity-60"
+                              ? "bg-[#F8F9FA] border-[#E2E8F0] opacity-60"
                               : nc.severidad === "mayor"
                               ? "bg-red-50 border-red-200"
                               : "bg-yellow-50 border-yellow-200"
@@ -138,7 +138,7 @@ export default async function VisitasPage() {
                               />
                             )}
                             <div className="flex-1">
-                              <p className={nc.estado === "cerrada" ? "text-[#64748B] line-through" : "text-[#0D1F3C]"}>
+                              <p className={nc.estado === "cerrada" ? "text-[#64748B] line-through" : "text-[#0B2545]"}>
                                 {nc.descripcion}
                               </p>
                               <div className="flex items-center gap-3 mt-1">
@@ -180,7 +180,7 @@ function PageHeader({
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-[#0D1F3C]">Visitas</h1>
+        <h1 className="text-2xl font-bold text-[#0B2545]">Visitas</h1>
         <p className="text-sm text-[#64748B] mt-1">
           Historial de visitas del asesor y no conformidades
         </p>
@@ -195,10 +195,10 @@ function PageHeader({
 function EmptyState() {
   return (
     <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-      <div className="w-12 h-12 rounded-full bg-[#EAF3E0] flex items-center justify-center mx-auto mb-3">
-        <IconMapPin size={24} className="text-[#3D7A35]" />
+      <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
+        <IconMapPin size={24} className="text-[#4B8B2E]" />
       </div>
-      <p className="font-semibold text-[#0D1F3C]">Sin visitas registradas</p>
+      <p className="font-semibold text-[#0B2545]">Sin visitas registradas</p>
       <p className="text-sm text-[#64748B] mt-1">
         Las visitas de tu asesor aparecerán aquí.
       </p>

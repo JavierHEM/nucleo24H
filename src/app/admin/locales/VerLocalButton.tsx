@@ -33,7 +33,7 @@ export function VerLocalButton({ tenantId }: Props) {
       onClick={handleClick}
       disabled={isPending}
       title="Ver dashboard de este local"
-      className="flex items-center gap-1 text-xs text-[#1A3559] hover:text-[#3D7A35] border border-[#E2E8F0] rounded-lg px-2.5 py-1.5 hover:bg-[#EAF3E0] transition-colors disabled:opacity-50"
+      className="flex items-center gap-1 text-xs text-[#143556] hover:text-[#4B8B2E] border border-[#E2E8F0] rounded-lg px-2.5 py-1.5 hover:bg-[#EBF5E6] transition-colors disabled:opacity-50"
     >
       {isPending ? (
         <IconLoader2 size={13} className="animate-spin" />

@@ -27,10 +27,10 @@ const NIVEL_CONFIG = {
   },
   premium: {
     label: "Premium",
-    color: "text-[#3D7A35]",
-    bg: "bg-[#EAF3E0]",
+    color: "text-[#4B8B2E]",
+    bg: "bg-[#EBF5E6]",
     border: "border-green-200",
-    badge: "bg-[#EAF3E0] text-[#2D5A27]",
+    badge: "bg-[#EBF5E6] text-[#3A6E24]",
   },
 } as const;
 
@@ -59,7 +59,7 @@ export default async function CertificadoPage({ params }: PageProps) {
   const qrDataUrl = await QRCode.toDataURL(certificadoUrl, {
     width: 120,
     margin: 1,
-    color: { dark: "#0D1F3C", light: "#FFFFFF" },
+    color: { dark: "#0B2545", light: "#FFFFFF" },
   });
 
   const nivel = (sello.nivel as NivelKey) in NIVEL_CONFIG ? (sello.nivel as NivelKey) : "inicial";
@@ -78,14 +78,14 @@ export default async function CertificadoPage({ params }: PageProps) {
   });
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header marca */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-9 h-9 rounded-lg bg-[#0D1F3C] flex items-center justify-center">
-            <IconShieldCheck size={20} className="text-[#3D7A35]" />
+          <div className="w-9 h-9 rounded-lg bg-[#0B2545] flex items-center justify-center">
+            <IconShieldCheck size={20} className="text-[#4B8B2E]" />
           </div>
-          <span className="text-lg font-bold text-[#0D1F3C]">Nucleo 24H</span>
+          <span className="text-lg font-bold text-[#0B2545]">Nucleo 24H</span>
         </div>
 
         {/* Certificado */}
@@ -98,7 +98,7 @@ export default async function CertificadoPage({ params }: PageProps) {
                 Sello {config.label}
               </span>
             </div>
-            <p className="text-4xl font-bold text-[#0D1F3C] mt-1">
+            <p className="text-4xl font-bold text-[#0B2545] mt-1">
               {Math.round(sello.score_general)}%
             </p>
             <p className="text-sm text-[#64748B] mt-1 capitalize">{periodoLabel}</p>
@@ -107,7 +107,7 @@ export default async function CertificadoPage({ params }: PageProps) {
           {/* Datos del local */}
           <div className="px-6 py-5 space-y-3">
             <div className="text-center border-b border-[#F1F5F9] pb-4">
-              <p className="font-bold text-[#0D1F3C] text-lg">{sello.tenant.nombre}</p>
+              <p className="font-bold text-[#0B2545] text-lg">{sello.tenant.nombre}</p>
               <div className="flex items-center justify-center gap-1.5 mt-1 text-sm text-[#64748B]">
                 <IconMapPin size={14} />
                 <span>{sello.tenant.ciudad}</span>
@@ -147,9 +147,9 @@ export default async function CertificadoPage({ params }: PageProps) {
 
             {/* Descargos */}
             {sello.descargos_habilitados && (
-              <div className="bg-[#EAF3E0] rounded-xl p-3 flex items-start gap-2">
-                <IconCircleCheck size={16} className="text-[#3D7A35] shrink-0 mt-0.5" />
-                <p className="text-xs text-[#2D5A27]">
+              <div className="bg-[#EBF5E6] rounded-xl p-3 flex items-start gap-2">
+                <IconCircleCheck size={16} className="text-[#4B8B2E] shrink-0 mt-0.5" />
+                <p className="text-xs text-[#3A6E24]">
                   <span className="font-semibold">Descargos habilitados</span> — este local tiene
                   derecho a descargos gratuitos ante la autoridad sanitaria.
                 </p>

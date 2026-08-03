@@ -44,7 +44,7 @@ export function PagarButton({ periodo, monto, disponible }: PagarButtonProps) {
           pagar.mutate({ periodo });
         }}
         disabled={pagar.isPending}
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#3D7A35] text-white hover:bg-[#2D5A27] transition-colors disabled:opacity-60 min-h-12"
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#4B8B2E] text-white hover:bg-[#3A6E24] transition-colors disabled:opacity-60 min-h-12"
       >
         {pagar.isPending ? (
           <IconLoader2 size={18} className="animate-spin" />

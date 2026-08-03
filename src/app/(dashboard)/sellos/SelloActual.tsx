@@ -28,11 +28,11 @@ export function SelloActual({ userRole }: Props) {
   if (!sello) {
     return (
       <div className="rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white p-10 text-center flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-[#EAF3E0] flex items-center justify-center">
-          <IconMedal size={24} className="text-[#3D7A35]" />
+        <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center">
+          <IconMedal size={24} className="text-[#4B8B2E]" />
         </div>
         <div>
-          <p className="font-semibold text-[#0D1F3C]">Sin sello para {periodo}</p>
+          <p className="font-semibold text-[#0B2545]">Sin sello para {periodo}</p>
           <p className="text-sm text-[#64748B] mt-1">
             Tu asesor emitirá el sello al cierre del mes.
           </p>
@@ -65,7 +65,7 @@ export function SelloActual({ userRole }: Props) {
 
       {/* Desglose por categoría */}
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0D1F3C] mb-4">Desglose por categoría</p>
+        <p className="text-sm font-semibold text-[#0B2545] mb-4">Desglose por categoría</p>
         <div className="space-y-3">
           {[
             { label: "Documentación y registros", score: sello.score_documentacion, peso: "30%" },
@@ -76,7 +76,7 @@ export function SelloActual({ userRole }: Props) {
             <div key={cat.label}>
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#0D1F3C]">{cat.label}</span>
+                  <span className="text-sm text-[#0B2545]">{cat.label}</span>
                   <span className="text-xs text-[#64748B]">({cat.peso})</span>
                 </div>
                 <span
@@ -110,13 +110,13 @@ export function SelloActual({ userRole }: Props) {
       {planMejoras.length > 0 && (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
-            <IconListCheck size={18} className="text-[#3D7A35]" />
-            <p className="text-sm font-semibold text-[#0D1F3C]">Plan de mejoras</p>
+            <IconListCheck size={18} className="text-[#4B8B2E]" />
+            <p className="text-sm font-semibold text-[#0B2545]">Plan de mejoras</p>
           </div>
           <div className="space-y-2">
             {planMejoras.map((mejora, i) => (
               <div key={i} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-[#EAF3E0] text-[#2D5A27] text-xs flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                <span className="w-5 h-5 rounded-full bg-[#EBF5E6] text-[#3A6E24] text-xs flex items-center justify-center shrink-0 mt-0.5 font-bold">
                   {i + 1}
                 </span>
                 <p className="text-sm text-[#334155] leading-snug">{mejora}</p>

@@ -55,7 +55,7 @@ export function FormTemperatura({ onSuccess }: Props) {
         <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
           <IconTemperature size={16} className="text-blue-500" />
         </div>
-        <p className="font-semibold text-[#0D1F3C] text-sm">Control de Temperatura</p>
+        <p className="font-semibold text-[#0B2545] text-sm">Control de Temperatura</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -140,7 +140,7 @@ export function FormTemperatura({ onSuccess }: Props) {
         <Button
           type="submit"
           disabled={crearRegistro.isPending}
-          className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+          className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
         >
           {crearRegistro.isPending ? (
             <>

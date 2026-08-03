@@ -27,11 +27,11 @@ export function KpiCard({
     >
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-medium text-[#64748B] leading-tight">{title}</p>
-        <div className="w-8 h-8 rounded-lg bg-[#EAF3E0] flex items-center justify-center">
-          <Icon size={16} className="text-[#3D7A35]" />
+        <div className="w-8 h-8 rounded-lg bg-[#EBF5E6] flex items-center justify-center">
+          <Icon size={16} className="text-[#4B8B2E]" />
         </div>
       </div>
-      <div className="text-2xl font-bold text-[#0D1F3C]">{value}</div>
+      <div className="text-2xl font-bold text-[#0B2545]">{value}</div>
       {description && (
         <p
           className={cn("text-xs mt-1", {

@@ -78,7 +78,7 @@ export function InvitarLocalButton() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
         size="sm"
       >
         <IconPlus size={16} />
@@ -90,7 +90,7 @@ export function InvitarLocalButton() {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0D1F3C]">
+              <p className="font-semibold text-[#0B2545]">
                 {success ? "Local creado" : "Nuevo local"}
               </p>
               <button onClick={handleClose} className="text-[#64748B]">
@@ -101,16 +101,16 @@ export function InvitarLocalButton() {
             {/* Success */}
             {success ? (
               <div className="p-8 text-center">
-                <div className="w-14 h-14 rounded-full bg-[#EAF3E0] flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-4">
                   <IconCircleCheck size={28} className="text-[#16A34A]" />
                 </div>
-                <p className="font-semibold text-[#0D1F3C] mb-1">¡Local creado!</p>
+                <p className="font-semibold text-[#0B2545] mb-1">¡Local creado!</p>
                 <p className="text-sm text-[#64748B]">{success}</p>
                 <p className="text-xs text-[#94A3B8] mt-2">
                   El usuario recibirá un email para configurar su cuenta.
                 </p>
                 <Button
-                  className="mt-6 w-full bg-[#1A3559] hover:bg-[#0D1F3C] text-white"
+                  className="mt-6 w-full bg-[#143556] hover:bg-[#0B2545] text-white"
                   onClick={handleClose}
                 >
                   Cerrar
@@ -172,7 +172,7 @@ export function InvitarLocalButton() {
                     <select
                       id="plan-local"
                       {...register("plan")}
-                      className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                      className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                     >
                       <option value="calidad">Calidad — $80.000/mes</option>
                       <option value="integral">Integral — $150.000/mes</option>
@@ -209,7 +209,7 @@ export function InvitarLocalButton() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                    className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                   >
                     {isSubmitting ? (
                       <>

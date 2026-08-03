@@ -55,7 +55,7 @@ export function NuevaCapacitacionButton() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
         size="sm"
       >
         <IconPlus size={16} />
@@ -66,10 +66,10 @@ export function NuevaCapacitacionButton() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0D1F3C]">Nueva capacitación</p>
+              <p className="font-semibold text-[#0B2545]">Nueva capacitación</p>
               <button
                 onClick={() => { setOpen(false); reset(); }}
-                className="text-[#64748B] hover:text-[#0D1F3C]"
+                className="text-[#64748B] hover:text-[#0B2545]"
               >
                 <IconX size={20} />
               </button>
@@ -125,7 +125,7 @@ export function NuevaCapacitacionButton() {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white"
+                className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
               >
                 {isPending ? "Guardando..." : "✅ Guardar capacitación"}
               </Button>

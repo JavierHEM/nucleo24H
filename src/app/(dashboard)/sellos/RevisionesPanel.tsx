@@ -36,7 +36,7 @@ export function RevisionesPanel() {
     return (
       <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 animate-pulse">
         <div className="h-4 w-40 bg-[#E2E8F0] rounded mb-3" />
-        <div className="h-16 bg-[#F5F6F8] rounded-xl" />
+        <div className="h-16 bg-[#F8F9FA] rounded-xl" />
       </div>
     );
   }
@@ -65,7 +65,7 @@ export function RevisionesPanel() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="font-medium text-sm text-[#0D1F3C]">
+                    <span className="font-medium text-sm text-[#0B2545]">
                       {rev.sello.tenant.nombre}
                     </span>
                     <span className="text-xs text-[#64748B] capitalize">
@@ -97,7 +97,7 @@ export function RevisionesPanel() {
                         setRespuestas((prev) => ({ ...prev, [rev.id]: e.target.value }))
                       }
                       placeholder="Explica el resultado del sello y las acciones recomendadas..."
-                      className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                      className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                     />
                   </div>
 
@@ -113,7 +113,7 @@ export function RevisionesPanel() {
                     onClick={() =>
                       resolver.mutate({ revision_id: rev.id, respuesta: respuesta.trim() })
                     }
-                    className="bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                    className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                   >
                     {resolver.isPending && resolver.variables?.revision_id === rev.id ? (
                       <IconLoader2 size={14} className="animate-spin" />

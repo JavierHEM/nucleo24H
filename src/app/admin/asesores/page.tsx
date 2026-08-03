@@ -31,7 +31,7 @@ export default async function AdminAsesoresPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0D1F3C]">Asesores</h1>
+          <h1 className="text-2xl font-bold text-[#0B2545]">Asesores</h1>
           <p className="text-sm text-[#64748B] mt-1">
             Profesionales Nucleo 24H y sus locales asignados
           </p>
@@ -55,16 +55,16 @@ export default async function AdminAsesoresPage() {
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#1A3559] flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-[#143556] flex items-center justify-center text-white font-bold">
                       {(asesor.nombre ?? asesor.email ?? "A").charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold text-[#0D1F3C]">{asesor.nombre ?? asesor.email}</p>
+                      <p className="font-semibold text-[#0B2545]">{asesor.nombre ?? asesor.email}</p>
                       <p className="text-xs text-[#64748B]">{asesor.email}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-[#0D1F3C]">{localesAsignados.length}</p>
+                    <p className="text-sm font-bold text-[#0B2545]">{localesAsignados.length}</p>
                     <p className="text-xs text-[#64748B]">locales</p>
                   </div>
                 </div>
@@ -74,7 +74,7 @@ export default async function AdminAsesoresPage() {
                     {localesAsignados.map((local) => (
                       <span
                         key={local.id}
-                        className="flex items-center gap-1 text-xs bg-[#EAF3E0] text-[#2D5A27] rounded-full px-3 py-1"
+                        className="flex items-center gap-1 text-xs bg-[#EBF5E6] text-[#3A6E24] rounded-full px-3 py-1"
                       >
                         <IconBuildingStore size={12} />
                         {local.nombre}

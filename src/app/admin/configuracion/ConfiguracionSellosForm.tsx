@@ -89,7 +89,7 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Pesos */}
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0D1F3C] mb-4">Pesos por categoría</p>
+        <p className="text-sm font-semibold text-[#0B2545] mb-4">Pesos por categoría</p>
         <div className="space-y-4">
           {(
             [
@@ -133,7 +133,7 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
 
       {/* Umbrales */}
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0D1F3C] mb-4">Umbrales por nivel</p>
+        <p className="text-sm font-semibold text-[#0B2545] mb-4">Umbrales por nivel</p>
         <div className="space-y-4">
           {(
             [
@@ -166,7 +166,7 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
       <Button
         type="submit"
         disabled={isSubmitting || !isDirty}
-        className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white"
+        className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
       >
         {isSubmitting ? "Guardando..." : "Guardar configuración"}
       </Button>

@@ -38,7 +38,7 @@ export function TopBar({ userName, locales = [], tenantActivo, userRole }: TopBa
     <header className="sticky top-0 z-40 flex items-center justify-between h-14 px-4 md:px-6 bg-white border-b border-[#E2E8F0]">
       {/* Saludo */}
       <div>
-        <p className="text-sm font-semibold text-[#0D1F3C]">{saludo}</p>
+        <p className="text-sm font-semibold text-[#0B2545]">{saludo}</p>
       </div>
 
       {/* Acciones */}
@@ -52,15 +52,15 @@ export function TopBar({ userName, locales = [], tenantActivo, userRole }: TopBa
         <NotificationBell tenantActivo={tenantActivo} />
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-[#EAF3E0] flex items-center justify-center">
-          <IconUser size={16} className="text-[#3D7A35]" />
+        <div className="w-8 h-8 rounded-full bg-[#EBF5E6] flex items-center justify-center">
+          <IconUser size={16} className="text-[#4B8B2E]" />
         </div>
 
         {/* Logout */}
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="p-2 rounded-lg hover:bg-[#F5F6F8] transition-colors text-[#64748B] hover:text-[#DC2626] disabled:opacity-50"
+          className="p-2 rounded-lg hover:bg-[#F8F9FA] transition-colors text-[#64748B] hover:text-[#DC2626] disabled:opacity-50"
           title="Cerrar sesión"
         >
           <IconLogout size={18} />

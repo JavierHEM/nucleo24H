@@ -22,7 +22,7 @@ export default async function CapacitacionesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0D1F3C]">Capacitaciones</h1>
+          <h1 className="text-2xl font-bold text-[#0B2545]">Capacitaciones</h1>
           <p className="text-sm text-[#64748B] mt-1">
             Registro de asistencia y capacitaciones BPM
           </p>
@@ -34,18 +34,18 @@ export default async function CapacitacionesPage() {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4">
           <div className="flex items-center gap-2 mb-2">
-            <IconCalendar size={16} className="text-[#3D7A35]" />
+            <IconCalendar size={16} className="text-[#4B8B2E]" />
             <span className="text-xs text-[#64748B] font-medium">Este mes</span>
           </div>
-          <p className="text-2xl font-bold text-[#0D1F3C]">{registrosMes.length}</p>
+          <p className="text-2xl font-bold text-[#0B2545]">{registrosMes.length}</p>
           <p className="text-xs text-[#64748B]">capacitaciones</p>
         </div>
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4">
           <div className="flex items-center gap-2 mb-2">
-            <IconSchool size={16} className="text-[#3D7A35]" />
+            <IconSchool size={16} className="text-[#4B8B2E]" />
             <span className="text-xs text-[#64748B] font-medium">Total</span>
           </div>
-          <p className="text-2xl font-bold text-[#0D1F3C]">{registrosResult.length}</p>
+          <p className="text-2xl font-bold text-[#0B2545]">{registrosResult.length}</p>
           <p className="text-xs text-[#64748B]">historial completo</p>
         </div>
       </div>
@@ -53,10 +53,10 @@ export default async function CapacitacionesPage() {
       {/* Lista */}
       {registrosResult.length === 0 ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#EAF3E0] flex items-center justify-center mx-auto mb-3">
-            <IconSchool size={24} className="text-[#3D7A35]" />
+          <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
+            <IconSchool size={24} className="text-[#4B8B2E]" />
           </div>
-          <p className="font-semibold text-[#0D1F3C]">Sin capacitaciones registradas</p>
+          <p className="font-semibold text-[#0B2545]">Sin capacitaciones registradas</p>
           <p className="text-sm text-[#64748B] mt-1">
             Registra la asistencia del equipo a cada capacitación.
           </p>
@@ -78,11 +78,11 @@ export default async function CapacitacionesPage() {
               };
               return (
                 <div key={r.id} className="flex items-center gap-4 p-4">
-                  <div className="w-9 h-9 rounded-lg bg-[#EAF3E0] flex items-center justify-center shrink-0">
-                    <IconSchool size={18} className="text-[#3D7A35]" />
+                  <div className="w-9 h-9 rounded-lg bg-[#EBF5E6] flex items-center justify-center shrink-0">
+                    <IconSchool size={18} className="text-[#4B8B2E]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#0D1F3C] truncate">
+                    <p className="text-sm font-medium text-[#0B2545] truncate">
                       {datos.tema ?? "Capacitación BPM"}
                     </p>
                     <div className="flex items-center gap-3 mt-0.5">

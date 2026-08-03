@@ -38,9 +38,9 @@ const TIPO_CONFIG: Record<
   limpieza: {
     label: "Limpieza",
     icon: IconDroplets,
-    bg: "bg-[#EAF3E0]",
-    text: "text-[#2D5A27]",
-    iconColor: "text-[#3D7A35]",
+    bg: "bg-[#EBF5E6]",
+    text: "text-[#3A6E24]",
+    iconColor: "text-[#4B8B2E]",
   },
   plagas: {
     label: "Plagas",
@@ -103,8 +103,8 @@ export function RegistrosList() {
             className={cn(
               "text-sm px-3 py-1.5 rounded-full border transition-colors",
               filtro === f.value
-                ? "bg-[#1A3559] text-white border-[#1A3559]"
-                : "bg-white text-[#334155] border-[#E2E8F0] hover:border-[#1A3559] hover:text-[#1A3559]"
+                ? "bg-[#143556] text-white border-[#143556]"
+                : "bg-white text-[#334155] border-[#E2E8F0] hover:border-[#143556] hover:text-[#143556]"
             )}
           >
             {f.label}
@@ -125,7 +125,7 @@ export function RegistrosList() {
       {!isLoading && (!data || data.length === 0) && (
         <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
           <IconClipboardList size={36} className="mx-auto text-[#E2E8F0] mb-3" />
-          <p className="font-medium text-[#0D1F3C]">No hay registros aún</p>
+          <p className="font-medium text-[#0B2545]">No hay registros aún</p>
           <p className="text-sm text-[#64748B] mt-1">
             Usa el botón &ldquo;Nuevo registro&rdquo; para comenzar.
           </p>
@@ -171,7 +171,7 @@ export function RegistrosList() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm text-[#0D1F3C]">
+                    <p className="font-semibold text-sm text-[#0B2545]">
                       {config.label}
                     </p>
                     <span

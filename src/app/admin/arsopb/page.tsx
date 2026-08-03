@@ -28,7 +28,7 @@ export default async function AdminArsopbPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0D1F3C]">Panel ARSOPB</h1>
+        <h1 className="text-2xl font-bold text-[#0B2545]">Panel ARSOPB</h1>
         <p className="text-sm text-[#64748B] mt-1">
           Gestión de derechos de titulares — Ley 21.719
         </p>
@@ -53,8 +53,8 @@ export default async function AdminArsopbPage() {
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E2E8F0]">
           <div className="flex items-center gap-2">
-            <IconShield size={18} className="text-[#3D7A35]" />
-            <p className="text-sm font-semibold text-[#0D1F3C]">Solicitudes pendientes</p>
+            <IconShield size={18} className="text-[#4B8B2E]" />
+            <p className="text-sm font-semibold text-[#0B2545]">Solicitudes pendientes</p>
           </div>
           <span className="text-xs bg-yellow-100 text-yellow-800 rounded-full px-2 py-0.5 font-medium">
             {solicitudes.length}
@@ -89,7 +89,7 @@ export default async function AdminArsopbPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-[#0D1F3C]">
+                          <span className="text-sm font-semibold text-[#0B2545]">
                             {TIPO_LABEL[s.tipo_derecho] ?? s.tipo_derecho}
                           </span>
                           {s.tenant && (

@@ -57,7 +57,7 @@ export function DocumentosList({ userRole }: Props) {
           type="month"
           value={mes}
           onChange={(e) => setMes(e.target.value)}
-          className="h-9 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#0D1F3C] focus:outline-none focus:ring-2 focus:ring-[#3D7A35]/40"
+          className="h-9 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#0B2545] focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/40"
         />
       </div>
 
@@ -73,10 +73,10 @@ export function DocumentosList({ userRole }: Props) {
       {/* Estado vacío */}
       {!isLoading && (!data || data.length === 0) && (
         <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#F5F6F8] flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 rounded-full bg-[#F8F9FA] flex items-center justify-center mx-auto mb-3">
             <IconFileDescription size={24} className="text-[#94A3B8]" />
           </div>
-          <p className="font-semibold text-[#0D1F3C]">Sin documentos para este período</p>
+          <p className="font-semibold text-[#0B2545]">Sin documentos para este período</p>
           <p className="text-sm text-[#64748B] mt-1">
             Sube documentos con el botón &ldquo;Subir documento&rdquo;.
           </p>
@@ -87,7 +87,7 @@ export function DocumentosList({ userRole }: Props) {
       {data && data.length > 0 && (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
           {/* Header — solo desktop */}
-          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-2.5 bg-[#F5F6F8] border-b border-[#E2E8F0]">
+          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-2.5 bg-[#F8F9FA] border-b border-[#E2E8F0]">
             <span className="text-xs font-semibold text-[#64748B]">Nombre</span>
             <span className="text-xs font-semibold text-[#64748B]">Categoría</span>
             <span className="text-xs font-semibold text-[#64748B]">Vencimiento</span>
@@ -110,13 +110,13 @@ export function DocumentosList({ userRole }: Props) {
                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#F8FAFC] transition-colors"
                 >
                   {/* Ícono */}
-                  <div className="w-9 h-9 rounded-lg bg-[#F5F6F8] flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-[#F8F9FA] flex items-center justify-center shrink-0">
                     <IconFileDescription size={18} className="text-[#64748B]" />
                   </div>
 
                   {/* Nombre + observación */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#0D1F3C] truncate">{doc.nombre}</p>
+                    <p className="text-sm font-medium text-[#0B2545] truncate">{doc.nombre}</p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       <span className="text-xs text-[#94A3B8]">{doc.categoria}</span>
                       {doc.observacion && (
@@ -164,7 +164,7 @@ export function DocumentosList({ userRole }: Props) {
                     href={doc.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#3D7A35] hover:bg-[#EAF3E0] transition-colors shrink-0"
+                    className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#4B8B2E] hover:bg-[#EBF5E6] transition-colors shrink-0"
                     title="Abrir documento"
                   >
                     <IconExternalLink size={15} />

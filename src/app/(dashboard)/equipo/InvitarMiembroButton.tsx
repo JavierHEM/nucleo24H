@@ -60,7 +60,7 @@ export function InvitarMiembroButton() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
         size="sm"
       >
         <IconUserPlus size={16} />
@@ -72,8 +72,8 @@ export function InvitarMiembroButton() {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
-                <IconUserPlus size={18} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C] text-sm">Invitar miembro</p>
+                <IconUserPlus size={18} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545] text-sm">Invitar miembro</p>
               </div>
               <button onClick={handleClose} className="text-[#64748B]">
                 <IconX size={20} />
@@ -82,12 +82,12 @@ export function InvitarMiembroButton() {
 
             {result?.ok ? (
               <div className="p-8 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#EAF3E0] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
                   <IconCircleCheck size={24} className="text-[#16A34A]" />
                 </div>
-                <p className="text-sm font-semibold text-[#0D1F3C]">{result.msg}</p>
+                <p className="text-sm font-semibold text-[#0B2545]">{result.msg}</p>
                 <Button
-                  className="mt-5 bg-[#3D7A35] hover:bg-[#2D5A27] text-white"
+                  className="mt-5 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
                   size="sm"
                   onClick={handleClose}
                 >
@@ -136,11 +136,11 @@ export function InvitarMiembroButton() {
                         onClick={() => setRol(r.value)}
                         className={`rounded-xl border-2 p-3 text-left transition-colors ${
                           rol === r.value
-                            ? "border-[#3D7A35] bg-[#EAF3E0]"
-                            : "border-[#E2E8F0] hover:border-[#3D7A35]/50"
+                            ? "border-[#4B8B2E] bg-[#EBF5E6]"
+                            : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
                         }`}
                       >
-                        <p className={`text-sm font-medium ${rol === r.value ? "text-[#2D5A27]" : "text-[#0D1F3C]"}`}>
+                        <p className={`text-sm font-medium ${rol === r.value ? "text-[#3A6E24]" : "text-[#0B2545]"}`}>
                           {r.label}
                         </p>
                         <p className="text-xs text-[#64748B] mt-0.5">{r.desc}</p>
@@ -168,7 +168,7 @@ export function InvitarMiembroButton() {
                     type="button"
                     disabled={!email || loading}
                     onClick={handleSubmit}
-                    className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                    className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                   >
                     {loading ? (
                       <IconLoader2 size={16} className="animate-spin" />

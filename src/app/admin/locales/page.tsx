@@ -40,7 +40,7 @@ export default async function AdminLocalesPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0D1F3C]">Locales</h1>
+          <h1 className="text-2xl font-bold text-[#0B2545]">Locales</h1>
           <p className="text-sm text-[#64748B] mt-1">
             Gestión de todos los locales suscritos a Nucleo 24H
           </p>
@@ -51,7 +51,7 @@ export default async function AdminLocalesPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-[#0D1F3C]">{locales.length}</p>
+          <p className="text-2xl font-bold text-[#0B2545]">{locales.length}</p>
           <p className="text-xs text-[#64748B]">Total locales</p>
         </div>
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4 text-center">
@@ -73,7 +73,7 @@ export default async function AdminLocalesPage() {
       ) : (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F5F6F8] border-b border-[#E2E8F0]">
+            <thead className="bg-[#F8F9FA] border-b border-[#E2E8F0]">
               <tr>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Local</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B] hidden md:table-cell">RUT</th>
@@ -95,14 +95,14 @@ export default async function AdminLocalesPage() {
                   created_at: Date;
                   _count: { registros: number; sellos: number };
                 }) => (
-                  <tr key={local.id} className="hover:bg-[#F5F6F8] transition-colors">
+                  <tr key={local.id} className="hover:bg-[#F8F9FA] transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#EAF3E0] flex items-center justify-center shrink-0">
-                          <IconBuildingStore size={16} className="text-[#3D7A35]" />
+                        <div className="w-8 h-8 rounded-lg bg-[#EBF5E6] flex items-center justify-center shrink-0">
+                          <IconBuildingStore size={16} className="text-[#4B8B2E]" />
                         </div>
                         <div>
-                          <p className="font-medium text-[#0D1F3C]">{local.nombre}</p>
+                          <p className="font-medium text-[#0B2545]">{local.nombre}</p>
                           <p className="text-xs text-[#64748B]">{formatDate(local.created_at)}</p>
                         </div>
                       </div>
@@ -112,8 +112,8 @@ export default async function AdminLocalesPage() {
                       <span
                         className={`text-xs rounded-full px-2 py-0.5 font-medium capitalize ${
                           local.plan === "integral"
-                            ? "bg-[#1A3559] text-white"
-                            : "bg-[#EAF3E0] text-[#2D5A27]"
+                            ? "bg-[#143556] text-white"
+                            : "bg-[#EBF5E6] text-[#3A6E24]"
                         }`}
                       >
                         {local.plan}

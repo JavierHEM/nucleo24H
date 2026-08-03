@@ -42,10 +42,10 @@ export function SolicitarDerechoButton({ tipo, label, desc }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-3 p-3 rounded-xl border border-[#E2E8F0] bg-[#F5F6F8] hover:bg-[#EAF3E0] hover:border-green-200 transition-colors text-left"
+        className="flex items-center gap-3 p-3 rounded-xl border border-[#E2E8F0] bg-[#F8F9FA] hover:bg-[#EBF5E6] hover:border-green-200 transition-colors text-left"
       >
         <div className="flex-1">
-          <p className="text-sm font-medium text-[#0D1F3C]">{label}</p>
+          <p className="text-sm font-medium text-[#0B2545]">{label}</p>
           <p className="text-xs text-[#64748B] mt-0.5">{desc}</p>
         </div>
         <IconChevronRight size={16} className="text-[#64748B] shrink-0" />
@@ -55,7 +55,7 @@ export function SolicitarDerechoButton({ tipo, label, desc }: Props) {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0D1F3C]">Solicitud: {label}</p>
+              <p className="font-semibold text-[#0B2545]">Solicitud: {label}</p>
               <button onClick={() => setOpen(false)} className="text-[#64748B]">
                 <IconX size={20} />
               </button>
@@ -74,7 +74,7 @@ export function SolicitarDerechoButton({ tipo, label, desc }: Props) {
                   <p className="text-sm text-[#64748B]">{desc}</p>
 
                   <div>
-                    <label className="text-sm font-medium text-[#0D1F3C] block mb-2">
+                    <label className="text-sm font-medium text-[#0B2545] block mb-2">
                       Detalle adicional (opcional)
                     </label>
                     <textarea
@@ -82,18 +82,18 @@ export function SolicitarDerechoButton({ tipo, label, desc }: Props) {
                       onChange={(e) => setDetalle(e.target.value)}
                       placeholder="Describe con más detalle tu solicitud..."
                       rows={3}
-                      className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                      className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                     />
                   </div>
 
-                  <div className="bg-[#EAF3E0] rounded-lg p-3 text-xs text-[#2D5A27]">
+                  <div className="bg-[#EBF5E6] rounded-lg p-3 text-xs text-[#3A6E24]">
                     El plazo de respuesta es de <strong>30 días corridos</strong> desde la recepción (Art. 6°, Ley 21.719).
                   </div>
 
                   <Button
                     onClick={() => mutateAsync({ tipo_derecho: tipo, detalle: detalle || undefined })}
                     disabled={isPending}
-                    className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                    className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                   >
                     <IconSend size={16} />
                     {isPending ? "Enviando..." : "Enviar solicitud"}

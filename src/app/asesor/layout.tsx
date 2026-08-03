@@ -29,7 +29,7 @@ export default async function AsesorLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F5F6F8]">
+    <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
       <Sidebar userRole={dbUser.rol as "asesor" | "admin_nucleo"} mode="asesor" />
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar userName={dbUser.nombre} />

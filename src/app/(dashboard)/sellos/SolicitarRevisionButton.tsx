@@ -27,7 +27,7 @@ export function SolicitarRevisionButton({ selloId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-[#64748B] hover:text-[#0D1F3C] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F5F6F8] transition-colors flex items-center gap-1.5"
+        className="text-xs text-[#64748B] hover:text-[#0B2545] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F8F9FA] transition-colors flex items-center gap-1.5"
       >
         <IconMessageQuestion size={14} />
         Solicitar revisión
@@ -39,9 +39,9 @@ export function SolicitarRevisionButton({ selloId }: Props) {
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
                 <IconMessageQuestion size={20} className="text-amber-500" />
-                <p className="font-semibold text-[#0D1F3C]">Solicitar revisión del sello</p>
+                <p className="font-semibold text-[#0B2545]">Solicitar revisión del sello</p>
               </div>
-              <button onClick={() => { setOpen(false); setMotivo(""); reset(); }} className="text-[#64748B] hover:text-[#0D1F3C]">
+              <button onClick={() => { setOpen(false); setMotivo(""); reset(); }} className="text-[#64748B] hover:text-[#0B2545]">
                 <IconX size={20} />
               </button>
             </div>
@@ -60,7 +60,7 @@ export function SolicitarRevisionButton({ selloId }: Props) {
                   value={motivo}
                   onChange={(e) => setMotivo(e.target.value)}
                   placeholder="Ej: Los documentos de limpieza estaban actualizados pero no fueron considerados..."
-                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                 />
                 <p className="text-xs text-[#94A3B8] mt-1 text-right">{motivo.length}/10 mín.</p>
               </div>

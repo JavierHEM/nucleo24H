@@ -33,7 +33,7 @@ export const SELLO_CONFIG: Record<NivelSello, SelloConfig> = {
     label: "Avanzado",
     color: "text-[#16A34A]",
     bg: "bg-green-100 text-green-800",
-    bgCard: "bg-[#EAF3E0]",
+    bgCard: "bg-[#EBF5E6]",
     border: "border-l-[#16A34A]",
     progressBar: "bg-[#16A34A]",
   },

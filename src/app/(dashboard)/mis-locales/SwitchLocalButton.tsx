@@ -27,7 +27,7 @@ export function SwitchLocalButton({ tenantId }: Props) {
     <button
       onClick={handleSwitch}
       disabled={isPending}
-      className="w-full text-center text-xs font-medium text-[#3D7A35] border border-[#3D7A35] rounded-lg py-2 hover:bg-[#EAF3E0] transition-colors disabled:opacity-50"
+      className="w-full text-center text-xs font-medium text-[#4B8B2E] border border-[#4B8B2E] rounded-lg py-2 hover:bg-[#EBF5E6] transition-colors disabled:opacity-50"
     >
       {isPending ? "Cambiando..." : "Ir a este local →"}
     </button>

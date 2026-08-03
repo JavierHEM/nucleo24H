@@ -17,8 +17,8 @@ export default async function ComunicacionesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0D1F3C] flex items-center gap-2">
-            <IconMessage2 size={26} className="text-[#3D7A35]" />
+          <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
+            <IconMessage2 size={26} className="text-[#4B8B2E]" />
             Comunicaciones
           </h1>
           <p className="text-sm text-[#64748B] mt-1">

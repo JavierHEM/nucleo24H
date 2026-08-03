@@ -105,11 +105,11 @@ dentro de un círculo tipo reloj (continuidad, seguimiento 24h).
 
 ```css
 /* Primarios — usar en headers, botones principales, badges de sello */
---color-navy-dark:   #0D1F3C;   /* azul marino oscuro — textos principales */
---color-navy-mid:    #1A3559;   /* azul marino medio — headers, sidebar */
---color-green-dark:  #2D5A27;   /* verde oscuro — acentos, éxito */
---color-green-mid:   #3D7A35;   /* verde medio — botones primarios, sellos */
---color-green-light: #EAF3E0;   /* verde claro — backgrounds de éxito */
+--color-navy-dark:   #0B2545;   /* azul marino oscuro — textos principales */
+--color-navy-mid:    #143556;   /* azul marino medio — headers, sidebar */
+--color-green-dark:  #3A6E24;   /* verde oscuro — acentos, éxito */
+--color-green-mid:   #4B8B2E;   /* verde medio — botones primarios, sellos */
+--color-green-light: #EBF5E6;   /* verde claro — backgrounds de éxito */
 
 /* Sellos — colores exactos por nivel */
 --sello-inicial:     #DC2626;   /* rojo */
@@ -118,7 +118,7 @@ dentro de un círculo tipo reloj (continuidad, seguimiento 24h).
 --sello-premium:     #1C1917;   /* negro casi */
 
 /* Neutrales */
---color-gray-bg:     #F5F6F8;   /* fondo general de la app */
+--color-gray-bg:     #F8F9FA;   /* fondo general de la app */
 --color-gray-border: #E2E8F0;   /* bordes de tarjetas */
 --color-gray-text:   #64748B;   /* texto secundario */
 --color-white:       #FFFFFF;
@@ -137,9 +137,9 @@ dentro de un círculo tipo reloj (continuidad, seguimiento 24h).
 font-family: 'Inter', sans-serif;
 
 /* Jerarquía */
-h1: 2rem    / 700 / #0D1F3C   /* títulos de página */
-h2: 1.5rem  / 600 / #1A3559   /* secciones */
-h3: 1.125rem/ 600 / #2D5A27   /* subsecciones */
+h1: 2rem    / 700 / #0B2545   /* títulos de página */
+h2: 1.5rem  / 600 / #143556   /* secciones */
+h3: 1.125rem/ 600 / #3A6E24   /* subsecciones */
 body: 1rem  / 400 / #334155   /* texto general */
 small: 0.875rem / 400 / #64748B /* metadatos, fechas */
 ```
@@ -147,9 +147,9 @@ small: 0.875rem / 400 / #64748B /* metadatos, fechas */
 ### Componentes clave de UI
 
 **Sidebar (escritorio):**
-- Fondo: `#0D1F3C` (navy dark)
+- Fondo: `#0B2545` (navy dark)
 - Texto items: blanco con opacidad 0.7
-- Item activo: fondo `#1A3559`, texto blanco, borde izquierdo `#3D7A35` 3px
+- Item activo: fondo `#143556`, texto blanco, borde izquierdo `#4B8B2E` 3px
 - Logo arriba, nombre del local y ciudad abajo
 - En móvil: se convierte en bottom navigation bar de 5 íconos
 
@@ -779,7 +779,7 @@ model IncidenteSeguridad {
 ### Al generar componentes UI
 
 - Usar siempre shadcn/ui antes de crear un componente custom.
-- Paleta de colores: navy dark `#0D1F3C`, verde `#3D7A35` — nunca azul genérico.
+- Paleta de colores: navy dark `#0B2545`, verde `#4B8B2E` — nunca azul genérico.
 - Mobile-first: todos los componentes del dashboard deben funcionar en 360px.
 - Formularios: inputs grandes (min-h-12) para uso con dedos en cocina.
 - Íconos: solo Tabler Icons. Nunca Heroicons ni Lucide fuera de shadcn.

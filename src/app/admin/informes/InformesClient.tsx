@@ -15,7 +15,7 @@ const NIVEL_COLORS: Record<string, string> = {
   inicial: "bg-red-100 text-red-700",
   intermedio: "bg-yellow-100 text-yellow-700",
   avanzado: "bg-blue-100 text-blue-700",
-  premium: "bg-[#3D7A35]/10 text-[#3D7A35]",
+  premium: "bg-[#4B8B2E]/10 text-[#4B8B2E]",
 };
 
 const NIVEL_LABEL: Record<string, string> = {
@@ -113,7 +113,7 @@ export function InformesClient() {
         {/* Historial de sellos */}
         <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 mb-4">
           <h3 className="font-semibold text-[#0D2137] mb-4 flex items-center gap-2">
-            <IconChartBar size={18} className="text-[#3D7A35]" />
+            <IconChartBar size={18} className="text-[#4B8B2E]" />
             Historial de Sellos
           </h3>
           {detalle.sellosHistorial.length === 0 ? (
@@ -221,7 +221,7 @@ export function InformesClient() {
           <select
             value={periodo}
             onChange={(e) => setPeriodo(e.target.value)}
-            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] text-sm text-[#334155] focus:outline-none focus:ring-2 focus:ring-[#3D7A35]/30"
+            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] text-sm text-[#334155] focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30"
           >
             {periodos.map((p) => (
               <option key={p} value={p}>
@@ -240,7 +240,7 @@ export function InformesClient() {
         </div>
         <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4">
           <p className="text-xs text-[#94A3B8] mb-1">Con sello emitido</p>
-          <p className="text-2xl font-bold text-[#3D7A35]">{conSello}</p>
+          <p className="text-2xl font-bold text-[#4B8B2E]">{conSello}</p>
           <p className="text-xs text-[#94A3B8]">de {totalLocales}</p>
         </div>
         <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4">
@@ -261,14 +261,14 @@ export function InformesClient() {
       <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
         <div className="p-5 border-b border-[#F1F5F9]">
           <h2 className="font-semibold text-[#0D2137] flex items-center gap-2">
-            <IconBuilding size={18} className="text-[#3D7A35]" />
+            <IconBuilding size={18} className="text-[#4B8B2E]" />
             Detalle por local
           </h2>
         </div>
 
         {isLoading ? (
           <div className="p-12 text-center">
-            <div className="w-8 h-8 border-2 border-[#3D7A35] border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-2 border-[#4B8B2E] border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
         ) : !locales || locales.length === 0 ? (
           <div className="p-12 text-center text-[#94A3B8]">

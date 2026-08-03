@@ -18,8 +18,8 @@ export default async function AdminPagosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0D1F3C] flex items-center gap-2">
-          <IconCreditCard size={26} className="text-[#3D7A35]" />
+        <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
+          <IconCreditCard size={26} className="text-[#4B8B2E]" />
           Pagos y Cobranza
         </h1>
         <p className="text-sm text-[#64748B] mt-1 capitalize">
@@ -38,7 +38,7 @@ export default async function AdminPagosPage() {
           <p className="text-xs text-[#64748B]">Por cobrar</p>
         </div>
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-[#0D1F3C]">{formatCLP(recaudado)}</p>
+          <p className="text-2xl font-bold text-[#0B2545]">{formatCLP(recaudado)}</p>
           <p className="text-xs text-[#64748B]">Recaudado este mes</p>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default async function AdminPagosPage() {
       ) : (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F5F6F8] border-b border-[#E2E8F0]">
+            <thead className="bg-[#F8F9FA] border-b border-[#E2E8F0]">
               <tr>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Local</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Plan</th>
@@ -66,14 +66,14 @@ export default async function AdminPagosPage() {
                 const pago = local.pagoPeriodo;
                 const pagado = pago?.estado === "pagado";
                 return (
-                  <tr key={local.id} className="hover:bg-[#F5F6F8] transition-colors">
+                  <tr key={local.id} className="hover:bg-[#F8F9FA] transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#EAF3E0] flex items-center justify-center shrink-0">
-                          <IconBuildingStore size={16} className="text-[#3D7A35]" />
+                        <div className="w-8 h-8 rounded-lg bg-[#EBF5E6] flex items-center justify-center shrink-0">
+                          <IconBuildingStore size={16} className="text-[#4B8B2E]" />
                         </div>
                         <div>
-                          <p className="font-medium text-[#0D1F3C]">{local.nombre}</p>
+                          <p className="font-medium text-[#0B2545]">{local.nombre}</p>
                           {local.suscripcion?.estado &&
                             local.suscripcion.estado !== "activa" && (
                               <p className="text-xs text-[#DC2626] capitalize">
@@ -88,14 +88,14 @@ export default async function AdminPagosPage() {
                         className={cn(
                           "text-xs rounded-full px-2 py-0.5 font-medium capitalize",
                           local.plan === "integral"
-                            ? "bg-[#1A3559] text-white"
-                            : "bg-[#EAF3E0] text-[#2D5A27]"
+                            ? "bg-[#143556] text-white"
+                            : "bg-[#EBF5E6] text-[#3A6E24]"
                         )}
                       >
                         {local.plan}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-[#0D1F3C] hidden md:table-cell">
+                    <td className="px-4 py-3 text-right text-[#0B2545] hidden md:table-cell">
                       {formatCLP(local.montoMensual)}
                     </td>
                     <td className="px-4 py-3">

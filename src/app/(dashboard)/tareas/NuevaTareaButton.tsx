@@ -45,7 +45,7 @@ export function NuevaTareaButton() {
       <Button
         onClick={() => setOpen(true)}
         size="sm"
-        className="bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2"
+        className="bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
       >
         <IconPlus size={16} />
         Nueva tarea
@@ -55,7 +55,7 @@ export function NuevaTareaButton() {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0D1F3C]">Nueva tarea</p>
+              <p className="font-semibold text-[#0B2545]">Nueva tarea</p>
               <button onClick={() => setOpen(false)} className="text-[#64748B]">
                 <IconX size={20} />
               </button>
@@ -90,7 +90,7 @@ export function NuevaTareaButton() {
                 <select
                   id="frec-t"
                   {...register("frecuencia")}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                 >
                   <option value="diaria">Diaria</option>
                   <option value="semanal">Semanal</option>
@@ -114,7 +114,7 @@ export function NuevaTareaButton() {
                 <Button
                   type="submit"
                   disabled={crear.isPending}
-                  className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                 >
                   {crear.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

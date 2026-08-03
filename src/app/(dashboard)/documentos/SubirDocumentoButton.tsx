@@ -163,7 +163,7 @@ export function SubirDocumentoButton() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
         size="sm"
       >
         <IconUpload size={16} />
@@ -175,8 +175,8 @@ export function SubirDocumentoButton() {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] sticky top-0 bg-white rounded-t-2xl">
-              <p className="font-semibold text-[#0D1F3C]">Subir documento</p>
-              <button onClick={handleClose} className="text-[#64748B] hover:text-[#0D1F3C]">
+              <p className="font-semibold text-[#0B2545]">Subir documento</p>
+              <button onClick={handleClose} className="text-[#64748B] hover:text-[#0B2545]">
                 <IconX size={20} />
               </button>
             </div>
@@ -197,7 +197,7 @@ export function SubirDocumentoButton() {
                 {uploadState.status === "idle" && (
                   <label
                     htmlFor="file-upload"
-                    className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[#E2E8F0] rounded-xl p-6 cursor-pointer hover:border-[#3D7A35] hover:bg-[#EAF3E0]/30 transition-colors"
+                    className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[#E2E8F0] rounded-xl p-6 cursor-pointer hover:border-[#4B8B2E] hover:bg-[#EBF5E6]/30 transition-colors"
                   >
                     <IconUpload size={24} className="text-[#64748B]" />
                     <p className="text-sm text-[#64748B]">Haz clic para seleccionar</p>
@@ -208,14 +208,14 @@ export function SubirDocumentoButton() {
                 {uploadState.status === "uploading" && (
                   <div className="border border-[#E2E8F0] rounded-xl p-4">
                     <div className="flex items-center gap-3 mb-2">
-                      <IconLoader2 size={18} className="text-[#3D7A35] animate-spin" />
-                      <span className="text-sm text-[#0D1F3C]">
+                      <IconLoader2 size={18} className="text-[#4B8B2E] animate-spin" />
+                      <span className="text-sm text-[#0B2545]">
                         Subiendo... {uploadState.progress}%
                       </span>
                     </div>
                     <div className="h-2 rounded-full bg-[#E2E8F0] overflow-hidden">
                       <div
-                        className="h-full bg-[#3D7A35] rounded-full transition-all duration-300"
+                        className="h-full bg-[#4B8B2E] rounded-full transition-all duration-300"
                         style={{ width: `${uploadState.progress}%` }}
                       />
                     </div>
@@ -223,10 +223,10 @@ export function SubirDocumentoButton() {
                 )}
 
                 {uploadState.status === "done" && (
-                  <div className="flex items-center gap-3 border border-green-200 bg-[#EAF3E0] rounded-xl p-3">
+                  <div className="flex items-center gap-3 border border-green-200 bg-[#EBF5E6] rounded-xl p-3">
                     <IconCircleCheck size={18} className="text-[#16A34A] shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#0D1F3C] truncate">
+                      <p className="text-sm font-medium text-[#0B2545] truncate">
                         {uploadState.filename}
                       </p>
                       <p className="text-xs text-[#16A34A]">Archivo subido correctamente</p>
@@ -278,7 +278,7 @@ export function SubirDocumentoButton() {
                 <select
                   id="categoria"
                   {...register("categoria")}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                 >
                   <option value="">Seleccionar...</option>
                   {CATEGORIAS.map((c) => (
@@ -300,7 +300,7 @@ export function SubirDocumentoButton() {
                     id="mes"
                     type="month"
                     {...register("mes")}
-                    className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                    className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                   />
                 </div>
                 <div>
@@ -333,7 +333,7 @@ export function SubirDocumentoButton() {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white"
+                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
                   disabled={uploadState.status !== "done" || subir.isPending}
                 >
                   {subir.isPending ? (

@@ -71,23 +71,23 @@ function OnboardingForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F6F8] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#0D1F3C] flex items-center justify-center">
-            <IconShieldCheck size={22} className="text-[#3D7A35]" />
+          <div className="w-10 h-10 rounded-xl bg-[#0B2545] flex items-center justify-center">
+            <IconShieldCheck size={22} className="text-[#4B8B2E]" />
           </div>
-          <span className="text-xl font-bold text-[#0D1F3C]">Nucleo 24H</span>
+          <span className="text-xl font-bold text-[#0B2545]">Nucleo 24H</span>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
           {step === "done" ? (
             <div className="p-10 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#EAF3E0] flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-4">
                 <IconShieldCheck size={28} className="text-[#16A34A]" />
               </div>
-              <h2 className="text-lg font-bold text-[#0D1F3C] mb-1">
+              <h2 className="text-lg font-bold text-[#0B2545] mb-1">
                 ¡Cuenta configurada!
               </h2>
               <p className="text-sm text-[#64748B]">
@@ -97,7 +97,7 @@ function OnboardingForm() {
           ) : (
             <>
               {/* Header */}
-              <div className="bg-[#0D1F3C] px-6 py-5">
+              <div className="bg-[#0B2545] px-6 py-5">
                 <h1 className="text-white font-bold text-lg">Bienvenido a Nucleo 24H</h1>
                 <p className="text-white/60 text-sm mt-0.5">
                   Configura tu cuenta para comenzar
@@ -178,7 +178,7 @@ function OnboardingForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                  className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -200,8 +200,8 @@ function OnboardingForm() {
 export default function OnboardingPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F6F8]">
-        <div className="w-8 h-8 border-2 border-[#3D7A35] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
+        <div className="w-8 h-8 border-2 border-[#4B8B2E] border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <OnboardingForm />

@@ -130,8 +130,8 @@ export function BottomNav({ userRole, mode = "dashboard" }: BottomNavProps) {
               className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg min-w-[56px] transition-colors
                 ${
                   isActive
-                    ? "text-[#3D7A35]"
-                    : "text-[#64748B] hover:text-[#0D1F3C]"
+                    ? "text-[#4B8B2E]"
+                    : "text-[#64748B] hover:text-[#0B2545]"
                 }`}
             >
               <Icon size={22} />

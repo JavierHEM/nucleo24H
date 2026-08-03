@@ -59,7 +59,7 @@ export function AgregarSucursalButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs text-[#1A3559] font-medium hover:text-[#3D7A35] transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#143556] font-medium hover:text-[#4B8B2E] transition-colors"
         title="Agregar sucursal de esta empresa"
       >
         <IconBuildingPlus size={14} />
@@ -71,8 +71,8 @@ export function AgregarSucursalButton({
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
-                <IconBuildingPlus size={18} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C] text-sm">Agregar sucursal</p>
+                <IconBuildingPlus size={18} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545] text-sm">Agregar sucursal</p>
               </div>
               <button onClick={() => setOpen(false)} className="text-[#64748B]">
                 <IconX size={20} />
@@ -80,9 +80,9 @@ export function AgregarSucursalButton({
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-[#F5F6F8] rounded-xl p-3">
+              <div className="bg-[#F8F9FA] rounded-xl p-3">
                 <p className="text-xs text-[#64748B]">Casa central</p>
-                <p className="text-sm font-semibold text-[#0D1F3C]">{casaCentralNombre}</p>
+                <p className="text-sm font-semibold text-[#0B2545]">{casaCentralNombre}</p>
                 <p className="text-xs text-[#64748B] mt-0.5">RUT {rut} (compartido)</p>
               </div>
 
@@ -120,8 +120,8 @@ export function AgregarSucursalButton({
                       onClick={() => setPlan(p)}
                       className={`rounded-xl border-2 p-2.5 text-sm font-medium capitalize transition-colors ${
                         plan === p
-                          ? "border-[#3D7A35] bg-[#EAF3E0] text-[#2D5A27]"
-                          : "border-[#E2E8F0] text-[#64748B] hover:border-[#3D7A35]/50"
+                          ? "border-[#4B8B2E] bg-[#EBF5E6] text-[#3A6E24]"
+                          : "border-[#E2E8F0] text-[#64748B] hover:border-[#4B8B2E]/50"
                       }`}
                     >
                       {p}
@@ -153,7 +153,7 @@ export function AgregarSucursalButton({
                     crear.isPending
                   }
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                 >
                   {crear.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

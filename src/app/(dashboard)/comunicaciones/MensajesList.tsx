@@ -86,7 +86,7 @@ export function MensajesList({ userId, tenantId }: Props) {
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex items-center justify-center">
-        <IconLoader2 size={24} className="animate-spin text-[#3D7A35]" />
+        <IconLoader2 size={24} className="animate-spin text-[#4B8B2E]" />
       </div>
     );
   }
@@ -94,10 +94,10 @@ export function MensajesList({ userId, tenantId }: Props) {
   if (!mensajes || mensajes.length === 0) {
     return (
       <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-        <div className="w-12 h-12 rounded-full bg-[#EAF3E0] flex items-center justify-center mx-auto mb-3">
-          <IconMessage2 size={24} className="text-[#3D7A35]" />
+        <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
+          <IconMessage2 size={24} className="text-[#4B8B2E]" />
         </div>
-        <p className="font-semibold text-[#0D1F3C]">Sin mensajes</p>
+        <p className="font-semibold text-[#0B2545]">Sin mensajes</p>
         <p className="text-sm text-[#64748B] mt-1">
           Usa el botón &ldquo;Nuevo mensaje&rdquo; para contactar a tu asesor o equipo.
         </p>
@@ -143,7 +143,7 @@ export function MensajesList({ userId, tenantId }: Props) {
                   className={`flex gap-2 items-end mb-2 ${esPropio ? "justify-end" : "justify-start"}`}
                 >
                   {!esPropio && (
-                    <div className="w-7 h-7 rounded-full bg-[#1A3559] flex items-center justify-center shrink-0 text-white text-xs font-bold mb-1">
+                    <div className="w-7 h-7 rounded-full bg-[#143556] flex items-center justify-center shrink-0 text-white text-xs font-bold mb-1">
                       {inicial}
                     </div>
                   )}
@@ -158,8 +158,8 @@ export function MensajesList({ userId, tenantId }: Props) {
                     <div
                       className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                         esPropio
-                          ? "bg-[#1A3559] text-white rounded-br-sm"
-                          : "bg-[#F5F6F8] text-[#0D1F3C] rounded-bl-sm"
+                          ? "bg-[#143556] text-white rounded-br-sm"
+                          : "bg-[#F8F9FA] text-[#0B2545] rounded-bl-sm"
                       }`}
                     >
                       {m.contenido}
@@ -171,7 +171,7 @@ export function MensajesList({ userId, tenantId }: Props) {
                       </span>
                       {esPropio && (
                         m.leido
-                          ? <IconChecks size={12} className="text-[#3D7A35]" />
+                          ? <IconChecks size={12} className="text-[#4B8B2E]" />
                           : <IconCheck size={12} className="text-[#94A3B8]" />
                       )}
                     </div>

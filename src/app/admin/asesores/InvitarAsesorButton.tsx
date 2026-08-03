@@ -55,7 +55,7 @@ export function InvitarAsesorButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3D7A35] text-white text-sm font-medium hover:bg-[#336B2C] transition-colors"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#4B8B2E] text-white text-sm font-medium hover:bg-[#336B2C] transition-colors"
       >
         <IconUserPlus size={16} />
         Invitar asesor
@@ -82,8 +82,8 @@ export function InvitarAsesorButton() {
 
             {success ? (
               <div className="text-center py-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#3D7A35]/10 mb-3">
-                  <IconCircleCheck size={28} className="text-[#3D7A35]" />
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#4B8B2E]/10 mb-3">
+                  <IconCircleCheck size={28} className="text-[#4B8B2E]" />
                 </div>
                 <p className="font-semibold text-[#0D2137]">Invitación enviada</p>
                 <p className="text-sm text-[#64748B] mt-1">{success}</p>
@@ -100,7 +100,7 @@ export function InvitarAsesorButton() {
                       type="text"
                       placeholder="María González"
                       {...register("nombre")}
-                      className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-[#0D2137] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]/30 focus:border-[#3D7A35] transition"
+                      className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-[#0D2137] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E] transition"
                     />
                   </div>
                   {errors.nombre && (
@@ -118,7 +118,7 @@ export function InvitarAsesorButton() {
                       type="email"
                       placeholder="asesor@nucleosur.cl"
                       {...register("email")}
-                      className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-[#0D2137] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]/30 focus:border-[#3D7A35] transition"
+                      className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-[#0D2137] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E] transition"
                     />
                   </div>
                   {errors.email && (
@@ -126,7 +126,7 @@ export function InvitarAsesorButton() {
                   )}
                 </div>
 
-                <div className="bg-[#EAF3E0] rounded-xl p-3 text-xs text-[#2D5A27]">
+                <div className="bg-[#EBF5E6] rounded-xl p-3 text-xs text-[#3A6E24]">
                   El asesor recibirá un enlace para activar su cuenta y establecer una contraseña.
                   Su rol quedará configurado como <strong>asesor</strong>.
                 </div>
@@ -148,7 +148,7 @@ export function InvitarAsesorButton() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 py-2.5 rounded-xl bg-[#3D7A35] text-white text-sm font-medium hover:bg-[#336B2C] transition disabled:opacity-60"
+                    className="flex-1 py-2.5 rounded-xl bg-[#4B8B2E] text-white text-sm font-medium hover:bg-[#336B2C] transition disabled:opacity-60"
                   >
                     {isSubmitting ? "Enviando..." : "Enviar invitación"}
                   </button>

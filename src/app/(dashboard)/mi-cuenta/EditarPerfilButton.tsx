@@ -111,7 +111,7 @@ export function EditarPerfilButton({ nombreActual }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-sm text-[#1A3559] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F5F6F8] transition-colors"
+        className="flex items-center gap-1.5 text-sm text-[#143556] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F8F9FA] transition-colors"
       >
         <IconPencil size={14} />
         Editar perfil
@@ -122,8 +122,8 @@ export function EditarPerfilButton({ nombreActual }: Props) {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0D1F3C]">Editar perfil</p>
-              <button onClick={handleClose} className="text-[#64748B] hover:text-[#0D1F3C]">
+              <p className="font-semibold text-[#0B2545]">Editar perfil</p>
+              <button onClick={handleClose} className="text-[#64748B] hover:text-[#0B2545]">
                 <IconX size={20} />
               </button>
             </div>
@@ -139,8 +139,8 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                   onClick={() => { setTab(id); setSuccess(null); setServerError(null); }}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
                     tab === id
-                      ? "border-[#3D7A35] text-[#3D7A35]"
-                      : "border-transparent text-[#64748B] hover:text-[#0D1F3C]"
+                      ? "border-[#4B8B2E] text-[#4B8B2E]"
+                      : "border-transparent text-[#64748B] hover:text-[#0B2545]"
                   }`}
                 >
                   <Icon size={15} />
@@ -183,7 +183,7 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                   <Button
                     type="submit"
                     disabled={submittingNombre}
-                    className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                    className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                   >
                     {submittingNombre ? (
                       <IconLoader2 size={16} className="animate-spin" />
@@ -227,7 +227,7 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                   <Button
                     type="submit"
                     disabled={loadingPwd}
-                    className="w-full min-h-12 bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2"
+                    className="w-full min-h-12 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
                   >
                     {loadingPwd ? (
                       <IconLoader2 size={16} className="animate-spin" />

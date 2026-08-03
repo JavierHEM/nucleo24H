@@ -137,7 +137,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0D1F3C]">{tenantNombre}</h1>
+          <h1 className="text-2xl font-bold text-[#0B2545]">{tenantNombre}</h1>
           <p className="text-sm text-[#64748B] mt-1">
             Resumen de cumplimiento — {periodoActual}
           </p>
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
         {(userRole === "asesor" || userRole === "admin_nucleo") && (
           <Link
             href={userRole === "asesor" ? "/asesor/informes" : "/admin/informes"}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0D2137] text-white text-sm font-medium hover:bg-[#1A3559] transition-colors shrink-0"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0D2137] text-white text-sm font-medium hover:bg-[#143556] transition-colors shrink-0"
           >
             <IconChartBar size={16} />
             <span className="hidden sm:inline">Informes</span>
@@ -168,11 +168,11 @@ export default async function DashboardPage() {
             </Link>
           ) : (
             <div className="rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white p-8 text-center flex flex-col items-center justify-center gap-3 h-full min-h-[200px]">
-              <div className="w-12 h-12 rounded-full bg-[#EAF3E0] flex items-center justify-center">
-                <IconMedal size={24} className="text-[#3D7A35]" />
+              <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center">
+                <IconMedal size={24} className="text-[#4B8B2E]" />
               </div>
               <div>
-                <p className="font-semibold text-sm text-[#0D1F3C]">
+                <p className="font-semibold text-sm text-[#0B2545]">
                   Sin sello para {periodoActual}
                 </p>
                 <p className="text-xs text-[#64748B] mt-1">
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
               {(userRole === "asesor" || userRole === "admin_nucleo") && (
                 <Link
                   href="/sellos"
-                  className="text-xs font-medium text-[#3D7A35] hover:underline"
+                  className="text-xs font-medium text-[#4B8B2E] hover:underline"
                 >
                   Emitir sello →
                 </Link>
@@ -259,10 +259,10 @@ export default async function DashboardPage() {
       {registrosData.length > 0 && (
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-[#0D1F3C]">Últimos registros BPM</p>
+            <p className="text-sm font-semibold text-[#0B2545]">Últimos registros BPM</p>
             <Link
               href="/registros"
-              className="text-xs text-[#3D7A35] hover:underline font-medium"
+              className="text-xs text-[#4B8B2E] hover:underline font-medium"
             >
               Ver todos →
             </Link>
@@ -277,7 +277,7 @@ export default async function DashboardPage() {
                 >
                   <div className="flex items-center gap-2">
                     <IconThermometer size={14} className="text-[#64748B]" />
-                    <span className="text-sm capitalize text-[#0D1F3C]">{r.tipo}</span>
+                    <span className="text-sm capitalize text-[#0B2545]">{r.tipo}</span>
                   </div>
                   <span className="text-xs text-[#64748B]">{formatDate(r.fecha)}</span>
                 </div>
@@ -306,7 +306,7 @@ function TrabajadorDashboard({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0D1F3C]">
+        <h1 className="text-2xl font-bold text-[#0B2545]">
           Hola{userName ? `, ${userName.split(" ")[0]}` : ""}
         </h1>
         <p className="text-sm text-[#64748B] mt-1 capitalize">{hoy} · {tenantNombre}</p>
@@ -317,22 +317,22 @@ function TrabajadorDashboard({
         <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <IconChecklist size={18} className="text-[#3D7A35]" />
-              <span className="font-semibold text-[#0D1F3C] text-sm">Tareas de hoy</span>
+              <IconChecklist size={18} className="text-[#4B8B2E]" />
+              <span className="font-semibold text-[#0B2545] text-sm">Tareas de hoy</span>
             </div>
-            <span className="text-sm font-bold text-[#0D1F3C]">
+            <span className="text-sm font-bold text-[#0B2545]">
               {tareas.completadas}/{tareas.total}
             </span>
           </div>
           <div className="w-full bg-[#F1F5F9] rounded-full h-2 mb-3">
             <div
-              className="h-2 rounded-full bg-[#3D7A35] transition-all"
+              className="h-2 rounded-full bg-[#4B8B2E] transition-all"
               style={{ width: `${pct}%` }}
             />
           </div>
           <Link
             href="/tareas"
-            className="flex items-center justify-between text-sm text-[#3D7A35] font-medium hover:underline"
+            className="flex items-center justify-between text-sm text-[#4B8B2E] font-medium hover:underline"
           >
             <span>{pct === 100 ? "¡Todas completadas!" : `${pct}% completado`}</span>
             <span className="flex items-center gap-1">Ver tareas <IconArrowRight size={14} /></span>
@@ -343,41 +343,41 @@ function TrabajadorDashboard({
       {/* Acciones rápidas */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Link href="/tareas">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#3D7A35]/40 hover:shadow-sm transition-all cursor-pointer">
-            <div className="w-12 h-12 rounded-xl bg-[#EAF3E0] flex items-center justify-center mb-3">
-              <IconChecklist size={24} className="text-[#3D7A35]" />
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
+            <div className="w-12 h-12 rounded-xl bg-[#EBF5E6] flex items-center justify-center mb-3">
+              <IconChecklist size={24} className="text-[#4B8B2E]" />
             </div>
-            <p className="font-semibold text-[#0D1F3C]">Mis Tareas</p>
+            <p className="font-semibold text-[#0B2545]">Mis Tareas</p>
             <p className="text-sm text-[#64748B] mt-1">Checklist diario del turno</p>
           </div>
         </Link>
 
         <Link href="/registros">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#3D7A35]/40 hover:shadow-sm transition-all cursor-pointer">
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
             <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
               <IconThermometer size={24} className="text-blue-600" />
             </div>
-            <p className="font-semibold text-[#0D1F3C]">Registros BPM</p>
+            <p className="font-semibold text-[#0B2545]">Registros BPM</p>
             <p className="text-sm text-[#64748B] mt-1">Temperatura, limpieza y más</p>
           </div>
         </Link>
 
         <Link href="/capacitaciones">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#3D7A35]/40 hover:shadow-sm transition-all cursor-pointer">
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
             <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
               <IconSchool size={24} className="text-purple-600" />
             </div>
-            <p className="font-semibold text-[#0D1F3C]">Capacitaciones</p>
+            <p className="font-semibold text-[#0B2545]">Capacitaciones</p>
             <p className="text-sm text-[#64748B] mt-1">Ver mis capacitaciones</p>
           </div>
         </Link>
 
         <Link href="/mi-cuenta">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#3D7A35]/40 hover:shadow-sm transition-all cursor-pointer">
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
             <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mb-3">
               <IconBuildingStore size={24} className="text-orange-600" />
             </div>
-            <p className="font-semibold text-[#0D1F3C]">Mi Cuenta</p>
+            <p className="font-semibold text-[#0B2545]">Mi Cuenta</p>
             <p className="text-sm text-[#64748B] mt-1">Datos personales y ARSOPB</p>
           </div>
         </Link>

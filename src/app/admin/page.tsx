@@ -64,8 +64,8 @@ export default async function AdminPage() {
       icon: IconBuildingStore,
       title: "Locales activos",
       value: totalLocales,
-      color: "text-[#3D7A35]",
-      bg: "bg-[#EAF3E0]",
+      color: "text-[#4B8B2E]",
+      bg: "bg-[#EBF5E6]",
       badge: null,
     },
     {
@@ -73,7 +73,7 @@ export default async function AdminPage() {
       icon: IconUserCheck,
       title: "Asesores",
       value: totalAsesores,
-      color: "text-[#1A3559]",
+      color: "text-[#143556]",
       bg: "bg-blue-50",
       badge: null,
     },
@@ -82,8 +82,8 @@ export default async function AdminPage() {
       icon: IconAlertTriangle,
       title: "Suscripciones morosas",
       value: morosos,
-      color: morosos > 0 ? "text-[#DC2626]" : "text-[#3D7A35]",
-      bg: morosos > 0 ? "bg-red-100" : "bg-[#EAF3E0]",
+      color: morosos > 0 ? "text-[#DC2626]" : "text-[#4B8B2E]",
+      bg: morosos > 0 ? "bg-red-100" : "bg-[#EBF5E6]",
       badge: morosos > 0 ? `${morosos} pendiente${morosos > 1 ? "s" : ""}` : null,
     },
     {
@@ -91,8 +91,8 @@ export default async function AdminPage() {
       icon: IconShield,
       title: "ARSOPB pendientes",
       value: solicitudesPendientes,
-      color: solicitudesPendientes > 0 ? "text-amber-600" : "text-[#3D7A35]",
-      bg: solicitudesPendientes > 0 ? "bg-amber-50" : "bg-[#EAF3E0]",
+      color: solicitudesPendientes > 0 ? "text-amber-600" : "text-[#4B8B2E]",
+      bg: solicitudesPendientes > 0 ? "bg-amber-50" : "bg-[#EBF5E6]",
       badge: null,
     },
   ];
@@ -100,7 +100,7 @@ export default async function AdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0D1F3C]">Panel Administración</h1>
+        <h1 className="text-2xl font-bold text-[#0B2545]">Panel Administración</h1>
         <p className="text-sm text-[#64748B] mt-1">Gestión global de Nucleo 24H</p>
       </div>
 
@@ -118,9 +118,9 @@ export default async function AdminPage() {
                 <div className={`w-9 h-9 rounded-xl ${kpi.bg} flex items-center justify-center`}>
                   <Icon size={18} className={kpi.color} />
                 </div>
-                <IconArrowRight size={14} className="text-[#E2E8F0] group-hover:text-[#3D7A35] transition-colors" />
+                <IconArrowRight size={14} className="text-[#E2E8F0] group-hover:text-[#4B8B2E] transition-colors" />
               </div>
-              <p className="text-2xl font-bold text-[#0D1F3C]">{kpi.value}</p>
+              <p className="text-2xl font-bold text-[#0B2545]">{kpi.value}</p>
               <p className="text-xs text-[#64748B] mt-1">{kpi.title}</p>
               {kpi.badge && (
                 <span className="mt-2 inline-block text-[10px] font-medium bg-red-100 text-red-700 rounded-full px-2 py-0.5">
@@ -136,16 +136,16 @@ export default async function AdminPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
-            <IconMedal size={18} className="text-[#3D7A35]" />
-            <p className="text-sm font-semibold text-[#0D1F3C]">Sellos este mes</p>
+            <IconMedal size={18} className="text-[#4B8B2E]" />
+            <p className="text-sm font-semibold text-[#0B2545]">Sellos este mes</p>
           </div>
-          <p className="text-3xl font-bold text-[#0D1F3C]">{sellosEsteMes}</p>
+          <p className="text-3xl font-bold text-[#0B2545]">{sellosEsteMes}</p>
           <p className="text-xs text-[#64748B] mt-1">
             de {totalLocales} local{totalLocales !== 1 ? "es" : ""}
           </p>
           <div className="mt-3 h-1.5 rounded-full bg-[#E2E8F0] overflow-hidden">
             <div
-              className="h-full rounded-full bg-[#3D7A35]"
+              className="h-full rounded-full bg-[#4B8B2E]"
               style={{ width: `${totalLocales ? Math.min(100, (sellosEsteMes / totalLocales) * 100) : 0}%` }}
             />
           </div>
@@ -153,19 +153,19 @@ export default async function AdminPage() {
 
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
-            <IconCreditCard size={18} className="text-[#1A3559]" />
-            <p className="text-sm font-semibold text-[#0D1F3C]">Ingresos este mes</p>
+            <IconCreditCard size={18} className="text-[#143556]" />
+            <p className="text-sm font-semibold text-[#0B2545]">Ingresos este mes</p>
           </div>
-          <p className="text-3xl font-bold text-[#0D1F3C]">{formatCLP(ingresosMes)}</p>
+          <p className="text-3xl font-bold text-[#0B2545]">{formatCLP(ingresosMes)}</p>
           <p className="text-xs text-[#64748B] mt-1">{pagosMes._count} pago{pagosMes._count !== 1 ? "s" : ""} confirmado{pagosMes._count !== 1 ? "s" : ""}</p>
         </div>
 
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
             <IconShield size={18} className="text-amber-500" />
-            <p className="text-sm font-semibold text-[#0D1F3C]">Revisiones de sello</p>
+            <p className="text-sm font-semibold text-[#0B2545]">Revisiones de sello</p>
           </div>
-          <p className="text-3xl font-bold text-[#0D1F3C]">{revisionesPendientes}</p>
+          <p className="text-3xl font-bold text-[#0B2545]">{revisionesPendientes}</p>
           <p className="text-xs text-[#64748B] mt-1">pendiente{revisionesPendientes !== 1 ? "s" : ""} de responder</p>
           {revisionesPendientes > 0 && (
             <Link
@@ -184,10 +184,10 @@ export default async function AdminPage() {
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <IconMedal size={16} className="text-[#3D7A35]" />
-              <p className="text-sm font-semibold text-[#0D1F3C]">Últimos sellos emitidos</p>
+              <IconMedal size={16} className="text-[#4B8B2E]" />
+              <p className="text-sm font-semibold text-[#0B2545]">Últimos sellos emitidos</p>
             </div>
-            <Link href="/admin/informes" className="text-xs text-[#3D7A35] hover:underline font-medium">
+            <Link href="/admin/informes" className="text-xs text-[#4B8B2E] hover:underline font-medium">
               Ver todos →
             </Link>
           </div>
@@ -215,10 +215,10 @@ export default async function AdminPage() {
         <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <IconMapPin size={16} className="text-[#1A3559]" />
-              <p className="text-sm font-semibold text-[#0D1F3C]">Últimas visitas</p>
+              <IconMapPin size={16} className="text-[#143556]" />
+              <p className="text-sm font-semibold text-[#0B2545]">Últimas visitas</p>
             </div>
-            <Link href="/visitas" className="text-xs text-[#3D7A35] hover:underline font-medium">
+            <Link href="/visitas" className="text-xs text-[#4B8B2E] hover:underline font-medium">
               Ver todas →
             </Link>
           </div>
@@ -257,11 +257,11 @@ export default async function AdminPage() {
               href={item.href}
               className="bg-white rounded-xl border border-[#E2E8F0] p-4 hover:shadow-sm transition-shadow group flex items-center gap-3"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#F5F6F8] flex items-center justify-center shrink-0">
-                <Icon size={16} className="text-[#64748B] group-hover:text-[#3D7A35] transition-colors" />
+              <div className="w-9 h-9 rounded-xl bg-[#F8F9FA] flex items-center justify-center shrink-0">
+                <Icon size={16} className="text-[#64748B] group-hover:text-[#4B8B2E] transition-colors" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[#0D1F3C]">{item.label}</p>
+                <p className="text-sm font-medium text-[#0B2545]">{item.label}</p>
                 <p className="text-xs text-[#64748B] truncate">{item.desc}</p>
               </div>
             </Link>
@@ -277,7 +277,7 @@ function NivelBadge({ nivel, score }: { nivel: string; score: number }) {
     inicial: "bg-red-100 text-red-700",
     intermedio: "bg-yellow-100 text-yellow-700",
     avanzado: "bg-blue-100 text-blue-700",
-    premium: "bg-[#EAF3E0] text-[#2D5A27]",
+    premium: "bg-[#EBF5E6] text-[#3A6E24]",
   };
   return (
     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${config[nivel] ?? "bg-gray-100 text-gray-600"}`}>

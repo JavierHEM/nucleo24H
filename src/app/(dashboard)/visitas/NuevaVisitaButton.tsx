@@ -97,7 +97,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2"
+        className="bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
         size="sm"
       >
         <IconPlus size={16} />
@@ -110,8 +110,8 @@ export function NuevaVisitaButton({ tenantId }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] sticky top-0 bg-white rounded-t-2xl z-10">
               <div className="flex items-center gap-2">
-                <IconMapPin size={18} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C]">Registrar visita</p>
+                <IconMapPin size={18} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545]">Registrar visita</p>
               </div>
               <button onClick={() => setOpen(false)} className="text-[#64748B]">
                 <IconX size={20} />
@@ -126,7 +126,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
                   <select
                     id="tipo-visita"
                     {...register("tipo")}
-                    className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                    className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                   >
                     <option value="programada">Programada</option>
                     <option value="sorpresa">Sorpresa</option>
@@ -154,7 +154,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
                   rows={3}
                   placeholder="Resumen de lo observado durante la visita..."
                   {...register("hallazgos")}
-                  className="mt-1 flex w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35] resize-none"
+                  className="mt-1 flex w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E] resize-none"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
                     onClick={() =>
                       append({ descripcion: "", severidad: "menor", fecha_limite: "" })
                     }
-                    className="flex items-center gap-1 text-xs text-[#3D7A35] font-medium hover:text-[#2D5A27]"
+                    className="flex items-center gap-1 text-xs text-[#4B8B2E] font-medium hover:text-[#3A6E24]"
                   >
                     <IconPlus size={13} />
                     Agregar NC
@@ -189,7 +189,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <IconAlertTriangle size={14} className="text-[#D97706]" />
-                          <span className="text-xs font-semibold text-[#0D1F3C]">
+                          <span className="text-xs font-semibold text-[#0B2545]">
                             NC {idx + 1}
                           </span>
                         </div>
@@ -218,7 +218,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
                           <Label className="text-xs">Severidad</Label>
                           <select
                             {...register(`no_conformidades.${idx}.severidad`)}
-                            className="mt-1 flex min-h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                            className="mt-1 flex min-h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                           >
                         <option value="menor">Menor</option>
                           <option value="mayor">Mayor</option>
@@ -247,7 +247,7 @@ export function NuevaVisitaButton({ tenantId }: Props) {
               <Button
                 type="submit"
                 disabled={registrar.isPending}
-                className="w-full min-h-12 bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2"
+                className="w-full min-h-12 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
               >
                 {registrar.isPending ? (
                   <>

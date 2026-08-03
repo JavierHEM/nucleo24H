@@ -89,7 +89,7 @@ export function ConfigurarSuscripcionButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs text-[#1A3559] font-medium hover:text-[#3D7A35] transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#143556] font-medium hover:text-[#4B8B2E] transition-colors"
       >
         <IconSettings size={14} />
         Suscripción
@@ -100,8 +100,8 @@ export function ConfigurarSuscripcionButton({
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
-                <IconSettings size={18} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C] text-sm">
+                <IconSettings size={18} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545] text-sm">
                   Configurar suscripción
                 </p>
               </div>
@@ -111,9 +111,9 @@ export function ConfigurarSuscripcionButton({
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-[#F5F6F8] rounded-xl p-3">
+              <div className="bg-[#F8F9FA] rounded-xl p-3">
                 <p className="text-xs text-[#64748B]">Local</p>
-                <p className="text-sm font-semibold text-[#0D1F3C]">{tenantNombre}</p>
+                <p className="text-sm font-semibold text-[#0B2545]">{tenantNombre}</p>
               </div>
 
               <div>
@@ -126,11 +126,11 @@ export function ConfigurarSuscripcionButton({
                       onClick={() => selectPlan(p)}
                       className={`rounded-xl border-2 p-3 text-left transition-colors ${
                         plan === p
-                          ? "border-[#3D7A35] bg-[#EAF3E0]"
-                          : "border-[#E2E8F0] hover:border-[#3D7A35]/50"
+                          ? "border-[#4B8B2E] bg-[#EBF5E6]"
+                          : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
                       }`}
                     >
-                      <p className="font-medium text-sm text-[#0D1F3C] capitalize">{p}</p>
+                      <p className="font-medium text-sm text-[#0B2545] capitalize">{p}</p>
                       <p className="text-xs text-[#64748B]">
                         {formatCLP(PRECIOS_PLAN[p])}/mes
                       </p>
@@ -181,8 +181,8 @@ export function ConfigurarSuscripcionButton({
                       onClick={() => setEstado(e)}
                       className={`rounded-lg border px-3 py-2 text-xs font-medium capitalize transition-colors ${
                         estado === e
-                          ? "border-[#3D7A35] bg-[#EAF3E0] text-[#2D5A27]"
-                          : "border-[#E2E8F0] text-[#64748B] hover:border-[#3D7A35]/50"
+                          ? "border-[#4B8B2E] bg-[#EBF5E6] text-[#3A6E24]"
+                          : "border-[#E2E8F0] text-[#64748B] hover:border-[#4B8B2E]/50"
                       }`}
                     >
                       {e}
@@ -210,7 +210,7 @@ export function ConfigurarSuscripcionButton({
                   type="button"
                   disabled={!valido || configurar.isPending}
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                 >
                   {configurar.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

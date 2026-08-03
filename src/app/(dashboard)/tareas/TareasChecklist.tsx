@@ -54,7 +54,7 @@ export function TareasChecklist({ userRole }: Props) {
     return (
       <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-10 text-center">
         <IconCircle size={32} className="mx-auto text-[#E2E8F0] mb-3" />
-        <p className="font-medium text-[#0D1F3C]">Sin tareas configuradas</p>
+        <p className="font-medium text-[#0B2545]">Sin tareas configuradas</p>
         <p className="text-sm text-[#64748B] mt-1">
           {userRole === "admin_local" || userRole === "admin_nucleo"
             ? "Usa el botón \"Nueva tarea\" para crear el checklist del local."
@@ -72,11 +72,11 @@ export function TareasChecklist({ userRole }: Props) {
       {/* Barra de progreso del día */}
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold text-[#0D1F3C]">Progreso del día</p>
+          <p className="text-sm font-semibold text-[#0B2545]">Progreso del día</p>
           <span
             className={cn(
               "text-sm font-bold",
-              progreso === 100 ? "text-[#16A34A]" : "text-[#1A3559]"
+              progreso === 100 ? "text-[#16A34A]" : "text-[#143556]"
             )}
           >
             {completadas}/{tareas.length}
@@ -86,7 +86,7 @@ export function TareasChecklist({ userRole }: Props) {
           <div
             className={cn(
               "h-full rounded-full transition-all duration-500",
-              progreso === 100 ? "bg-[#16A34A]" : "bg-[#1A3559]"
+              progreso === 100 ? "bg-[#16A34A]" : "bg-[#143556]"
             )}
             style={{ width: `${progreso}%` }}
           />
@@ -113,7 +113,7 @@ export function TareasChecklist({ userRole }: Props) {
               className={cn(
                 "bg-white rounded-xl border transition-all",
                 tarea.completadaHoy
-                  ? "border-[#16A34A]/30 bg-[#EAF3E0]/30"
+                  ? "border-[#16A34A]/30 bg-[#EBF5E6]/30"
                   : "border-[#E2E8F0]"
               )}
             >
@@ -134,11 +134,11 @@ export function TareasChecklist({ userRole }: Props) {
                   className="shrink-0"
                 >
                   {isPending ? (
-                    <IconLoader2 size={22} className="text-[#3D7A35] animate-spin" />
+                    <IconLoader2 size={22} className="text-[#4B8B2E] animate-spin" />
                   ) : tarea.completadaHoy ? (
                     <IconCircleCheck size={22} className="text-[#16A34A]" />
                   ) : (
-                    <IconCircle size={22} className="text-[#CBD5E1] hover:text-[#3D7A35] transition-colors" />
+                    <IconCircle size={22} className="text-[#CBD5E1] hover:text-[#4B8B2E] transition-colors" />
                   )}
                 </button>
 
@@ -149,7 +149,7 @@ export function TareasChecklist({ userRole }: Props) {
                       "text-sm font-medium leading-snug",
                       tarea.completadaHoy
                         ? "text-[#64748B] line-through"
-                        : "text-[#0D1F3C]"
+                        : "text-[#0B2545]"
                     )}
                   >
                     {tarea.titulo}
@@ -200,7 +200,7 @@ export function TareasChecklist({ userRole }: Props) {
                             [tarea.id]: e.target.value,
                           }))
                         }
-                        className="w-full rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+                        className="w-full rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
                       />
                     </div>
                   )}

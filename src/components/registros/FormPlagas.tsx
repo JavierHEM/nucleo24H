@@ -58,10 +58,10 @@ export function FormPlagas({ onSuccess }: Props) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-[#EAF3E0] flex items-center justify-center">
-          <IconBug size={16} className="text-[#3D7A35]" />
+        <div className="w-8 h-8 rounded-lg bg-[#EBF5E6] flex items-center justify-center">
+          <IconBug size={16} className="text-[#4B8B2E]" />
         </div>
-        <p className="font-semibold text-[#0D1F3C] text-sm">Control de Plagas</p>
+        <p className="font-semibold text-[#0B2545] text-sm">Control de Plagas</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -90,7 +90,7 @@ export function FormPlagas({ onSuccess }: Props) {
             <select
               id="tipo_servicio"
               {...register("tipo_servicio")}
-              className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35]"
+              className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
             >
               <option value="preventivo">Preventivo</option>
               <option value="correctivo">Correctivo</option>
@@ -177,7 +177,7 @@ export function FormPlagas({ onSuccess }: Props) {
             type="checkbox"
             id="conforme-plagas"
             {...register("conforme")}
-            className="w-4 h-4 rounded border-[#E2E8F0] text-[#3D7A35] accent-[#3D7A35]"
+            className="w-4 h-4 rounded border-[#E2E8F0] text-[#4B8B2E] accent-[#4B8B2E]"
           />
           <Label htmlFor="conforme-plagas" className="text-sm font-normal cursor-pointer">
             El servicio se realizó conforme a lo esperado
@@ -187,7 +187,7 @@ export function FormPlagas({ onSuccess }: Props) {
         <Button
           type="submit"
           disabled={crearRegistro.isPending}
-          className="w-full min-h-12 bg-[#3D7A35] hover:bg-[#2D5A27] text-white gap-2"
+          className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
         >
           {crearRegistro.isPending ? (
             <>

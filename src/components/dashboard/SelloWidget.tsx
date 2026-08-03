@@ -82,7 +82,7 @@ export function SelloWidget({
 
       {/* Descargos habilitados */}
       {descargosHabilitados && (
-        <div className="flex items-center gap-2 text-xs text-[#2D5A27] bg-[#EAF3E0] rounded-lg px-3 py-2 mb-3">
+        <div className="flex items-center gap-2 text-xs text-[#3A6E24] bg-[#EBF5E6] rounded-lg px-3 py-2 mb-3">
           <IconSparkles size={14} className="shrink-0" />
           <span className="font-medium">Descargos administrativos gratuitos habilitados</span>
         </div>

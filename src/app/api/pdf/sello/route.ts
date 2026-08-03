@@ -13,7 +13,7 @@ const NIVEL_COLOR: Record<string, string> = {
   inicial: "#DC2626",
   intermedio: "#D97706",
   avanzado: "#16A34A",
-  premium: "#0D1F3C",
+  premium: "#0B2545",
 };
 
 export async function GET(req: NextRequest) {
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
     1
   ).toLocaleString("es-CL", { month: "long", year: "numeric" });
 
-  const nivelColor = NIVEL_COLOR[sello.nivel] ?? "#0D1F3C";
+  const nivelColor = NIVEL_COLOR[sello.nivel] ?? "#0B2545";
   const planMejoras = (sello.plan_mejoras ?? []) as string[];
 
   // HTML del PDF
@@ -95,14 +95,14 @@ export async function GET(req: NextRequest) {
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background: #F5F6F8; color: #0D1F3C; }
+  body { font-family: 'Inter', sans-serif; background: #F8F9FA; color: #0B2545; }
   .page { width: 794px; min-height: 1123px; margin: 0 auto; background: white; padding: 0; }
-  .header { background: #0D1F3C; color: white; padding: 36px 48px 32px; }
-  .header-badge { display: inline-block; background: #3D7A35; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
+  .header { background: #0B2545; color: white; padding: 36px 48px 32px; }
+  .header-badge { display: inline-block; background: #4B8B2E; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
   .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
   .header p { font-size: 14px; color: rgba(255,255,255,0.65); }
   .body { padding: 40px 48px; }
-  .score-section { display: flex; align-items: center; justify-content: space-between; background: #F5F6F8; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; }
+  .score-section { display: flex; align-items: center; justify-content: space-between; background: #F8F9FA; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; }
   .score-number { font-size: 72px; font-weight: 900; color: ${nivelColor}; line-height: 1; }
   .score-label { font-size: 20px; font-weight: 700; color: ${nivelColor}; text-transform: capitalize; margin-top: 4px; }
   .score-right { text-align: right; }
@@ -117,9 +117,9 @@ export async function GET(req: NextRequest) {
   .divider { height: 1px; background: #E2E8F0; margin: 24px 0; }
   .mejoras { margin-bottom: 28px; }
   .mejora-item { display: flex; gap: 12px; margin-bottom: 8px; }
-  .mejora-num { width: 22px; height: 22px; border-radius: 50%; background: #EAF3E0; color: #2D5A27; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mejora-num { width: 22px; height: 22px; border-radius: 50%; background: #EBF5E6; color: #3A6E24; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .mejora-text { font-size: 13px; color: #334155; line-height: 1.5; }
-  .descargos-banner { background: #0D1F3C; color: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; }
+  .descargos-banner { background: #0B2545; color: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; }
   .descargos-banner p:first-child { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
   .descargos-banner p:last-child { font-size: 12px; opacity: 0.7; }
   .footer { margin-top: auto; border-top: 1px solid #E2E8F0; padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; }

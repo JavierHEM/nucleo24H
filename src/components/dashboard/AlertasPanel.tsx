@@ -32,7 +32,7 @@ const TIPO_CONFIG = {
   },
   ok: {
     icon: IconCircleCheck,
-    bg: "bg-[#EAF3E0]",
+    bg: "bg-[#EBF5E6]",
     border: "border-green-200",
     color: "text-[#16A34A]",
     label: "Al día",
@@ -45,7 +45,7 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
   if (activas.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0D1F3C] mb-3">Alertas</p>
+        <p className="text-sm font-semibold text-[#0B2545] mb-3">Alertas</p>
         <div className="flex items-center gap-3 text-sm text-[#16A34A]">
           <IconCircleCheck size={18} />
           <span>Todo en orden, sin alertas pendientes</span>
@@ -57,7 +57,7 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
   return (
     <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold text-[#0D1F3C]">Alertas</p>
+        <p className="text-sm font-semibold text-[#0B2545]">Alertas</p>
         <span className="text-xs bg-red-100 text-red-800 rounded-full px-2 py-0.5 font-medium">
           {activas.length}
         </span>
@@ -78,7 +78,7 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
             >
               <Icon size={16} className={cn("shrink-0 mt-0.5", config.color)} />
               <div className="flex-1 min-w-0">
-                <p className="text-[#0D1F3C] font-medium leading-snug">{alerta.mensaje}</p>
+                <p className="text-[#0B2545] font-medium leading-snug">{alerta.mensaje}</p>
                 {alerta.fecha && (
                   <p className="text-xs text-[#64748B] mt-0.5">
                     {formatDate(alerta.fecha)}

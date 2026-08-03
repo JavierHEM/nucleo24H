@@ -68,9 +68,9 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false }: LocalS
       <button
         onClick={() => setOpen(!open)}
         disabled={isPending}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E2E8F0] bg-white hover:bg-[#F5F6F8] transition-colors text-sm text-[#0D1F3C] disabled:opacity-50"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E2E8F0] bg-white hover:bg-[#F8F9FA] transition-colors text-sm text-[#0B2545] disabled:opacity-50"
       >
-        <IconBuildingStore size={15} className="text-[#3D7A35]" />
+        <IconBuildingStore size={15} className="text-[#4B8B2E]" />
         <span className="max-w-[140px] truncate font-medium">
           {localActivo?.nombre ?? (isAdmin ? "Seleccionar local" : "Mis locales")}
         </span>
@@ -89,7 +89,7 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false }: LocalS
           {/* Búsqueda — solo si hay más de 5 locales o es admin */}
           {(isAdmin || locales.length > 5) && (
             <div className="px-2 pb-1.5">
-              <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#F5F6F8] border border-[#E2E8F0]">
+              <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#F8F9FA] border border-[#E2E8F0]">
                 <IconSearch size={13} className="text-[#94A3B8] shrink-0" />
                 <input
                   ref={searchRef}
@@ -113,12 +113,12 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false }: LocalS
                 <button
                   key={local.id}
                   onClick={() => handleSelect(local.id)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#0D1F3C] hover:bg-[#F5F6F8] transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#0B2545] hover:bg-[#F8F9FA] transition-colors text-left"
                 >
                   <IconBuildingStore size={14} className="text-[#64748B] shrink-0" />
                   <span className="flex-1 truncate">{local.nombre}</span>
                   {local.id === tenantActivo && (
-                    <IconCheck size={14} className="text-[#3D7A35] shrink-0" />
+                    <IconCheck size={14} className="text-[#4B8B2E] shrink-0" />
                   )}
                 </button>
               ))

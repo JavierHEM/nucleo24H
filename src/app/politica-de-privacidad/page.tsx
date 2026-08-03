@@ -15,11 +15,11 @@ export const viewport: Viewport = {
 
 export default function PoliticaPrivacidadPage() {
   return (
-    <div className="min-h-screen bg-[#F5F6F8]">
+    <div className="min-h-screen bg-[#F8F9FA]">
       <header className="bg-[#0D2137] border-b border-white/10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#3D7A35] flex items-center justify-center font-bold text-white text-sm">
+            <div className="w-8 h-8 rounded-lg bg-[#4B8B2E] flex items-center justify-center font-bold text-white text-sm">
               N
             </div>
             <span className="font-bold text-white">Nucleo 24H</span>
@@ -37,7 +37,7 @@ export default function PoliticaPrivacidadPage() {
       <main className="max-w-4xl mx-auto px-4 py-12">
         <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8 md:p-12">
           <div className="flex items-center gap-3 mb-2">
-            <IconShield size={28} className="text-[#3D7A35]" />
+            <IconShield size={28} className="text-[#4B8B2E]" />
             <h1 className="text-3xl font-bold text-[#0D2137]">Política de Privacidad</h1>
           </div>
           <p className="text-[#64748B] text-sm mb-10">
@@ -56,7 +56,7 @@ export default function PoliticaPrivacidadPage() {
               </p>
               <p className="text-sm leading-relaxed mt-2">
                 Contacto para asuntos de privacidad:{" "}
-                <a href="mailto:privacidad@nucleosur.cl" className="text-[#3D7A35] underline">
+                <a href="mailto:privacidad@nucleosur.cl" className="text-[#4B8B2E] underline">
                   privacidad@nucleosur.cl
                 </a>
               </p>
@@ -74,7 +74,7 @@ export default function PoliticaPrivacidadPage() {
                   ["Datos técnicos", "dirección IP, tipo de dispositivo, logs de acceso"],
                 ].map(([bold, rest]) => (
                   <li key={bold} className="flex gap-2 items-start">
-                    <span className="text-[#3D7A35] mt-1 shrink-0">•</span>
+                    <span className="text-[#4B8B2E] mt-1 shrink-0">•</span>
                     <span><strong>{bold}:</strong> {rest}</span>
                   </li>
                 ))}
@@ -94,7 +94,7 @@ export default function PoliticaPrivacidadPage() {
                   "Cumplimiento de obligaciones legales",
                 ].map((item) => (
                   <li key={item} className="flex gap-2 items-start">
-                    <span className="text-[#3D7A35] mt-1 shrink-0">•</span>
+                    <span className="text-[#4B8B2E] mt-1 shrink-0">•</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -164,7 +164,7 @@ export default function PoliticaPrivacidadPage() {
                   ["Bloqueo", "suspender temporalmente el tratamiento de sus datos"],
                 ].map(([bold, rest]) => (
                   <li key={bold} className="flex gap-2 items-start">
-                    <span className="text-[#3D7A35] mt-1 shrink-0">•</span>
+                    <span className="text-[#4B8B2E] mt-1 shrink-0">•</span>
                     <span><strong>{bold}:</strong> {rest}</span>
                   </li>
                 ))}
@@ -173,7 +173,7 @@ export default function PoliticaPrivacidadPage() {
                 Para ejercer sus derechos, ingresa a{" "}
                 <strong>Mi Cuenta → Mis Derechos</strong> dentro de la plataforma, o envía tu
                 solicitud a{" "}
-                <a href="mailto:privacidad@nucleosur.cl" className="text-[#3D7A35] underline">
+                <a href="mailto:privacidad@nucleosur.cl" className="text-[#4B8B2E] underline">
                   privacidad@nucleosur.cl
                 </a>
                 . Responderemos dentro de <strong>30 días corridos</strong>.
@@ -221,7 +221,7 @@ export default function PoliticaPrivacidadPage() {
                   href="https://bcn.cl/gJo3hf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#3D7A35] underline"
+                  className="text-[#4B8B2E] underline"
                 >
                   Ley N° 21.719
                 </a>

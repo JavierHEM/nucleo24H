@@ -32,7 +32,7 @@ export default async function MisLocalesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0D1F3C]">Mis Locales</h1>
+        <h1 className="text-2xl font-bold text-[#0B2545]">Mis Locales</h1>
         <p className="text-sm text-[#64748B] mt-1">
           Resumen de todos tus locales — {getCurrentPeriodo()}
         </p>
@@ -49,11 +49,11 @@ export default async function MisLocalesPage() {
             >
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#EAF3E0] flex items-center justify-center shrink-0">
-                    <IconBuildingStore size={20} className="text-[#3D7A35]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EBF5E6] flex items-center justify-center shrink-0">
+                    <IconBuildingStore size={20} className="text-[#4B8B2E]" />
                   </div>
                   <div>
-                    <p className="font-semibold text-[#0D1F3C]">{tenant.nombre}</p>
+                    <p className="font-semibold text-[#0B2545]">{tenant.nombre}</p>
                     <p className="text-xs text-[#64748B] capitalize">Plan {tenant.plan}</p>
                   </div>
                 </div>
@@ -71,7 +71,7 @@ export default async function MisLocalesPage() {
               {selloActual && (
                 <div className="flex items-center gap-2 mb-3">
                   <IconMedal size={14} className="text-[#64748B]" />
-                  <span className="text-sm font-bold text-[#0D1F3C]">
+                  <span className="text-sm font-bold text-[#0B2545]">
                     {selloActual.score_general.toFixed(0)}%
                   </span>
                   <span className="text-xs text-[#64748B]">cumplimiento</span>
@@ -79,13 +79,13 @@ export default async function MisLocalesPage() {
               )}
 
               <div className="grid grid-cols-2 gap-2 text-xs mb-4">
-                <div className="bg-[#F5F6F8] rounded-lg px-3 py-2">
+                <div className="bg-[#F8F9FA] rounded-lg px-3 py-2">
                   <p className="text-[#64748B]">Registros</p>
-                  <p className="font-semibold text-[#0D1F3C]">{tenant._count.registros}</p>
+                  <p className="font-semibold text-[#0B2545]">{tenant._count.registros}</p>
                 </div>
-                <div className="bg-[#F5F6F8] rounded-lg px-3 py-2">
+                <div className="bg-[#F8F9FA] rounded-lg px-3 py-2">
                   <p className="text-[#64748B]">Documentos</p>
-                  <p className="font-semibold text-[#0D1F3C]">{tenant._count.documentos}</p>
+                  <p className="font-semibold text-[#0B2545]">{tenant._count.documentos}</p>
                 </div>
               </div>
 

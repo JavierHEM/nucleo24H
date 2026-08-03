@@ -77,7 +77,7 @@ export function ResolverButton({ id, tipoDerecho, tenantNombre }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="shrink-0 text-xs text-white bg-[#3D7A35] hover:bg-[#2D5A27] rounded-lg px-3 py-1.5 font-medium transition-colors"
+        className="shrink-0 text-xs text-white bg-[#4B8B2E] hover:bg-[#3A6E24] rounded-lg px-3 py-1.5 font-medium transition-colors"
       >
         Resolver
       </button>
@@ -88,8 +88,8 @@ export function ResolverButton({ id, tipoDerecho, tenantNombre }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
-                <IconShield size={18} className="text-[#3D7A35]" />
-                <p className="font-semibold text-[#0D1F3C] text-sm">
+                <IconShield size={18} className="text-[#4B8B2E]" />
+                <p className="font-semibold text-[#0B2545] text-sm">
                   Resolver solicitud ARSOPB
                 </p>
               </div>
@@ -100,9 +100,9 @@ export function ResolverButton({ id, tipoDerecho, tenantNombre }: Props) {
 
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
               {/* Info */}
-              <div className="bg-[#F5F6F8] rounded-xl p-3 space-y-1">
+              <div className="bg-[#F8F9FA] rounded-xl p-3 space-y-1">
                 <p className="text-xs text-[#64748B]">Tipo de derecho</p>
-                <p className="text-sm font-semibold text-[#0D1F3C]">
+                <p className="text-sm font-semibold text-[#0B2545]">
                   {TIPO_LABEL[tipoDerecho] ?? tipoDerecho}
                   {tenantNombre && (
                     <span className="text-[#64748B] font-normal"> · {tenantNombre}</span>
@@ -122,7 +122,7 @@ export function ResolverButton({ id, tipoDerecho, tenantNombre }: Props) {
                       className={`rounded-xl border-2 py-3 text-sm font-medium capitalize transition-colors ${
                         accion === op
                           ? op === "atendido"
-                            ? "border-[#3D7A35] bg-[#EAF3E0] text-[#2D5A27]"
+                            ? "border-[#4B8B2E] bg-[#EBF5E6] text-[#3A6E24]"
                             : "border-[#DC2626] bg-red-50 text-[#DC2626]"
                           : "border-[#E2E8F0] text-[#64748B] hover:border-[#94A3B8]"
                       }`}
@@ -145,7 +145,7 @@ export function ResolverButton({ id, tipoDerecho, tenantNombre }: Props) {
                       : "ej: La solicitud fue rechazada por no corresponder al titular identificado..."
                   }
                   {...register("respuesta")}
-                  className="mt-1 flex w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D7A35] resize-none"
+                  className="mt-1 flex w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E] resize-none"
                 />
                 {errors.respuesta && (
                   <p className="text-xs text-[#DC2626] mt-1">{errors.respuesta.message}</p>
@@ -176,7 +176,7 @@ export function ResolverButton({ id, tipoDerecho, tenantNombre }: Props) {
                 <Button
                   type="submit"
                   disabled={resolver.isPending}
-                  className="flex-1 bg-[#1A3559] hover:bg-[#0D1F3C] text-white gap-2"
+                  className="flex-1 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
                 >
                   {resolver.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />
