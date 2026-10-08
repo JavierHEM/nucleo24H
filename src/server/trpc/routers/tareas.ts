@@ -6,7 +6,7 @@ import { requireRole } from "@/server/middleware/rbac";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const adminProcedure = protectedProcedure.use(
-  requireRole("admin_local", "asesor", "admin_nucleo")
+  requireRole("jefe_local", "admin_local", "asesor", "admin_nucleo")
 );
 
 export const tareasRouter = router({

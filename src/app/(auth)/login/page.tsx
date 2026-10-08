@@ -48,7 +48,9 @@ function LoginForm() {
   const [serverError, setServerError] = useState<string | null>(
     errorParam === "auth_callback"
       ? "El enlace de invitación ha expirado. Solicita uno nuevo."
-      : null
+      : errorParam === "cuenta_baja"
+        ? "Esta cuenta está dada de baja. Contacta a Nucleo 24H."
+        : null
   );
 
   const {
@@ -66,7 +68,12 @@ function LoginForm() {
     });
 
     if (error) {
-      setServerError("Credenciales incorrectas. Verifica tu email y contraseña.");
+      const baja = error.message.toLowerCase().includes("ban");
+      setServerError(
+        baja
+          ? "Esta cuenta está dada de baja. Contacta a Nucleo 24H."
+          : "Credenciales incorrectas. Verifica tu email y contraseña."
+      );
       return;
     }
 

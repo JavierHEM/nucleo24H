@@ -11,12 +11,19 @@ import {
   IconClock,
   IconAlertTriangle,
   IconClipboardList,
+  IconHandSanitizer,
+  IconTruckDelivery,
+  IconTrash,
+  IconDroplet,
+  IconToolsKitchen2,
 } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { FAMILIAS, etiquetaPlanilla, resumenRegistro, type FamiliaId } from "@/lib/bpm/planillas";
+import { hrefArchivo } from "@/lib/storage/rutas";
 
-type Tipo = "temperatura" | "limpieza" | "plagas" | "capacitacion";
+type Tipo = FamiliaId | "temperatura";
 
 const TIPO_CONFIG: Record<
   Tipo,
@@ -34,6 +41,48 @@ const TIPO_CONFIG: Record<
     bg: "bg-blue-50",
     text: "text-blue-700",
     iconColor: "text-blue-500",
+  },
+  higiene: {
+    label: "Higiene",
+    icon: IconHandSanitizer,
+    bg: "bg-[#EBF5E6]",
+    text: "text-[#3A6E24]",
+    iconColor: "text-[#4B8B2E]",
+  },
+  recepcion: {
+    label: "Recepción",
+    icon: IconTruckDelivery,
+    bg: "bg-[#F1F5F9]",
+    text: "text-[#143556]",
+    iconColor: "text-[#143556]",
+  },
+  almacenamiento: {
+    label: "Almacenamiento",
+    icon: IconTemperature,
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    iconColor: "text-blue-500",
+  },
+  residuos: {
+    label: "Residuos",
+    icon: IconTrash,
+    bg: "bg-[#F1F5F9]",
+    text: "text-[#143556]",
+    iconColor: "text-[#143556]",
+  },
+  agua: {
+    label: "Agua",
+    icon: IconDroplet,
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    iconColor: "text-blue-500",
+  },
+  produccion: {
+    label: "Producción",
+    icon: IconToolsKitchen2,
+    bg: "bg-[#EBF5E6]",
+    text: "text-[#3A6E24]",
+    iconColor: "text-[#4B8B2E]",
   },
   limpieza: {
     label: "Limpieza",
@@ -67,16 +116,13 @@ const ESTADO_CONFIG: Record<
   observado: { icon: IconAlertTriangle, color: "text-[#DC2626]", label: "Observado" },
 };
 
-const FILTROS: Array<{ value: Tipo | "todos"; label: string }> = [
+const FILTROS: Array<{ value: FamiliaId | "todos"; label: string }> = [
   { value: "todos", label: "Todos" },
-  { value: "temperatura", label: "Temperatura" },
-  { value: "limpieza", label: "Limpieza" },
-  { value: "plagas", label: "Plagas" },
-  { value: "capacitacion", label: "Capacitaciones" },
+  ...FAMILIAS.map((familia) => ({ value: familia.id, label: familia.label })),
 ];
 
 export function RegistrosList() {
-  const [filtro, setFiltro] = useState<Tipo | "todos">("todos");
+  const [filtro, setFiltro] = useState<FamiliaId | "todos">("todos");
 
   const { data, isLoading, error } = trpc.registros.list.useQuery({
     tipo: filtro === "todos" ? undefined : filtro,
@@ -127,7 +173,7 @@ export function RegistrosList() {
           <IconClipboardList size={36} className="mx-auto text-[#E2E8F0] mb-3" />
           <p className="font-medium text-[#0B2545]">No hay registros aún</p>
           <p className="text-sm text-[#64748B] mt-1">
-            Usa el botón &ldquo;Nuevo registro&rdquo; para comenzar.
+            Completa una planilla en el sistema o carga la impresa.
           </p>
         </div>
       )}
@@ -142,18 +188,14 @@ export function RegistrosList() {
             const estadoCfg =
               ESTADO_CONFIG[registro.estado] ?? ESTADO_CONFIG.pendiente;
             const EstadoIcon = estadoCfg.icon;
-            const datos = registro.datos as Record<string, unknown>;
-
-            let detalle = "";
-            if (registro.tipo === "temperatura") {
-              detalle = `Ingreso ${String(datos.temperatura_ingreso ?? "-")}°C · Almac. ${String(datos.temperatura_almacenamiento ?? "-")}°C`;
-            } else if (registro.tipo === "limpieza") {
-              detalle = `${String(datos.area ?? "")} · ${String(datos.producto_utilizado ?? "")}`;
-            } else if (registro.tipo === "plagas") {
-              detalle = `${String(datos.tipo_servicio ?? "")} · ${String(datos.empresa_fumigadora ?? "")}`;
-            } else if (registro.tipo === "capacitacion") {
-              detalle = `${String(datos.tema ?? "")} · ${String(datos.asistentes ?? "-")} asistentes`;
-            }
+            const datos = (registro.datos ?? {}) as Record<string, unknown>;
+            const esPapel = registro.origen === "papel";
+            const detalle = esPapel
+              ? "Planilla impresa"
+              : resumenRegistro(registro.codigo, registro.tipo, datos);
+            const estadoLabel =
+              esPapel && registro.estado === "pendiente" ? "En revisión" : estadoCfg.label;
+            const titulo = etiquetaPlanilla(registro.codigo, registro.tipo);
 
             return (
               <div
@@ -172,8 +214,11 @@ export function RegistrosList() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-sm text-[#0B2545]">
-                      {config.label}
+                      {titulo}
                     </p>
+                    {registro.codigo && (
+                      <span className="font-mono text-[10px] text-[#64748B]">{registro.codigo}</span>
+                    )}
                     <span
                       className={cn(
                         "text-xs font-medium px-2 py-0.5 rounded-full",
@@ -185,13 +230,23 @@ export function RegistrosList() {
                     </span>
                   </div>
                   <p className="text-xs text-[#64748B] mt-0.5 truncate">{detalle}</p>
+                  {esPapel && registro.adjunto_url && (
+                    <a
+                      href={hrefArchivo(registro.adjunto_url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-[#143556] underline"
+                    >
+                      Ver planilla
+                    </a>
+                  )}
                 </div>
 
                 <div className="text-right shrink-0">
                   <p className="text-xs text-[#64748B]">{formatDate(registro.fecha)}</p>
                   <div className={cn("flex items-center justify-end gap-1 mt-1", estadoCfg.color)}>
                     <EstadoIcon size={13} />
-                    <span className="text-xs font-medium">{estadoCfg.label}</span>
+                    <span className="text-xs font-medium">{estadoLabel}</span>
                   </div>
                 </div>
               </div>

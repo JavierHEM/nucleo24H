@@ -59,6 +59,7 @@ export async function GET(req: NextRequest) {
         },
         emitidoPor: "system",
         inputsSnapshot: JSON.parse(JSON.stringify(inputs)),
+        hallazgos: inputs.hallazgos,
         noSobreescribir: true,
       });
 

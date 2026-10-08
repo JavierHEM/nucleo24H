@@ -36,11 +36,11 @@ const TRABAJADOR_ITEMS: BottomNavItem[] = [
 
 // Ítems para admin_local (max 5)
 const ADMIN_LOCAL_ITEMS: BottomNavItem[] = [
-  { href: "/", label: "Inicio", icon: IconLayoutDashboard, roles: ["admin_local"] },
-  { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["admin_local"] },
-  { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ["admin_local"] },
-  { href: "/equipo", label: "Equipo", icon: IconUsers, roles: ["admin_local"] },
-  { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["admin_local"] },
+  { href: "/", label: "Inicio", icon: IconLayoutDashboard, roles: ["admin_local", "jefe_local"] },
+  { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["admin_local", "jefe_local"] },
+  { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ["admin_local", "jefe_local"] },
+  { href: "/equipo", label: "Equipo", icon: IconUsers, roles: ["admin_local", "jefe_local"] },
+  { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["admin_local", "jefe_local"] },
 ];
 
 const BOTTOM_ITEMS: BottomNavItem[] = [

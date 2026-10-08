@@ -2,12 +2,9 @@ import { Resend } from "resend";
 
 import { APP_NAME } from "@/lib/branding";
 
-export const FROM_EMAIL = `${APP_NAME} <notificaciones@nucleosur.cl>`;
+export const FROM_EMAIL = `${APP_NAME} <notificaciones@send.nucleo24h.cl>`;
 
-/**
- * El cliente aún no crea la cuenta Resend — mientras tanto la API key
- * es un placeholder y todos los envíos deben degradar sin fallar.
- */
+/** Sin API key válida los envíos se omiten y la app sigue funcionando. */
 export function isEmailConfigured(): boolean {
   const key = process.env.RESEND_API_KEY;
   return Boolean(key && key.length > 10 && key !== "re_...");

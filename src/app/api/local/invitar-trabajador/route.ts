@@ -7,11 +7,12 @@ import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
 import { APP_NAME } from "@/lib/branding";
+import { debePromoverRol, puedeGestionarEquipo, puedeInvitarConRol } from "@/lib/roles";
 
 const bodySchema = z.object({
   email: z.string().email("Email inválido"),
   nombre: z.string().min(2, "Ingresa el nombre").optional(),
-  rol: z.enum(["trabajador_local", "admin_local"]).default("trabajador_local"),
+  rol: z.enum(["trabajador_local", "jefe_local", "admin_local"]).default("trabajador_local"),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     select: { rol: true },
   });
 
-  if (dbUser?.rol !== "admin_local" && dbUser?.rol !== "admin_nucleo") {
+  if (!puedeGestionarEquipo(dbUser?.rol)) {
     return NextResponse.json({ error: "Sin permisos" }, { status: 403 });
   }
 
@@ -64,6 +65,13 @@ export async function POST(req: NextRequest) {
 
   const { email, nombre, rol } = parsed.data;
 
+  if (!puedeInvitarConRol(dbUser?.rol, rol)) {
+    return NextResponse.json(
+      { error: "No puedes asignar ese rol." },
+      { status: 403 }
+    );
+  }
+
   // ¿El email ya tiene cuenta en auth.users?
   const existing = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM auth.users WHERE email = ${email.toLowerCase()} LIMIT 1
@@ -85,11 +93,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Si el rol pedido es admin_local, actualizar también User.rol
-    if (rol === "admin_local") {
+    const cuenta = await prisma.user.findUnique({
+      where: { id: existingUserId },
+      select: { rol: true },
+    });
+    if (cuenta && debePromoverRol(cuenta.rol, rol)) {
       await prisma.user.update({
         where: { id: existingUserId },
-        data: { rol: "admin_local" },
+        data: { rol },
       });
     }
 

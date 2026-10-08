@@ -8,9 +8,11 @@ import { formatDate } from "@/lib/utils";
 import { IconUsers, IconUser, IconShieldHalf } from "@tabler/icons-react";
 import { InvitarMiembroButton } from "./InvitarMiembroButton";
 import { RemoverMiembroButton } from "./RemoverMiembroButton";
+import { puedeAsignarCargos, puedeGestionarEquipo, puedeRemoverMiembro } from "@/lib/roles";
 
 const ROL_LABEL: Record<string, { label: string; className: string }> = {
   admin_local: { label: "Admin local", className: "bg-[#143556] text-white" },
+  jefe_local: { label: "Jefe de local", className: "bg-[#143556]/10 text-[#143556]" },
   trabajador_local: { label: "Trabajador", className: "bg-[#EBF5E6] text-[#3A6E24]" },
   asesor: { label: "Asesor", className: "bg-purple-100 text-purple-800" },
   admin_nucleo: { label: "Admin Núcleo", className: "bg-orange-100 text-orange-800" },
@@ -29,7 +31,7 @@ export default async function EquipoPage() {
     select: { rol: true },
   });
 
-  if (dbUser?.rol !== "admin_local" && dbUser?.rol !== "admin_nucleo") {
+  if (!puedeGestionarEquipo(dbUser?.rol)) {
     redirect("/");
   }
 
@@ -48,7 +50,7 @@ export default async function EquipoPage() {
             Miembros con acceso a este local
           </p>
         </div>
-        <InvitarMiembroButton />
+        <InvitarMiembroButton puedeAsignarCargos={puedeAsignarCargos(dbUser?.rol)} />
       </div>
 
       {miembros.length === 0 ? (
@@ -76,7 +78,7 @@ export default async function EquipoPage() {
             <tbody className="divide-y divide-[#E2E8F0]">
               {miembros.map((miembro) => {
                 const rolInfo = ROL_LABEL[miembro.rol] ?? { label: miembro.rol, className: "bg-gray-100 text-gray-600" };
-                const esAdmin = miembro.rol === "admin_local" || miembro.rol === "admin_nucleo";
+                const esAdmin = miembro.rol === "admin_local" || miembro.rol === "admin_nucleo" || miembro.rol === "jefe_local";
 
                 return (
                   <tr key={miembro.id} className="hover:bg-[#F8F9FA] transition-colors">
@@ -109,10 +111,12 @@ export default async function EquipoPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <RemoverMiembroButton
-                        userId={miembro.id}
-                        nombre={miembro.nombre ?? miembro.email ?? ""}
-                      />
+                      {puedeRemoverMiembro(dbUser?.rol, miembro.rol, miembro.id, user.id) && (
+                        <RemoverMiembroButton
+                          userId={miembro.id}
+                          nombre={miembro.nombre ?? miembro.email ?? ""}
+                        />
+                      )}
                     </td>
                   </tr>
                 );
@@ -126,7 +130,8 @@ export default async function EquipoPage() {
         <p className="font-medium text-[#0B2545] mb-1">Permisos por rol</p>
         <ul className="space-y-1">
           <li><span className="font-medium">Trabajador:</span> Registros BPM, tareas diarias y capacitaciones.</li>
-          <li><span className="font-medium">Admin local:</span> Todo lo anterior + documentos, sellos, visitas, comunicaciones y gestión del equipo.</li>
+          <li><span className="font-medium">Jefe de local:</span> Opera el local, sube documentos y gestiona al equipo. Puede tener más de un local a cargo.</li>
+          <li><span className="font-medium">Admin local:</span> Todo lo anterior, más la suscripción del local.</li>
         </ul>
       </div>
     </div>

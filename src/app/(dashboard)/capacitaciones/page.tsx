@@ -73,9 +73,12 @@ export default async function CapacitacionesPage() {
             }) => {
               const datos = r.datos as {
                 tema?: string;
-                asistentes?: number;
+                asistentes?: number | Array<unknown>;
                 instructor?: string;
+                relator?: string;
               };
+              const cantidad = Array.isArray(datos.asistentes) ? datos.asistentes.length : datos.asistentes;
+              const relator = datos.relator ?? datos.instructor;
               return (
                 <div key={r.id} className="flex items-center gap-4 p-4">
                   <div className="w-9 h-9 rounded-lg bg-[#EBF5E6] flex items-center justify-center shrink-0">
@@ -90,14 +93,14 @@ export default async function CapacitacionesPage() {
                         <IconClock size={11} />
                         {formatDate(r.fecha)}
                       </span>
-                      {datos.asistentes && (
+                      {cantidad ? (
                         <span className="text-xs text-[#64748B]">
-                          {datos.asistentes} asistente{datos.asistentes > 1 ? "s" : ""}
+                          {cantidad} asistente{cantidad > 1 ? "s" : ""}
                         </span>
-                      )}
-                      {datos.instructor && (
+                      ) : null}
+                      {relator && (
                         <span className="text-xs text-[#64748B]">
-                          {datos.instructor}
+                          {relator}
                         </span>
                       )}
                     </div>

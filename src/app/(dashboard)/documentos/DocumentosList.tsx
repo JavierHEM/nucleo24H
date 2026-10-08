@@ -13,6 +13,7 @@ import {
 import { trpc } from "@/lib/trpc/client";
 import { formatDate, getCurrentPeriodo, cn } from "@/lib/utils";
 import { RevisarDocumentoButton } from "./RevisarDocumentoButton";
+import { hrefArchivo } from "@/lib/storage/rutas";
 
 const ESTADO_CONFIG = {
   pendiente: {
@@ -161,7 +162,7 @@ export function DocumentosList({ userRole }: Props) {
 
                   {/* Link al archivo */}
                   <a
-                    href={doc.url}
+                    href={hrefArchivo(doc.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#4B8B2E] hover:bg-[#EBF5E6] transition-colors shrink-0"

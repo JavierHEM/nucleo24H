@@ -9,6 +9,7 @@ import { localesRouter } from "./routers/locales";
 import { tareasRouter } from "./routers/tareas";
 import { informesRouter } from "./routers/informes";
 import { pagosRouter } from "./routers/pagos";
+import { programaRouter } from "./routers/programa";
 
 export const appRouter = router({
   sellos: sellosRouter,
@@ -21,6 +22,7 @@ export const appRouter = router({
   tareas: tareasRouter,
   informes: informesRouter,
   pagos: pagosRouter,
+  programa: programaRouter,
 });
 
 export type AppRouter = typeof appRouter;

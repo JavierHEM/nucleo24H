@@ -1,31 +1,116 @@
+import Link from "next/link";
 import { prisma } from "@/server/db/prisma";
-import { IconUserCheck, IconBuildingStore } from "@tabler/icons-react";
+import { IconUserCheck, IconBuildingStore, IconSearch } from "@tabler/icons-react";
 import { InvitarAsesorButton } from "./InvitarAsesorButton";
+import { AsesorAcciones } from "./AsesorAcciones";
 
-export default async function AdminAsesoresPage() {
-  const asesores = await prisma.user.findMany({
-    where: { rol: "asesor", activo: true },
-    include: {
-      // Locales asignados a cada asesor
-    },
-    orderBy: { nombre: "asc" },
-  });
+const FILTROS = [
+  { id: "activos", label: "Activos" },
+  { id: "baja", label: "De baja" },
+  { id: "sin-locales", label: "Sin locales" },
+  { id: "todos", label: "Todos" },
+] as const;
 
-  const asignaciones = await prisma.asignacionAsesor.findMany({
+type Filtro = (typeof FILTROS)[number]["id"];
+
+function filtroDesde(valor: string | undefined): Filtro {
+  return FILTROS.some((f) => f.id === valor) ? (valor as Filtro) : "activos";
+}
+
+function hrefFiltro(estado: Filtro, q: string) {
+  const params = new URLSearchParams();
+  if (estado !== "activos") params.set("estado", estado);
+  if (q) params.set("q", q);
+  const query = params.toString();
+  return query ? `/admin/asesores?${query}` : "/admin/asesores";
+}
+
+interface PageProps {
+  searchParams: Promise<{ estado?: string; q?: string }>;
+}
+
+export default async function AdminAsesoresPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const filtro = filtroDesde(params.estado);
+  const q = (params.q ?? "").trim();
+
+  const asignados = await prisma.asignacionAsesor.findMany({
     where: { activo: true },
-    include: {
-      tenant: { select: { id: true, nombre: true, estado: true } },
-    },
+    distinct: ["asesor_id"],
+    select: { asesor_id: true },
   });
+  const idsConLocal = asignados.map((a) => a.asesor_id);
 
-  const asignacionesPorAsesor = asignaciones.reduce(
-    (acc, a) => {
-      if (!acc[a.asesor_id]) acc[a.asesor_id] = [];
-      acc[a.asesor_id].push(a.tenant);
-      return acc;
-    },
-    {} as Record<string, { id: string; nombre: string; estado: string }[]>
-  );
+  const busqueda = q
+    ? {
+        OR: [
+          { nombre: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
+  const where =
+    filtro === "baja"
+      ? { rol: "asesor" as const, activo: false, ...busqueda }
+      : filtro === "sin-locales"
+        ? {
+            rol: "asesor" as const,
+            activo: true,
+            ...(idsConLocal.length > 0 ? { id: { notIn: idsConLocal } } : {}),
+            ...busqueda,
+          }
+        : filtro === "todos"
+          ? { rol: "asesor" as const, ...busqueda }
+          : { rol: "asesor" as const, activo: true, ...busqueda };
+
+  const [totalActivos, totalBaja, totalSinLocales, asesores] = await Promise.all([
+    prisma.user.count({ where: { rol: "asesor", activo: true } }),
+    prisma.user.count({ where: { rol: "asesor", activo: false } }),
+    prisma.user.count({
+      where: {
+        rol: "asesor",
+        activo: true,
+        ...(idsConLocal.length > 0 ? { id: { notIn: idsConLocal } } : {}),
+      },
+    }),
+    prisma.user.findMany({
+      where,
+      orderBy: { nombre: "asc" },
+      select: { id: true, nombre: true, email: true, activo: true },
+    }),
+  ]);
+
+  const conteos: Record<Filtro, number> = {
+    activos: totalActivos,
+    baja: totalBaja,
+    "sin-locales": totalSinLocales,
+    todos: totalActivos + totalBaja,
+  };
+
+  const localesPorAsesor = new Map<string, { id: string; nombre: string }[]>();
+  if (asesores.length > 0 && filtro !== "baja" && filtro !== "sin-locales") {
+    const asignaciones = await prisma.asignacionAsesor.findMany({
+      where: { activo: true, asesor_id: { in: asesores.map((a) => a.id) } },
+      include: { tenant: { select: { id: true, nombre: true } } },
+      orderBy: { tenant: { nombre: "asc" } },
+    });
+    for (const asignacion of asignaciones) {
+      const lista = localesPorAsesor.get(asignacion.asesor_id) ?? [];
+      lista.push(asignacion.tenant);
+      localesPorAsesor.set(asignacion.asesor_id, lista);
+    }
+  }
+
+  const vacio = q
+    ? `Ningún asesor coincide con “${q}”.`
+    : filtro === "baja"
+      ? "No hay asesores de baja."
+      : filtro === "sin-locales"
+        ? "Todos los asesores activos tienen al menos un local."
+        : filtro === "todos"
+          ? "Sin asesores registrados."
+          : "No hay asesores activos.";
 
   return (
     <div className="space-y-6">
@@ -33,63 +118,154 @@ export default async function AdminAsesoresPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#0B2545]">Asesores</h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Profesionales Nucleo 24H y sus locales asignados
+            Cuentas de Nucleo 24H y los locales que cada una tiene a cargo.
           </p>
         </div>
         <InvitarAsesorButton />
       </div>
 
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+        <nav aria-label="Filtrar asesores" className="flex flex-wrap gap-2">
+          {FILTROS.map((item) => {
+            const seleccionado = item.id === filtro;
+            return (
+              <Link
+                key={item.id}
+                href={hrefFiltro(item.id, q)}
+                aria-current={seleccionado ? "page" : undefined}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4B8B2E] ${
+                  seleccionado
+                    ? "bg-[#0B2545] text-white"
+                    : "bg-white text-[#334155] border border-[#E2E8F0] hover:bg-[#F8FAFC]"
+                }`}
+              >
+                {item.label}
+                <span className={seleccionado ? "text-white/70" : "text-[#94A3B8]"}>
+                  {conteos[item.id]}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <form method="get" action="/admin/asesores" className="flex gap-2 lg:ml-auto w-full lg:w-auto">
+          {filtro !== "activos" && <input type="hidden" name="estado" value={filtro} />}
+          <label className="relative flex-1 lg:w-72">
+            <span className="sr-only">Buscar asesor</span>
+            <IconSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="Nombre o correo"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#E2E8F0] text-sm text-[#0B2545] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E]"
+            />
+          </label>
+          <button
+            type="submit"
+            className="px-3 py-2 rounded-xl border border-[#E2E8F0] text-sm font-medium text-[#143556] hover:bg-[#F8FAFC]"
+          >
+            Buscar
+          </button>
+        </form>
+      </div>
+
       {asesores.length === 0 ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
           <IconUserCheck size={32} className="mx-auto text-[#E2E8F0] mb-3" />
-          <p className="text-sm text-[#64748B]">Sin asesores registrados</p>
+          <p className="text-sm text-[#64748B]">{vacio}</p>
+          {q && (
+            <Link href={hrefFiltro(filtro, "")} className="inline-block mt-3 text-sm text-[#143556] underline">
+              Limpiar búsqueda
+            </Link>
+          )}
         </div>
       ) : (
-        <div className="space-y-4">
-          {asesores.map((asesor) => {
-            const localesAsignados = asignacionesPorAsesor[asesor.id] ?? [];
-            return (
-              <div
-                key={asesor.id}
-                className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5"
-              >
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#143556] flex items-center justify-center text-white font-bold">
-                      {(asesor.nombre ?? asesor.email ?? "A").charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-[#0B2545]">{asesor.nombre ?? asesor.email}</p>
+        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-[#F8F9FA] border-b border-[#E2E8F0]">
+              <tr>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Asesor</th>
+                {filtro === "todos" && (
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Estado</th>
+                )}
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B] hidden md:table-cell">
+                  Locales
+                </th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-[#64748B]">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E2E8F0]">
+              {asesores.map((asesor) => {
+                const locales = localesPorAsesor.get(asesor.id) ?? [];
+                const visibles = locales.slice(0, 3);
+                const resto = locales.length - visibles.length;
+                return (
+                  <tr key={asesor.id} className="hover:bg-[#F8F9FA] align-top">
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-[#0B2545]">{asesor.nombre || asesor.email}</p>
                       <p className="text-xs text-[#64748B]">{asesor.email}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-[#0B2545]">{localesAsignados.length}</p>
-                    <p className="text-xs text-[#64748B]">locales</p>
-                  </div>
-                </div>
-
-                {localesAsignados.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {localesAsignados.map((local) => (
-                      <span
-                        key={local.id}
-                        className="flex items-center gap-1 text-xs bg-[#EBF5E6] text-[#3A6E24] rounded-full px-3 py-1"
-                      >
-                        <IconBuildingStore size={12} />
-                        {local.nombre}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {localesAsignados.length === 0 && (
-                  <p className="text-xs text-[#64748B]">Sin locales asignados</p>
-                )}
-              </div>
-            );
-          })}
+                      <div className="mt-2 flex flex-wrap gap-1.5 md:hidden">
+                        <Locales locales={visibles} resto={resto} />
+                      </div>
+                    </td>
+                    {filtro === "todos" && (
+                      <td className="px-4 py-3">
+                        <span
+                          className={`text-[10px] font-medium uppercase tracking-wide rounded px-1.5 py-0.5 ${
+                            asesor.activo
+                              ? "bg-green-100 text-green-800"
+                              : "bg-[#F1F5F9] text-[#64748B]"
+                          }`}
+                        >
+                          {asesor.activo ? "Activo" : "De baja"}
+                        </span>
+                      </td>
+                    )}
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <Locales locales={visibles} resto={resto} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <AsesorAcciones
+                        id={asesor.id}
+                        nombre={asesor.nombre || asesor.email}
+                        activo={asesor.activo}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+      )}
+    </div>
+  );
+}
+
+function Locales({
+  locales,
+  resto,
+}: {
+  locales: { id: string; nombre: string }[];
+  resto: number;
+}) {
+  if (locales.length === 0) {
+    return <span className="text-xs text-[#94A3B8]">Sin locales</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {locales.map((local) => (
+        <span
+          key={local.id}
+          className="inline-flex items-center gap-1 text-xs bg-[#EBF5E6] text-[#3A6E24] rounded-full px-2.5 py-1"
+        >
+          <IconBuildingStore size={12} />
+          {local.nombre}
+        </span>
+      ))}
+      {resto > 0 && (
+        <span className="text-xs text-[#64748B] self-center">+{resto}</span>
       )}
     </div>
   );

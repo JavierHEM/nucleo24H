@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -55,6 +55,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -68,8 +69,31 @@ export function EmitirSelloButton({ tenantId }: Props) {
   });
 
   const watchedValues = watch();
+  const periodoValido = /^\d{4}-\d{2}$/.test(watchedValues.periodo ?? "");
+  const propuesta = trpc.sellos.propuesta.useQuery(
+    { tenant_id: tenantId, periodo: watchedValues.periodo },
+    { enabled: open && periodoValido }
+  );
+  const aplicada = useRef("");
 
-  // Preview en tiempo real del sello calculado
+  useEffect(() => {
+    if (!open) {
+      aplicada.current = "";
+      return;
+    }
+    if (!propuesta.data || propuesta.isFetching) return;
+    const clave = `${watchedValues.periodo}:${propuesta.dataUpdatedAt}`;
+    if (aplicada.current === clave) return;
+    aplicada.current = clave;
+    setValue("score_documentacion", Math.round(propuesta.data.scores.score_documentacion));
+    setValue("score_condiciones", Math.round(propuesta.data.scores.score_condiciones));
+    setValue("score_capacitaciones", Math.round(propuesta.data.scores.score_capacitaciones));
+    setValue("score_tareas", Math.round(propuesta.data.scores.score_tareas));
+  }, [open, propuesta.data, propuesta.dataUpdatedAt, propuesta.isFetching, setValue, watchedValues.periodo]);
+
+  const pesos = propuesta.data?.pesos ?? PESOS_DEFAULT;
+  const umbrales = propuesta.data?.umbrales ?? UMBRALES_DEFAULT;
+
   let preview: ReturnType<typeof calcularSello> | null = null;
   try {
     preview = calcularSello({
@@ -77,8 +101,9 @@ export function EmitirSelloButton({ tenantId }: Props) {
       score_condiciones: Number(watchedValues.score_condiciones) || 0,
       score_capacitaciones: Number(watchedValues.score_capacitaciones) || 0,
       score_tareas: Number(watchedValues.score_tareas) || 0,
-      pesos: PESOS_DEFAULT,
-      umbrales: UMBRALES_DEFAULT,
+      pesos,
+      umbrales,
+      hallazgos: propuesta.data?.hallazgos,
     });
   } catch {
     preview = null;
@@ -139,10 +164,17 @@ export function EmitirSelloButton({ tenantId }: Props) {
               <div className="flex items-start gap-2 bg-[#EBF5E6] rounded-xl p-3 text-xs text-[#3A6E24]">
                 <IconInfoCircle size={15} className="shrink-0 mt-0.5" />
                 <p>
-                  Ingresa el porcentaje de cumplimiento de cada dimensión según lo observado en la visita.
-                  Los pesos se obtienen de la configuración global del sello.
+                  Estas notas salen de los registros, documentos y tareas del mes. Ajústalas si la visita mostró algo distinto.
                 </p>
               </div>
+
+              {propuesta.data && propuesta.data.hallazgos.length > 0 && (
+                <ul className="space-y-1 text-sm text-[#334155]">
+                  {propuesta.data.hallazgos.map((hallazgo) => (
+                    <li key={hallazgo.texto}>{hallazgo.texto}</li>
+                  ))}
+                </ul>
+              )}
 
               {/* Scores */}
               <div className="space-y-4">
@@ -150,27 +182,27 @@ export function EmitirSelloButton({ tenantId }: Props) {
                   [
                     {
                       key: "score_documentacion" as const,
-                      label: "Documentación y registros BPM",
-                      peso: "30%",
-                      desc: "Documentos vigentes, registros de temperatura, limpieza",
+                      label: "Documentación",
+                      peso: `${Math.round(pesos.documentacion * 100)}%`,
+                      desc: "Documentos del mes aprobados y vigentes",
                     },
                     {
                       key: "score_condiciones" as const,
-                      label: "Condiciones sanitarias del local",
-                      peso: "25%",
-                      desc: "Estado general, equipos, higiene estructural",
+                      label: "Controles del programa",
+                      peso: `${Math.round(pesos.condiciones * 100)}%`,
+                      desc: "Lo que el local debía registrar en el turno",
                     },
                     {
                       key: "score_capacitaciones" as const,
-                      label: "Capacitaciones del equipo",
-                      peso: "25%",
-                      desc: "Asistencia y comprensión del personal",
+                      label: "Capacitaciones",
+                      peso: `${Math.round(pesos.capacitaciones * 100)}%`,
+                      desc: "Capacitaciones registradas en el mes",
                     },
                     {
                       key: "score_tareas" as const,
-                      label: "Tareas / No conformidades cerradas",
-                      peso: "20%",
-                      desc: "Porcentaje de NC resueltas del período",
+                      label: "Tareas del turno",
+                      peso: `${Math.round(pesos.tareas * 100)}%`,
+                      desc: "Tareas completadas según su frecuencia",
                     },
                   ] as const
                 ).map(({ key, label, peso, desc }) => {
@@ -252,16 +284,23 @@ export function EmitirSelloButton({ tenantId }: Props) {
                       </div>
                     )}
                   </div>
+                  {preview.plan_mejoras.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-xs text-[#334155]">
+                      {preview.plan_mejoras.map((linea) => (
+                        <li key={linea}>{linea}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
 
               <Button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || propuesta.isLoading}
                 className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
               >
                 <IconMedal size={18} />
-                {isPending ? "Emitiendo sello..." : "✅ Confirmar y emitir sello"}
+                {isPending ? "Emitiendo sello..." : "Confirmar y emitir sello"}
               </Button>
             </form>
           </div>

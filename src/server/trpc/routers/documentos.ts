@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireRole } from "@/server/middleware/rbac";
+import { rutaPertenece } from "@/lib/storage/rutas";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const asesorProcedure = protectedProcedure.use(
@@ -28,11 +29,17 @@ export const documentosRouter = router({
         nombre: z.string().min(1),
         categoria: z.string().min(1),
         mes: z.string().regex(/^\d{4}-\d{2}$/),
-        url: z.string().url(),
+        url: z.string().min(1).max(500),
         vencimiento: z.string().datetime().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!rutaPertenece(input.url, "documentos", ctx.tenantActivo!)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El archivo no corresponde a este local.",
+        });
+      }
       return ctx.prisma.documento.create({
         data: {
           tenant_id: ctx.tenantActivo!,

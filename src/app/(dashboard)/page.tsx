@@ -22,6 +22,8 @@ import {
   IconArrowRight,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
+import { puedeOperarLocal } from "@/lib/roles";
+import { GuiaDelDia } from "@/components/guia/GuiaDelDia";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -153,6 +155,8 @@ export default async function DashboardPage() {
           </Link>
         )}
       </div>
+
+      <GuiaDelDia puedeAjustar={puedeOperarLocal(userRole) || userRole === "asesor"} />
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="lg:col-span-1">
@@ -311,6 +315,8 @@ function TrabajadorDashboard({
         </h1>
         <p className="text-sm text-[#64748B] mt-1 capitalize">{hoy} · {tenantNombre}</p>
       </div>
+
+      <GuiaDelDia puedeAjustar={false} />
 
       {/* Progreso del día */}
       {tareas.total > 0 && (

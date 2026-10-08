@@ -22,6 +22,10 @@ export function RevisionesPanel() {
   const utils = trpc.useUtils();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
+  const [corregir, setCorregir] = useState<Record<string, boolean>>({});
+  const [notas, setNotas] = useState<
+    Record<string, { score_documentacion: number; score_condiciones: number; score_capacitaciones: number; score_tareas: number }>
+  >({});
 
   const { data: revisiones, isLoading } = trpc.sellos.getRevisionesPendientes.useQuery();
 
@@ -56,6 +60,13 @@ export function RevisionesPanel() {
         {revisiones.map((rev) => {
           const isOpen = expandedId === rev.id;
           const respuesta = respuestas[rev.id] ?? "";
+          const vaACorregir = corregir[rev.id] ?? false;
+          const nota = notas[rev.id] ?? {
+            score_documentacion: Math.round(rev.sello.score_documentacion),
+            score_condiciones: Math.round(rev.sello.score_condiciones),
+            score_capacitaciones: Math.round(rev.sello.score_capacitaciones),
+            score_tareas: Math.round(rev.sello.score_tareas),
+          };
 
           return (
             <div key={rev.id} className="p-4">
@@ -107,11 +118,55 @@ export function RevisionesPanel() {
                     </p>
                   )}
 
+                  <label className="flex items-center gap-2 text-sm text-[#334155]">
+                    <input
+                      type="checkbox"
+                      checked={vaACorregir}
+                      onChange={(event) =>
+                        setCorregir((prev) => ({ ...prev, [rev.id]: event.target.checked }))
+                      }
+                    />
+                    Volver a emitir el sello con otras notas
+                  </label>
+                  {vaACorregir && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {(
+                        [
+                          ["score_documentacion", "Documentación"],
+                          ["score_condiciones", "Controles"],
+                          ["score_capacitaciones", "Capacitaciones"],
+                          ["score_tareas", "Tareas"],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <label key={key} className="text-xs text-[#64748B]">
+                          {label}
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={nota[key]}
+                            onChange={(event) =>
+                              setNotas((prev) => ({
+                                ...prev,
+                                [rev.id]: { ...nota, [key]: Number(event.target.value) },
+                              }))
+                            }
+                            className="mt-1 min-h-10 w-full rounded-lg border border-[#E2E8F0] px-2 text-sm text-[#0B2545]"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
                   <Button
                     size="sm"
                     disabled={respuesta.trim().length < 5 || resolver.isPending}
                     onClick={() =>
-                      resolver.mutate({ revision_id: rev.id, respuesta: respuesta.trim() })
+                      resolver.mutate({
+                        revision_id: rev.id,
+                        respuesta: respuesta.trim(),
+                        corregir: vaACorregir ? nota : undefined,
+                      })
                     }
                     className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
                   >

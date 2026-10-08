@@ -3,7 +3,9 @@ import { prisma } from "@/server/db/prisma";
 import { IconFileDescription } from "@tabler/icons-react";
 import { DocumentosList } from "./DocumentosList";
 import { SubirDocumentoButton } from "./SubirDocumentoButton";
+import { BibliotecaProtocolos } from "./BibliotecaProtocolos";
 import type { UserRole } from "@/server/trpc/context";
+import { puedeOperarLocal } from "@/lib/roles";
 
 export default async function DocumentosPage() {
   const supabase = await createClient();
@@ -14,7 +16,7 @@ export default async function DocumentosPage() {
     : null;
 
   const userRole = (dbUser?.rol as UserRole | undefined) ?? null;
-  const canSubir = userRole === "admin_local" || userRole === "admin_nucleo";
+  const canSubir = puedeOperarLocal(userRole);
 
   return (
     <div className="space-y-6">
@@ -25,12 +27,25 @@ export default async function DocumentosPage() {
             Documentos
           </h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Permiso sanitario, certificados, procedimientos y más
+            Protocolos para imprimir y documentos del local
           </p>
         </div>
-        {canSubir && <SubirDocumentoButton />}
       </div>
-      <DocumentosList userRole={userRole} />
+
+      <BibliotecaProtocolos />
+
+      <section className="space-y-4 border-t border-[#E2E8F0] pt-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-[#0B2545]">Documentos del local</h2>
+            <p className="text-sm text-[#64748B] mt-1">
+              Permiso sanitario, certificados y lo que el local sube para revisión.
+            </p>
+          </div>
+          {canSubir && <SubirDocumentoButton />}
+        </div>
+        <DocumentosList userRole={userRole} />
+      </section>
     </div>
   );
 }

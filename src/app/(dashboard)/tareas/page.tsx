@@ -4,6 +4,7 @@ import { IconChecklist } from "@tabler/icons-react";
 import { TareasChecklist } from "./TareasChecklist";
 import { NuevaTareaButton } from "./NuevaTareaButton";
 import type { UserRole } from "@/server/trpc/context";
+import { esRolGestion } from "@/lib/roles";
 
 export default async function TareasPage() {
   const supabase = await createClient();
@@ -19,10 +20,7 @@ export default async function TareasPage() {
   });
 
   const userRole = (dbUser?.rol as UserRole | undefined) ?? null;
-  const canManage =
-    userRole === "admin_local" ||
-    userRole === "asesor" ||
-    userRole === "admin_nucleo";
+  const canManage = esRolGestion(userRole);
 
   const today = new Date().toLocaleDateString("es-CL", {
     weekday: "long",

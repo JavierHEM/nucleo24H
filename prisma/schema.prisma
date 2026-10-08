@@ -30,6 +30,7 @@ model Tenant {
   asignaciones      AsignacionAsesor[]
   suscripcion       Suscripcion?
   pagos             Pago[]
+  configuracion_bpm ConfiguracionBpm?
 
   @@index([rut])
 }
@@ -38,7 +39,7 @@ model User {
   id         String   @id @default(uuid())
   email      String   @unique
   nombre     String
-  rol        String   // 'trabajador_local' | 'admin_local' | 'asesor' | 'admin_nucleo'
+  rol        String   // 'trabajador_local' | 'jefe_local' | 'admin_local' | 'asesor' | 'admin_nucleo'
   activo     Boolean  @default(true)
   created_at DateTime @default(now())
 
@@ -133,18 +134,33 @@ model ConfiguracionSellos {
 model Registro {
   id          String   @id @default(uuid())
   tenant_id   String
-  tipo        String   // 'temperatura' | 'limpieza' | 'plagas' | 'capacitacion'
+  tipo        String
+  codigo      String?
+  origen      String   @default("digital")
   fecha       DateTime
   datos       Json
   estado      String   @default("completo")
+  observacion String?
   adjunto_url String?
-  created_by  String   // user_id (trabajador_local o admin_local)
+  created_by  String
   created_at  DateTime @default(now())
 
   tenant Tenant @relation(fields: [tenant_id], references: [id])
 
   @@index([tenant_id])
   @@index([tenant_id, tipo])
+  @@index([tenant_id, codigo])
+}
+
+model ConfiguracionBpm {
+  id             String   @id @default(uuid())
+  tenant_id      String   @unique
+  equipos_frio   Json
+  areas_limpieza Json
+  programa       Json?
+  updated_at     DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
 }
 
 model Documento {

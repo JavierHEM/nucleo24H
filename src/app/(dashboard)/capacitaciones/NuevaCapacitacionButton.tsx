@@ -14,8 +14,9 @@ import { Label } from "@/components/ui/label";
 const schema = z.object({
   tema: z.string().min(2, "Ingresa el tema de la capacitación"),
   fecha: z.string().min(1, "Selecciona la fecha"),
-  asistentes: z.string().min(1),
-  instructor: z.string().optional(),
+  relator: z.string().min(2, "Indica quién relató"),
+  asistente: z.string().min(2, "Indica al menos un asistente"),
+  cargo: z.string().min(2, "Indica el cargo"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -40,12 +41,14 @@ export function NuevaCapacitacionButton() {
 
   async function onSubmit(data: FormData) {
     await mutateAsync({
-      tipo: "capacitacion",
-      fecha: new Date(data.fecha).toISOString(),
+      codigo: "R-BPM-10-04",
+      fecha: new Date(`${data.fecha}T12:00:00`).toISOString(),
       datos: {
+        procedimiento: "PR-BPM-10",
         tema: data.tema,
-        asistentes: parseInt(data.asistentes, 10),
-        instructor: data.instructor,
+        fecha: data.fecha,
+        relator: data.relator,
+        asistentes: [{ nombre: data.asistente, cargo: data.cargo }],
       },
     });
     reset();
@@ -100,26 +103,36 @@ export function NuevaCapacitacionButton() {
               </div>
 
               <div>
-                <Label htmlFor="asistentes">N° de asistentes</Label>
+                <Label htmlFor="relator">Relator</Label>
                 <Input
-                  id="asistentes"
-                  type="number"
-                  min={1}
-                  placeholder="ej: 5"
+                  id="relator"
+                  placeholder="ej: Asesor BPM"
                   className="mt-1 min-h-12"
-                  {...register("asistentes")}
+                  {...register("relator")}
                 />
-                {errors.asistentes && <p className="text-xs text-[#DC2626] mt-1">{errors.asistentes.message}</p>}
+                {errors.relator && <p className="text-xs text-[#DC2626] mt-1">{errors.relator.message}</p>}
               </div>
 
               <div>
-                <Label htmlFor="instructor">Instructor (opcional)</Label>
+                <Label htmlFor="asistente">Asistente</Label>
                 <Input
-                  id="instructor"
-                  placeholder="ej: Asesor BPM"
+                  id="asistente"
+                  placeholder="Nombre"
                   className="mt-1 min-h-12"
-                  {...register("instructor")}
+                  {...register("asistente")}
                 />
+                {errors.asistente && <p className="text-xs text-[#DC2626] mt-1">{errors.asistente.message}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="cargo">Cargo</Label>
+                <Input
+                  id="cargo"
+                  placeholder="ej: Cocinero"
+                  className="mt-1 min-h-12"
+                  {...register("cargo")}
+                />
+                {errors.cargo && <p className="text-xs text-[#DC2626] mt-1">{errors.cargo.message}</p>}
               </div>
 
               <Button

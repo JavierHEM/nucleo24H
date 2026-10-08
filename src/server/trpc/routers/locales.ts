@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireNucleo, requireAsesor, requireRole } from "@/server/middleware/rbac";
+import { puedeRemoverMiembro } from "@/lib/roles";
 import { syncUserClaims } from "@/lib/supabase/claims";
 
 const nucleoProcedure = publicProcedure.use(requireNucleo);
@@ -142,6 +143,17 @@ export const localesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const asesor = await ctx.prisma.user.findFirst({
+        where: { id: input.asesor_id, rol: "asesor", activo: true },
+        select: { id: true },
+      });
+      if (!asesor) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El asesor no está activo.",
+        });
+      }
+
       return ctx.prisma.asignacionAsesor.upsert({
         where: {
           asesor_id_tenant_id: {
@@ -161,7 +173,7 @@ export const localesRouter = router({
   // Admin local: miembros de su propio tenant
   miEquipo: publicProcedure
     .use(withTenant)
-    .use(requireRole("admin_local", "admin_nucleo"))
+    .use(requireRole("jefe_local", "admin_local", "admin_nucleo"))
     .query(async ({ ctx }) => {
       const miembros = await ctx.prisma.userTenant.findMany({
         where: { tenant_id: ctx.tenantActivo! },
@@ -185,14 +197,21 @@ export const localesRouter = router({
   // Admin local: remover miembro del tenant
   removerMiembro: publicProcedure
     .use(withTenant)
-    .use(requireRole("admin_local", "admin_nucleo"))
+    .use(requireRole("jefe_local", "admin_local", "admin_nucleo"))
     .input(z.object({ user_id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      // No puede removerse a sí mismo
-      if (input.user_id === ctx.userId) {
+      const objetivo = await ctx.prisma.user.findUnique({
+        where: { id: input.user_id },
+        select: { rol: true },
+      });
+
+      if (
+        !objetivo ||
+        !puedeRemoverMiembro(ctx.userRole, objetivo.rol, input.user_id, ctx.userId!)
+      ) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "No puedes removerte a ti mismo del local.",
+          code: "FORBIDDEN",
+          message: "No puedes remover a este miembro del local.",
         });
       }
 

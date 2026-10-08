@@ -43,7 +43,7 @@ export async function sendInvitacionLocal(params: {
   to: string;
   nombre: string;
   nombreLocal: string;
-  rol: "admin_local" | "trabajador_local";
+  rol: "admin_local" | "jefe_local" | "trabajador_local";
   invitadoPor: string;
   linkAcceso: string;
 }) {
@@ -54,7 +54,11 @@ export async function sendInvitacionLocal(params: {
   }
 
   const rolLabel =
-    params.rol === "admin_local" ? "Administrador del Local" : "Colaborador";
+    params.rol === "admin_local"
+      ? "Administrador del Local"
+      : params.rol === "jefe_local"
+        ? "Jefe de local"
+        : "Colaborador";
 
   const html = await render(
     InvitacionLocalEmail({

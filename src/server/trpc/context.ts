@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type UserRole =
   | "trabajador_local"
+  | "jefe_local"
   | "admin_local"
   | "asesor"
   | "admin_nucleo";

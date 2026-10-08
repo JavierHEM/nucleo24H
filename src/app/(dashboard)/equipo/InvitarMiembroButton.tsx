@@ -7,11 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function InvitarMiembroButton() {
+type RolInvitable = "trabajador_local" | "jefe_local" | "admin_local";
+
+const ROLES: Array<{ value: RolInvitable; label: string; desc: string }> = [
+  { value: "trabajador_local", label: "Trabajador", desc: "Registros y tareas del local" },
+  { value: "jefe_local", label: "Jefe de local", desc: "Opera el local. Puede tener varios a cargo" },
+  { value: "admin_local", label: "Admin local", desc: "Gestión completa, incluida la suscripción" },
+];
+
+export function InvitarMiembroButton({ puedeAsignarCargos }: { puedeAsignarCargos: boolean }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [nombre, setNombre] = useState("");
-  const [rol, setRol] = useState<"trabajador_local" | "admin_local">("trabajador_local");
+  const [rol, setRol] = useState<RolInvitable>("trabajador_local");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ ok: true; msg: string } | { ok: false; msg: string } | null>(null);
   const router = useRouter();
@@ -33,7 +41,11 @@ export function InvitarMiembroButton() {
       const res = await fetch("/api/local/invitar-trabajador", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, nombre: nombre || undefined, rol }),
+        body: JSON.stringify({
+          email,
+          nombre: nombre || undefined,
+          rol: puedeAsignarCargos ? rol : "trabajador_local",
+        }),
       });
       const data: { message?: string; error?: unknown } = await res.json();
 
@@ -69,7 +81,7 @@ export function InvitarMiembroButton() {
 
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div className="flex items-center gap-2">
                 <IconUserPlus size={18} className="text-[#4B8B2E]" />
@@ -121,33 +133,30 @@ export function InvitarMiembroButton() {
                   />
                 </div>
 
-                <div>
-                  <Label className="block mb-1.5">Rol</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(
-                      [
-                        { value: "trabajador_local", label: "Trabajador", desc: "Solo registros y tareas" },
-                        { value: "admin_local", label: "Admin local", desc: "Gestión completa del local" },
-                      ] as const
-                    ).map((r) => (
-                      <button
-                        key={r.value}
-                        type="button"
-                        onClick={() => setRol(r.value)}
-                        className={`rounded-xl border-2 p-3 text-left transition-colors ${
-                          rol === r.value
-                            ? "border-[#4B8B2E] bg-[#EBF5E6]"
-                            : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
-                        }`}
-                      >
-                        <p className={`text-sm font-medium ${rol === r.value ? "text-[#3A6E24]" : "text-[#0B2545]"}`}>
-                          {r.label}
-                        </p>
-                        <p className="text-xs text-[#64748B] mt-0.5">{r.desc}</p>
-                      </button>
-                    ))}
+                {puedeAsignarCargos && (
+                  <div>
+                    <Label className="block mb-1.5">Rol</Label>
+                    <div className="grid gap-2">
+                      {ROLES.map((r) => (
+                        <button
+                          key={r.value}
+                          type="button"
+                          onClick={() => setRol(r.value)}
+                          className={`rounded-xl border-2 p-3 text-left transition-colors ${
+                            rol === r.value
+                              ? "border-[#4B8B2E] bg-[#EBF5E6]"
+                              : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
+                          }`}
+                        >
+                          <p className={`text-sm font-medium ${rol === r.value ? "text-[#3A6E24]" : "text-[#0B2545]"}`}>
+                            {r.label}
+                          </p>
+                          <p className="text-xs text-[#64748B] mt-0.5">{r.desc}</p>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {result && !result.ok && (
                   <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-3 py-2">

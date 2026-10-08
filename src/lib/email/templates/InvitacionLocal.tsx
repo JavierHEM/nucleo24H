@@ -14,13 +14,14 @@ import { APP_NAME, APP_NAME_UPPER, APP_FOOTER } from "@/lib/branding";
 interface Props {
   nombre: string;
   nombreLocal: string;
-  rol: "admin_local" | "trabajador_local";
+  rol: "admin_local" | "jefe_local" | "trabajador_local";
   invitadoPor: string;
   linkAcceso: string;
 }
 
 const ROL_LABEL: Record<string, string> = {
   admin_local: "Administrador del Local",
+  jefe_local: "Jefe de local",
   trabajador_local: "Colaborador",
 };
 
@@ -31,6 +32,12 @@ const ROL_PERMISOS: Record<string, string[]> = {
     "Invitar colaboradores al equipo",
     "Ver sellos de cumplimiento BPM",
     "Comunicarte con tu asesor asignado",
+  ],
+  jefe_local: [
+    "Registrar y subir las planillas de los locales a tu cargo",
+    "Ver documentos, sellos y visitas",
+    "Invitar trabajadores al equipo",
+    "Comunicarte con el asesor del local",
   ],
   trabajador_local: [
     "Completar registros diarios (temperatura, limpieza, etc.)",

@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { calcularSello } from "./calcular";
-import { PESOS_DEFAULT, UMBRALES_DEFAULT } from "./tipos";
+import { PESOS_DEFAULT, UMBRALES_DEFAULT, type Hallazgo } from "./tipos";
 import { sendSelloEmitido } from "@/lib/email/sendSelloEmitido";
 
 interface EmitirSelloParams {
@@ -17,6 +17,7 @@ interface EmitirSelloParams {
   emitidoPor: string;
   /** Datos crudos que respaldan los scores (auditoría) */
   inputsSnapshot?: Prisma.InputJsonValue;
+  hallazgos?: Hallazgo[];
   /** Si el sello ya existe, no lo sobreescribe (default: sobreescribe) */
   noSobreescribir?: boolean;
 }
@@ -26,6 +27,28 @@ interface EmitirSelloParams {
  * de pesos/umbrales, calcula nivel y plan de mejoras, persiste y notifica
  * por email a los usuarios del local.
  */
+export async function leerReglasSello(prisma: PrismaClient) {
+  const config = await prisma.configuracionSellos.findFirst({
+    orderBy: { updated_at: "desc" },
+  });
+  const pesos = config
+    ? {
+        documentacion: config.peso_documentacion,
+        condiciones: config.peso_condiciones,
+        capacitaciones: config.peso_capacitaciones,
+        tareas: config.peso_tareas,
+      }
+    : PESOS_DEFAULT;
+  const umbrales = config
+    ? {
+        intermedio: config.umbral_intermedio,
+        avanzado: config.umbral_avanzado,
+        premium: config.umbral_premium,
+      }
+    : UMBRALES_DEFAULT;
+  return { pesos, umbrales };
+}
+
 export async function emitirSello({
   prisma,
   tenantId,
@@ -33,6 +56,7 @@ export async function emitirSello({
   scores,
   emitidoPor,
   inputsSnapshot,
+  hallazgos,
   noSobreescribir = false,
 }: EmitirSelloParams) {
   if (noSobreescribir) {
@@ -43,28 +67,9 @@ export async function emitirSello({
     if (existente) return { sello: null, omitido: true as const };
   }
 
-  const config = await prisma.configuracionSellos.findFirst({
-    orderBy: { updated_at: "desc" },
-  });
+  const { pesos, umbrales } = await leerReglasSello(prisma);
 
-  const pesos = config
-    ? {
-        documentacion: config.peso_documentacion,
-        condiciones: config.peso_condiciones,
-        capacitaciones: config.peso_capacitaciones,
-        tareas: config.peso_tareas,
-      }
-    : PESOS_DEFAULT;
-
-  const umbrales = config
-    ? {
-        intermedio: config.umbral_intermedio,
-        avanzado: config.umbral_avanzado,
-        premium: config.umbral_premium,
-      }
-    : UMBRALES_DEFAULT;
-
-  const resultado = calcularSello({ ...scores, pesos, umbrales });
+  const resultado = calcularSello({ ...scores, pesos, umbrales, hallazgos });
 
   const datos = {
     nivel: resultado.nivel,

@@ -2,10 +2,11 @@ import { z } from "zod";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireRole } from "@/server/middleware/rbac";
+import { esContactoLocal } from "@/lib/roles";
 
 const protectedProcedure = publicProcedure
   .use(withTenant)
-  .use(requireRole("admin_local", "asesor", "admin_nucleo"));
+  .use(requireRole("jefe_local", "admin_local", "asesor", "admin_nucleo"));
 
 export const comunicacionesRouter = router({
   list: protectedProcedure
@@ -80,7 +81,7 @@ export const comunicacionesRouter = router({
 
   /**
    * Devuelve los contactos disponibles para enviar mensajes:
-   * - admin_local/trabajador_local → asesor asignado al tenant
+   * - jefe_local/admin_local/trabajador_local → asesor asignado al tenant
    * - asesor/admin_nucleo → admins del tenant activo
    */
   getContactos: protectedProcedure.query(async ({ ctx }) => {
@@ -94,7 +95,7 @@ export const comunicacionesRouter = router({
         },
       });
       return miembros
-        .filter((m) => m.user.rol === "admin_local" && m.user_id !== ctx.userId)
+        .filter((m) => esContactoLocal(m.user.rol) && m.user_id !== ctx.userId)
         .map((m) => ({ id: m.user.id, nombre: m.user.nombre ?? m.user.email ?? "", rol: m.user.rol }));
     }
 

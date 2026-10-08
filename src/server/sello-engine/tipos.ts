@@ -13,6 +13,14 @@ export const UmbralesSchema = z.object({
   premium: z.number().min(0).max(100),
 });
 
+export const DIMENSIONES = ["documentacion", "condiciones", "capacitaciones", "tareas"] as const;
+export type DimensionSello = (typeof DIMENSIONES)[number];
+
+export const HallazgoSchema = z.object({
+  dimension: z.enum(DIMENSIONES),
+  texto: z.string().min(1),
+});
+
 export const SelloInputSchema = z.object({
   score_documentacion: z.number().min(0).max(100),
   score_condiciones: z.number().min(0).max(100),
@@ -20,6 +28,7 @@ export const SelloInputSchema = z.object({
   score_tareas: z.number().min(0).max(100),
   pesos: PesosSchema,
   umbrales: UmbralesSchema,
+  hallazgos: z.array(HallazgoSchema).optional(),
 });
 
 export type NivelSello = "inicial" | "intermedio" | "avanzado" | "premium";
@@ -37,6 +46,7 @@ export const SelloResultSchema = z.object({
   umbrales_usados: UmbralesSchema,
 });
 
+export type Hallazgo = z.infer<typeof HallazgoSchema>;
 export type SelloInput = z.infer<typeof SelloInputSchema>;
 export type SelloResult = z.infer<typeof SelloResultSchema>;
 export type Pesos = z.infer<typeof PesosSchema>;

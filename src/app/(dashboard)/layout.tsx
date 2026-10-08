@@ -31,8 +31,13 @@ export default async function DashboardLayout({
   // Rol del usuario (necesitamos el rol ANTES de decidir qué locales cargar)
   const dbUserEarly = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { nombre: true, rol: true },
+    select: { nombre: true, rol: true, activo: true },
   });
+
+  if (dbUserEarly && !dbUserEarly.activo) {
+    await supabase.auth.signOut();
+    redirect("/login?error=cuenta_baja");
+  }
 
   const userRole = (dbUserEarly?.rol as UserRole | undefined) ?? null;
   const userName = dbUserEarly?.nombre ?? user.email?.split("@")[0] ?? "Usuario";

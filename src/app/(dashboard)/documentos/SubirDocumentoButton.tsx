@@ -92,6 +92,7 @@ export function SubirDocumentoButton() {
           filename: file.name,
           contentType: file.type,
           sizeMb,
+          bucket: "documentos",
         }),
       });
 
@@ -100,12 +101,15 @@ export function SubirDocumentoButton() {
         throw new Error((err as { error?: string }).error ?? "Error al preparar la carga");
       }
 
-      const { uploadUrl, publicUrl } = (await res.json()) as {
-        uploadUrl: string;
-        publicUrl: string;
+      const { uploadUrl, ruta } = (await res.json()) as {
+        uploadUrl?: string;
+        ruta?: string;
       };
+      if (!uploadUrl || !ruta) {
+        throw new Error("No se pudo preparar la carga");
+      }
 
-      // 2. Subir directamente a R2 con XMLHttpRequest para progreso
+      // 2. Subir directo al bucket privado, con progreso
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.upload.onprogress = (ev) => {
@@ -120,7 +124,7 @@ export function SubirDocumentoButton() {
           if (xhr.status >= 200 && xhr.status < 300) {
             resolve();
           } else {
-            reject(new Error(`Error R2: ${xhr.status}`));
+            reject(new Error(`No se pudo subir el archivo (${xhr.status})`));
           }
         };
         xhr.onerror = () => reject(new Error("Error de red al subir el archivo"));
@@ -129,7 +133,7 @@ export function SubirDocumentoButton() {
         xhr.send(file);
       });
 
-      setUploadState({ status: "done", url: publicUrl, filename: file.name });
+      setUploadState({ status: "done", url: ruta, filename: file.name });
     } catch (err) {
       setUploadState({
         status: "error",

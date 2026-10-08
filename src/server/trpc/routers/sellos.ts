@@ -3,12 +3,20 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireRole } from "@/server/middleware/rbac";
-import { emitirSello } from "@/server/sello-engine/emitirService";
+import { emitirSello, leerReglasSello } from "@/server/sello-engine/emitirService";
+import { recolectarInputs } from "@/server/sello-engine/recolectar";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const asesorProcedure = protectedProcedure.use(
   requireRole("asesor", "admin_nucleo")
 );
+
+const scoresSchema = z.object({
+  score_documentacion: z.number().min(0).max(100),
+  score_condiciones: z.number().min(0).max(100),
+  score_capacitaciones: z.number().min(0).max(100),
+  score_tareas: z.number().min(0).max(100),
+});
 
 export const sellosRouter = router({
   getActual: protectedProcedure
@@ -33,18 +41,43 @@ export const sellosRouter = router({
       });
     }),
 
+  propuesta: asesorProcedure
+    .input(
+      z.object({
+        tenant_id: z.string().uuid(),
+        periodo: z.string().regex(/^\d{4}-\d{2}$/),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      await asegurarLocal(ctx, input.tenant_id);
+      const [recolectado, reglas] = await Promise.all([
+        recolectarInputs(ctx.prisma, input.tenant_id, input.periodo),
+        leerReglasSello(ctx.prisma),
+      ]);
+      return {
+        scores: {
+          score_documentacion: recolectado.score_documentacion,
+          score_condiciones: recolectado.score_condiciones,
+          score_capacitaciones: recolectado.score_capacitaciones,
+          score_tareas: recolectado.score_tareas,
+        },
+        hallazgos: recolectado.hallazgos,
+        pesos: reglas.pesos,
+        umbrales: reglas.umbrales,
+      };
+    }),
+
   emitir: asesorProcedure
     .input(
       z.object({
         tenant_id: z.string().uuid(),
         periodo: z.string().regex(/^\d{4}-\d{2}$/),
-        score_documentacion: z.number().min(0).max(100),
-        score_condiciones: z.number().min(0).max(100),
-        score_capacitaciones: z.number().min(0).max(100),
-        score_tareas: z.number().min(0).max(100),
+        ...scoresSchema.shape,
       })
     )
     .mutation(async ({ ctx, input }) => {
+      await asegurarLocal(ctx, input.tenant_id);
+      const recolectado = await recolectarInputs(ctx.prisma, input.tenant_id, input.periodo);
       const { sello } = await emitirSello({
         prisma: ctx.prisma,
         tenantId: input.tenant_id,
@@ -56,7 +89,11 @@ export const sellosRouter = router({
           score_tareas: input.score_tareas,
         },
         emitidoPor: ctx.userId!,
-        inputsSnapshot: input,
+        inputsSnapshot: {
+          scoresConfirmados: input,
+          calculado: recolectado.detalle,
+        },
+        hallazgos: recolectado.hallazgos,
       });
 
       return sello;
@@ -120,6 +157,10 @@ export const sellosRouter = router({
             periodo: true,
             nivel: true,
             score_general: true,
+            score_documentacion: true,
+            score_condiciones: true,
+            score_capacitaciones: true,
+            score_tareas: true,
             tenant: { select: { nombre: true } },
           },
         },
@@ -133,8 +174,35 @@ export const sellosRouter = router({
     .input(z.object({
       revision_id: z.string().uuid(),
       respuesta: z.string().min(5, "La respuesta debe tener al menos 5 caracteres"),
+      corregir: scoresSchema.optional(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const revision = await ctx.prisma.revisionSello.findUnique({
+        where: { id: input.revision_id },
+        include: { sello: { select: { tenant_id: true, periodo: true } } },
+      });
+      if (!revision) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Revisión no encontrada." });
+      }
+      await asegurarLocal(ctx, revision.sello.tenant_id);
+
+      if (input.corregir) {
+        const recolectado = await recolectarInputs(
+          ctx.prisma,
+          revision.sello.tenant_id,
+          revision.sello.periodo
+        );
+        await emitirSello({
+          prisma: ctx.prisma,
+          tenantId: revision.sello.tenant_id,
+          periodo: revision.sello.periodo,
+          scores: input.corregir,
+          emitidoPor: ctx.userId!,
+          inputsSnapshot: { revision_id: input.revision_id, calculado: recolectado.detalle },
+          hallazgos: recolectado.hallazgos,
+        });
+      }
+
       return ctx.prisma.revisionSello.update({
         where: { id: input.revision_id },
         data: {
@@ -144,3 +212,17 @@ export const sellosRouter = router({
       });
     }),
 });
+
+async function asegurarLocal(
+  ctx: { prisma: import("@prisma/client").PrismaClient; userId: string | null; userRole: string | null },
+  tenantId: string
+) {
+  if (ctx.userRole === "admin_nucleo") return;
+  const asignacion = await ctx.prisma.asignacionAsesor.findFirst({
+    where: { asesor_id: ctx.userId ?? "", tenant_id: tenantId, activo: true },
+    select: { id: true },
+  });
+  if (!asignacion) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Este local no está a tu cargo." });
+  }
+}

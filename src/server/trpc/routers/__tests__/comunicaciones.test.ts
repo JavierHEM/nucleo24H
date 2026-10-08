@@ -25,8 +25,8 @@ function contadorNoLeidosLogica(
 
 /**
  * Replica la lógica de selección de contactos para `getContactos`.
- * asesor/admin_nucleo → admins del tenant activo
- * admin_local/trabajador_local → asesor asignado
+ * asesor/admin_nucleo → responsables del local (admin y jefe)
+ * jefe_local/admin_local/trabajador_local → asesor asignado
  */
 function elegirTipoContacto(role: string): "admins_del_tenant" | "asesor_del_tenant" {
   if (role === "asesor" || role === "admin_nucleo") return "admins_del_tenant";
@@ -89,6 +89,10 @@ describe("getContactos – selección de contactos por rol", () => {
 
   it("trabajador_local ve asesor asignado", () => {
     expect(elegirTipoContacto("trabajador_local")).toBe("asesor_del_tenant");
+  });
+
+  it("jefe_local ve asesor asignado", () => {
+    expect(elegirTipoContacto("jefe_local")).toBe("asesor_del_tenant");
   });
 });
 

@@ -57,7 +57,7 @@ export function SelloActual({ userRole }: Props) {
       />
 
       {/* admin_local puede solicitar revisión si considera que el resultado no es correcto */}
-      {userRole === "admin_local" && (
+      {(userRole === "admin_local" || userRole === "jefe_local") && (
         <div className="flex justify-end">
           <SolicitarRevisionButton selloId={sello.id} />
         </div>

@@ -137,8 +137,13 @@ describe("rbac – restricciones de rol en rutas /admin y /asesor", () => {
     expect(canAccess("/asesor/informes", undefined)).toBe(false);
   });
 
+  it("jefe_local no entra a /admin ni a /asesor", () => {
+    expect(canAccess("/admin", "jefe_local")).toBe(false);
+    expect(canAccess("/asesor/informes", "jefe_local")).toBe(false);
+  });
+
   it("cualquier rol puede acceder a rutas normales del dashboard", () => {
-    for (const rol of ["trabajador_local", "admin_local", "asesor", "admin_nucleo"]) {
+    for (const rol of ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"]) {
       expect(canAccess("/registros", rol)).toBe(true);
       expect(canAccess("/tareas", rol)).toBe(true);
     }

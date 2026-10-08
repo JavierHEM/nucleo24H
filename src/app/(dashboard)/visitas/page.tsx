@@ -12,6 +12,7 @@ import {
 import { NuevaVisitaButton } from "./NuevaVisitaButton";
 import { CerrarNcButton } from "./CerrarNcButton";
 import type { UserRole } from "@/server/trpc/context";
+import { puedeOperarLocal } from "@/lib/roles";
 
 export default async function VisitasPage() {
   const supabase = await createClient();
@@ -151,7 +152,7 @@ export default async function VisitasPage() {
                                 )}
                               </div>
                               {/* Solo el admin_local puede cerrar NC */}
-                              {nc.estado !== "cerrada" && (userRole === "admin_local" || userRole === "admin_nucleo") && (
+                              {nc.estado !== "cerrada" && puedeOperarLocal(userRole) && (
                                 <CerrarNcButton ncId={nc.id} descripcion={nc.descripcion} />
                               )}
                             </div>

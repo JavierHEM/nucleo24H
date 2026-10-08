@@ -1,5 +1,7 @@
 import {
   SelloInputSchema,
+  type DimensionSello,
+  type Hallazgo,
   type SelloInput,
   type SelloResult,
   type NivelSello,
@@ -20,6 +22,7 @@ export function calcularSello(input: SelloInput): SelloResult {
     score_tareas,
     pesos,
     umbrales,
+    hallazgos,
   } = parsed;
 
   // Score general ponderado
@@ -43,33 +46,32 @@ export function calcularSello(input: SelloInput): SelloResult {
     nivel = "inicial";
   }
 
-  // Plan de mejoras: identifica brechas por dimensión
-  const plan_mejoras: string[] = [];
-
-  if (score_documentacion < BRECHAS_THRESHOLDS.documentacion) {
-    const brecha = Math.ceil(BRECHAS_THRESHOLDS.documentacion - score_documentacion);
-    plan_mejoras.push(
-      `Completar documentación pendiente (+${brecha}% para cumplir el mínimo recomendado)`
-    );
-  }
-  if (score_condiciones < BRECHAS_THRESHOLDS.condiciones) {
-    const brecha = Math.ceil(BRECHAS_THRESHOLDS.condiciones - score_condiciones);
-    plan_mejoras.push(
-      `Mejorar condiciones sanitarias: registros de temperatura y limpieza (+${brecha}%)`
-    );
-  }
-  if (score_capacitaciones < BRECHAS_THRESHOLDS.capacitaciones) {
-    const brecha = Math.ceil(BRECHAS_THRESHOLDS.capacitaciones - score_capacitaciones);
-    plan_mejoras.push(
-      `Aumentar asistencia a capacitaciones del equipo (+${brecha}%)`
-    );
-  }
-  if (score_tareas < BRECHAS_THRESHOLDS.tareas) {
-    const brecha = Math.ceil(BRECHAS_THRESHOLDS.tareas - score_tareas);
-    plan_mejoras.push(
-      `Cerrar tareas pendientes de la última visita del asesor (+${brecha}%)`
-    );
-  }
+  const plan_mejoras: string[] = [
+    ...lineasDe(
+      "documentacion",
+      score_documentacion,
+      hallazgos,
+      `Completar documentación pendiente (+${Math.ceil(BRECHAS_THRESHOLDS.documentacion - score_documentacion)}% para cumplir el mínimo recomendado)`
+    ),
+    ...lineasDe(
+      "condiciones",
+      score_condiciones,
+      hallazgos,
+      `Mejorar condiciones sanitarias: registros de temperatura y limpieza (+${Math.ceil(BRECHAS_THRESHOLDS.condiciones - score_condiciones)}%)`
+    ),
+    ...lineasDe(
+      "capacitaciones",
+      score_capacitaciones,
+      hallazgos,
+      `Aumentar asistencia a capacitaciones del equipo (+${Math.ceil(BRECHAS_THRESHOLDS.capacitaciones - score_capacitaciones)}%)`
+    ),
+    ...lineasDe(
+      "tareas",
+      score_tareas,
+      hallazgos,
+      `Cerrar tareas pendientes de la última visita del asesor (+${Math.ceil(BRECHAS_THRESHOLDS.tareas - score_tareas)}%)`
+    ),
+  ];
 
   // Si nivel < premium pero casi llega, agregar mensaje motivacional
   if (nivel === "avanzado" && score < umbrales.premium) {
@@ -94,4 +96,17 @@ export function calcularSello(input: SelloInput): SelloResult {
     pesos_usados: pesos,
     umbrales_usados: umbrales,
   };
+}
+
+function lineasDe(
+  dimension: DimensionSello,
+  score: number,
+  hallazgos: Hallazgo[] | undefined,
+  generica: string
+) {
+  if (score >= BRECHAS_THRESHOLDS[dimension]) return [];
+  const propias = (hallazgos ?? [])
+    .filter((item) => item.dimension === dimension)
+    .map((item) => item.texto);
+  return propias.length > 0 ? propias : [generica];
 }

@@ -7,7 +7,7 @@ import type { UserRole } from "@/server/trpc/context";
  * Pasar los roles que tienen PERMISO (whitelist).
  *
  * Jerarquía implícita:
- *   trabajador_local < admin_local < asesor < admin_nucleo
+ *   trabajador_local < jefe_local < admin_local < asesor < admin_nucleo
  *
  * Nunca asumir jerarquía — siempre declarar roles explícitamente.
  */
@@ -41,5 +41,10 @@ export const requireNucleo = requireRole("admin_nucleo");
 /** Asesor o admin Núcleo */
 export const requireAsesor = requireRole("asesor", "admin_nucleo");
 
-/** Admin del local, asesor o admin Núcleo (excluye trabajador_local) */
-export const requireAdmin = requireRole("admin_local", "asesor", "admin_nucleo");
+/** Jefe o admin del local, asesor o admin Núcleo (excluye trabajador_local) */
+export const requireAdmin = requireRole(
+  "jefe_local",
+  "admin_local",
+  "asesor",
+  "admin_nucleo"
+);

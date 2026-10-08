@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { esRolGestion, puedeOperarLocal } from "@/lib/roles";
 
 interface Props {
   userRole: string | null;
@@ -35,10 +36,7 @@ export function TareasChecklist({ userRole }: Props) {
     onSuccess: () => utils.tareas.list.invalidate(),
   });
 
-  const isAdmin =
-    userRole === "admin_local" ||
-    userRole === "asesor" ||
-    userRole === "admin_nucleo";
+  const isAdmin = esRolGestion(userRole);
 
   if (isLoading) {
     return (
@@ -56,7 +54,7 @@ export function TareasChecklist({ userRole }: Props) {
         <IconCircle size={32} className="mx-auto text-[#E2E8F0] mb-3" />
         <p className="font-medium text-[#0B2545]">Sin tareas configuradas</p>
         <p className="text-sm text-[#64748B] mt-1">
-          {userRole === "admin_local" || userRole === "admin_nucleo"
+          {puedeOperarLocal(userRole)
             ? "Usa el botón \"Nueva tarea\" para crear el checklist del local."
             : "El administrador del local configurará las tareas diarias."}
         </p>
