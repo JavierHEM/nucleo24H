@@ -19,11 +19,11 @@ export default async function RegistrosPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
-            <IconClipboardList size={26} className="text-[#4B8B2E]" />
+          <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
+            <IconClipboardList size={26} className="text-[#2F6B2A]" />
             Registros BPM
           </h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-sm text-[#5B6980] mt-1">
             Completa la planilla en el sistema o carga la que imprimiste.
           </p>
         </div>

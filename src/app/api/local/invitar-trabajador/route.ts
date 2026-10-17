@@ -7,6 +7,7 @@ import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
 import { APP_NAME } from "@/lib/branding";
+import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
 import { debePromoverRol, puedeGestionarEquipo, puedeInvitarConRol } from "@/lib/roles";
 
 const bodySchema = z.object({
@@ -135,7 +136,6 @@ export async function POST(req: NextRequest) {
       type: "invite",
       email,
       options: {
-        redirectTo: `${appUrl}/api/auth/callback?next=/onboarding`,
         data: {
           tenant_id: tenantId,
           rol,
@@ -160,7 +160,10 @@ export async function POST(req: NextRequest) {
     select: { nombre: true, email: true },
   });
   const invitadoPor = invitador?.nombre ?? invitador?.email ?? APP_NAME;
-  const linkAcceso = linkData.properties?.action_link ?? `${appUrl}/login`;
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/onboarding");
+  if (!linkAcceso) {
+    return NextResponse.json({ error: "No se pudo armar el enlace de invitación." }, { status: 500 });
+  }
 
   void sendInvitacionLocal({
     to: email,

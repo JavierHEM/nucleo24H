@@ -88,8 +88,8 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Pesos */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0B2545] mb-4">Pesos por categoría</p>
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33] mb-4">Pesos por categoría</p>
         <div className="space-y-4">
           {(
             [
@@ -102,7 +102,7 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
             <div key={key}>
               <div className="flex items-center justify-between mb-1">
                 <Label htmlFor={key}>{label}</Label>
-                <span className="text-xs text-[#64748B]">
+                <span className="text-xs text-[#5B6980]">
                   {((Number(watch(key)) || 0) * 100).toFixed(0)}%
                 </span>
               </div>
@@ -119,26 +119,26 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
           ))}
           <div
             className={`text-sm font-medium ${
-              Math.abs(sumaPesos - 1) < 0.001 ? "text-[#16A34A]" : "text-[#DC2626]"
+              Math.abs(sumaPesos - 1) < 0.001 ? "text-[#2F6B2A]" : "text-[#B42318]"
             }`}
           >
             Suma total: {(sumaPesos * 100).toFixed(0)}%
             {Math.abs(sumaPesos - 1) >= 0.001 && " (debe ser 100%)"}
           </div>
           {errors.peso_tareas && (
-            <p className="text-xs text-[#DC2626]">{errors.peso_tareas.message}</p>
+            <p className="text-xs text-[#B42318]">{errors.peso_tareas.message}</p>
           )}
         </div>
       </div>
 
       {/* Umbrales */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0B2545] mb-4">Umbrales por nivel</p>
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33] mb-4">Umbrales por nivel</p>
         <div className="space-y-4">
           {(
             [
               { key: "umbral_intermedio", label: "Intermedio 🟡", color: "text-amber-600" },
-              { key: "umbral_avanzado", label: "Avanzado 🟢", color: "text-[#16A34A]" },
+              { key: "umbral_avanzado", label: "Avanzado 🟢", color: "text-[#2F6B2A]" },
               { key: "umbral_premium", label: "Premium ⚫", color: "text-[#1C1917]" },
             ] as const
           ).map(({ key, label, color }) => (
@@ -156,7 +156,7 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
                 {...register(key, { valueAsNumber: true })}
               />
               {errors[key] && (
-                <p className="text-xs text-[#DC2626] mt-1">{errors[key]?.message}</p>
+                <p className="text-xs text-[#B42318] mt-1">{errors[key]?.message}</p>
               )}
             </div>
           ))}
@@ -166,7 +166,7 @@ export function ConfiguracionSellosForm({ configActual }: Props) {
       <Button
         type="submit"
         disabled={isSubmitting || !isDirty}
-        className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
+        className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
       >
         {isSubmitting ? "Guardando..." : "Guardar configuración"}
       </Button>

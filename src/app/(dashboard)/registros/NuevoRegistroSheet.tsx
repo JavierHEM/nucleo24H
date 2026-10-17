@@ -12,7 +12,7 @@ export function NuevoRegistroSheet() {
     <>
       <Button
         onClick={() => setAbierto(true)}
-        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+        className="bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
         size="sm"
       >
         <IconPlus size={16} />

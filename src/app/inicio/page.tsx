@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 function CheckIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" className="shrink-0 mt-0.5" aria-hidden>
-      <circle cx="7.5" cy="7.5" r="7" stroke="#4B8B2E" strokeWidth="1.2" />
+      <circle cx="7.5" cy="7.5" r="7" stroke="#2F6B2A" strokeWidth="1.2" />
       <path
         d="M4.5 7.5l2 2 4-4"
-        stroke="#4B8B2E"
+        stroke="#2F6B2A"
         strokeWidth="1.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -31,8 +31,8 @@ const FEATURES = [
     color: "navy" as const,
     icon: (
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <circle cx="12" cy="12" r="9" stroke="#0B2545" strokeWidth="1.8" />
-        <path d="M12 7v5.5l3.5 2" stroke="#0B2545" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="12" cy="12" r="9" stroke="#0B1B33" strokeWidth="1.8" />
+        <path d="M12 7v5.5l3.5 2" stroke="#0B1B33" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -42,7 +42,7 @@ const FEATURES = [
     color: "green" as const,
     icon: (
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <path d="M5 12l4 4L19 8" stroke="#4B8B2E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5 12l4 4L19 8" stroke="#2F6B2A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -68,8 +68,8 @@ const FEATURES = [
     color: "navy" as const,
     icon: (
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <rect x="3" y="4" width="18" height="16" rx="2" stroke="#0B2545" strokeWidth="1.8" />
-        <path d="M7 10h10M7 14h6" stroke="#0B2545" strokeWidth="1.8" strokeLinecap="round" />
+        <rect x="3" y="4" width="18" height="16" rx="2" stroke="#0B1B33" strokeWidth="1.8" />
+        <path d="M7 10h10M7 14h6" stroke="#0B1B33" strokeWidth="1.8" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -79,9 +79,9 @@ const FEATURES = [
     color: "green" as const,
     icon: (
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <circle cx="9" cy="7" r="4" stroke="#4B8B2E" strokeWidth="1.8" />
-        <path d="M3 20c0-3.314 2.686-6 6-6" stroke="#4B8B2E" strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="17" cy="15" r="4" stroke="#4B8B2E" strokeWidth="1.8" />
+        <circle cx="9" cy="7" r="4" stroke="#2F6B2A" strokeWidth="1.8" />
+        <path d="M3 20c0-3.314 2.686-6 6-6" stroke="#2F6B2A" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="17" cy="15" r="4" stroke="#2F6B2A" strokeWidth="1.8" />
       </svg>
     ),
   },
@@ -124,34 +124,34 @@ const PLAN_INTEGRAL = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-[#0B2545] font-sans text-[15px] leading-relaxed">
+    <div className="min-h-screen bg-white text-[#0B1B33] font-sans text-[15px] leading-relaxed">
       {/* NAV */}
       <header className="sticky top-0 z-50 h-16 px-4 sm:px-8 lg:px-12 flex items-center gap-6 sm:gap-10 bg-white/95 backdrop-blur border-b border-[#E1E8EF]">
         <Link href="/" className="flex items-center gap-2.5 mr-auto no-underline">
           <BrandLogo variant="mark" className="w-10 h-10" priority />
-          <span className="text-lg font-bold text-[#0B2545] tracking-tight">{APP_NAME}</span>
+          <span className="text-lg font-bold text-[#0B1B33] tracking-tight">{APP_NAME}</span>
         </Link>
         <nav className="hidden md:flex items-center gap-8 list-none">
-          <a href="#funciones" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B2545] transition-colors">
+          <a href="#funciones" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B1B33] transition-colors">
             Funciones
           </a>
-          <a href="#como-funciona" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B2545] transition-colors">
+          <a href="#como-funciona" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B1B33] transition-colors">
             Cómo funciona
           </a>
-          <a href="#precios" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B2545] transition-colors">
+          <a href="#precios" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B1B33] transition-colors">
             Precios
           </a>
         </nav>
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-[9px] text-sm font-semibold text-[#0B2545] border-[1.5px] border-[#E1E8EF] hover:border-[#0B2545] hover:bg-[rgba(11,37,69,0.04)] transition-all"
+            className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-[9px] text-sm font-semibold text-[#0B1B33] border-[1.5px] border-[#E1E8EF] hover:border-[#0B1B33] hover:bg-[rgba(11,37,69,0.04)] transition-all"
           >
             Iniciar sesión
           </Link>
           <Link
             href="/register"
-            className="inline-flex items-center px-5 py-2.5 rounded-[9px] text-sm font-semibold text-white bg-[#0B2545] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all"
+            className="inline-flex items-center px-5 py-2.5 rounded-[9px] text-sm font-semibold text-white bg-[#0B1B33] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all"
           >
             Crear cuenta
           </Link>
@@ -159,7 +159,7 @@ export default function LandingPage() {
       </header>
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-[#0B2545] px-4 sm:px-8 lg:px-12 pt-20 sm:pt-24 pb-28 sm:pb-32 text-center">
+      <section className="relative overflow-hidden bg-[#0B1B33] px-4 sm:px-8 lg:px-12 pt-20 sm:pt-24 pb-28 sm:pb-32 text-center">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -169,11 +169,11 @@ export default function LandingPage() {
         />
         <div className="relative">
           <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-white/85 text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full mb-7 tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4B8B2E]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B2A]" />
             Plataforma regulatoria para pymes chilenas
           </span>
           <h1 className="text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold text-white leading-[1.1] tracking-[-1.5px] max-w-[760px] mx-auto mb-5">
-            Cumplimiento normativo <em className="not-italic text-[#4B8B2E]">sin complicaciones</em>
+            Cumplimiento normativo <em className="not-italic text-[#2F6B2A]">sin complicaciones</em>
           </h1>
           <p className="text-lg text-white/65 max-w-[540px] mx-auto mb-10 leading-relaxed">
             {APP_NAME} centraliza los requisitos sanitarios, ambientales y laborales de tu pyme en un
@@ -183,7 +183,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-3.5">
             <Link
               href="/register"
-              className="inline-flex items-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold bg-white text-[#0B2545] shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all"
+              className="inline-flex items-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold bg-white text-[#0B1B33] shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all"
             >
               Crear cuenta
             </Link>
@@ -204,17 +204,17 @@ export default function LandingPage() {
 
       {/* APP PREVIEW */}
       <div className="relative z-10 max-w-[1100px] mx-auto px-4 sm:px-8 -mt-12 sm:-mt-[50px] mb-16 sm:mb-20">
-        <div className="bg-[#F8F9FA] rounded-2xl border border-[#E1E8EF] shadow-[0_24px_80px_rgba(11,37,69,0.18),0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-[#F4F6F3] rounded-2xl border border-[#E1E8EF] shadow-[0_24px_80px_rgba(11,37,69,0.18),0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
           <div className="bg-[#f0f2f5] border-b border-[#E1E8EF] px-4 py-2.5 flex items-center gap-2">
             <span className="w-[11px] h-[11px] rounded-full bg-[#E74C3C]" />
             <span className="w-[11px] h-[11px] rounded-full bg-[#F39C12]" />
-            <span className="w-[11px] h-[11px] rounded-full bg-[#4B8B2E]" />
+            <span className="w-[11px] h-[11px] rounded-full bg-[#2F6B2A]" />
             <div className="flex-1 bg-white border border-[#E1E8EF] rounded-md px-3 py-1 text-[11.5px] text-[#7F8C8D] text-center font-mono">
               app.nucleo24h.cl/dashboard
             </div>
           </div>
           <div className="flex h-[280px] sm:h-[360px]">
-            <aside className="hidden sm:block w-[180px] shrink-0 bg-[#0B2545] py-4">
+            <aside className="hidden sm:block w-[180px] shrink-0 bg-[#0B1B33] py-4">
               <div className="px-3.5 pb-3.5 border-b border-white/[0.08] mb-2">
                 <div className="flex items-center gap-2">
                   <BrandLogo variant="mark" className="w-6 h-6 rounded-md" />
@@ -232,7 +232,7 @@ export default function LandingPage() {
                   key={item.label}
                   className={`flex items-center gap-2 px-3.5 py-2 text-[11px] font-medium border-l-2 ${
                     item.active
-                      ? "bg-white/[0.08] text-white border-[#4B8B2E]"
+                      ? "bg-white/[0.08] text-white border-[#2F6B2A]"
                       : "text-white/55 border-transparent"
                   }`}
                 >
@@ -245,17 +245,17 @@ export default function LandingPage() {
                 </div>
               ))}
             </aside>
-            <div className="flex-1 overflow-hidden bg-[#F8F9FA] p-4 sm:p-5 flex flex-col gap-3">
+            <div className="flex-1 overflow-hidden bg-[#F4F6F3] p-4 sm:p-5 flex flex-col gap-3">
               <div className="bg-white rounded-lg border border-[#E1E8EF] h-[38px] flex items-center px-4 gap-3">
-                <span className="text-xs font-semibold text-[#0B2545] flex-1">
+                <span className="text-xs font-semibold text-[#0B1B33] flex-1">
                   Mi Panel de Cumplimiento
                 </span>
-                <span className="w-[22px] h-[22px] bg-[#F8F9FA] rounded border border-[#E1E8EF]" />
+                <span className="w-[22px] h-[22px] bg-[#F4F6F3] rounded border border-[#E1E8EF]" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
-                  { val: "13", lbl: "Total requeridos", color: "text-[#0B2545]" },
-                  { val: "8", lbl: "Al día", color: "text-[#4B8B2E]" },
+                  { val: "13", lbl: "Total requeridos", color: "text-[#0B1B33]" },
+                  { val: "8", lbl: "Al día", color: "text-[#2F6B2A]" },
                   { val: "4", lbl: "Por vencer", color: "text-[#F39C12]" },
                   { val: "1", lbl: "Críticos", color: "text-[#E74C3C]" },
                 ].map((c) => (
@@ -284,8 +284,8 @@ export default function LandingPage() {
                       AMARILLO — Con observaciones
                     </span>
                   </div>
-                  <div className="h-1 bg-[#F8F9FA] rounded-full mt-2.5 overflow-hidden">
-                    <div className="h-full w-[62%] bg-[#0B2545] rounded-full" />
+                  <div className="h-1 bg-[#F4F6F3] rounded-full mt-2.5 overflow-hidden">
+                    <div className="h-full w-[62%] bg-[#0B1B33] rounded-full" />
                   </div>
                 </div>
               </div>
@@ -314,10 +314,10 @@ export default function LandingPage() {
 
       {/* FEATURES */}
       <section id="funciones" className="max-w-[1100px] mx-auto px-4 sm:px-8 py-16 sm:py-20">
-        <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B2545] mb-3">
+        <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B1B33] mb-3">
           Funciones principales
         </p>
-        <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight leading-[1.15] text-[#0B2545] mb-4">
+        <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight leading-[1.15] text-[#0B1B33] mb-4">
           Todo lo que tu pyme necesita
           <br className="hidden sm:block" /> para estar en regla
         </h2>
@@ -329,14 +329,14 @@ export default function LandingPage() {
           {FEATURES.map((f) => (
             <div
               key={f.titulo}
-              className="bg-[#F8F9FA] rounded-2xl border border-[#E1E8EF] p-7 hover:shadow-[0_8px_32px_rgba(11,37,69,0.1)] hover:-translate-y-0.5 transition-all"
+              className="bg-[#F4F6F3] rounded-2xl border border-[#E1E8EF] p-7 hover:shadow-[0_8px_32px_rgba(11,37,69,0.1)] hover:-translate-y-0.5 transition-all"
             >
               <div
                 className={`w-12 h-12 rounded-[13px] flex items-center justify-center mb-5 ${ICON_BG[f.color]}`}
               >
                 {f.icon}
               </div>
-              <h3 className="text-base font-bold text-[#0B2545] mb-2.5 tracking-tight">
+              <h3 className="text-base font-bold text-[#0B1B33] mb-2.5 tracking-tight">
                 {f.titulo}
               </h3>
               <p className="text-sm text-[#7F8C8D] leading-relaxed">{f.desc}</p>
@@ -348,14 +348,14 @@ export default function LandingPage() {
       {/* HOW IT WORKS */}
       <section
         id="como-funciona"
-        className="bg-[#F8F9FA] border-y border-[#E1E8EF] px-4 sm:px-8 py-16 sm:py-20"
+        className="bg-[#F4F6F3] border-y border-[#E1E8EF] px-4 sm:px-8 py-16 sm:py-20"
       >
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B2545] mb-3">
+            <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B1B33] mb-3">
               Proceso simple
             </p>
-            <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight text-[#0B2545] mb-4">
+            <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight text-[#0B1B33] mb-4">
               En 3 pasos, en regla
             </h2>
             <p className="text-[17px] text-[#7F8C8D] max-w-[520px] mx-auto">
@@ -367,7 +367,7 @@ export default function LandingPage() {
               className="hidden sm:block absolute top-7 left-[calc(16.66%+16px)] right-[calc(16.66%+16px)] h-0.5 opacity-30"
               style={{
                 background:
-                  "repeating-linear-gradient(90deg, #0B2545 0, #0B2545 8px, transparent 8px, transparent 16px)",
+                  "repeating-linear-gradient(90deg, #0B1B33 0, #0B1B33 8px, transparent 8px, transparent 16px)",
               }}
             />
             {[
@@ -388,10 +388,10 @@ export default function LandingPage() {
               },
             ].map((s) => (
               <div key={s.n} className="text-center px-4 relative z-[1]">
-                <div className="w-14 h-14 bg-[#0B2545] text-white text-lg font-extrabold rounded-full flex items-center justify-center mx-auto mb-5">
+                <div className="w-14 h-14 bg-[#0B1B33] text-white text-lg font-extrabold rounded-full flex items-center justify-center mx-auto mb-5">
                   {s.n}
                 </div>
-                <h3 className="text-base font-bold text-[#0B2545] mb-2.5">{s.title}</h3>
+                <h3 className="text-base font-bold text-[#0B1B33] mb-2.5">{s.title}</h3>
                 <p className="text-sm text-[#7F8C8D] leading-relaxed">{s.desc}</p>
               </div>
             ))}
@@ -402,8 +402,8 @@ export default function LandingPage() {
       {/* PRICING */}
       <section id="precios" className="max-w-[1100px] mx-auto px-4 sm:px-8 py-16 sm:py-20">
         <div className="text-center">
-          <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B2545] mb-3">Planes</p>
-          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight text-[#0B2545] mb-4">
+          <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B1B33] mb-3">Planes</p>
+          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight text-[#0B1B33] mb-4">
             Elige tu plan
           </h2>
           <p className="text-[17px] text-[#7F8C8D] max-w-[520px] mx-auto">
@@ -415,48 +415,48 @@ export default function LandingPage() {
             <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#7F8C8D] mb-3">
               Plan Calidad
             </p>
-            <p className="text-[42px] font-extrabold text-[#0B2545] tracking-[-2px] leading-none">
+            <p className="text-[42px] font-extrabold text-[#0B1B33] tracking-[-2px] leading-none">
               <sup className="text-lg font-semibold tracking-normal align-top">$</sup>
               80.000
             </p>
             <p className="text-[13px] text-[#7F8C8D] mt-1 mb-6">CLP / mes</p>
             <div className="h-px bg-[#E1E8EF] my-6" />
             {PLAN_CALIDAD.map((f) => (
-              <div key={f} className="flex items-start gap-2.5 text-[13.5px] text-[#0B2545] mb-3">
+              <div key={f} className="flex items-start gap-2.5 text-[13.5px] text-[#0B1B33] mb-3">
                 <CheckIcon />
                 {f}
               </div>
             ))}
             <Link
               href="/register"
-              className="mt-7 w-full inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-[#0B2545] border-[1.5px] border-[#E1E8EF] hover:border-[#0B2545] hover:bg-[rgba(11,37,69,0.04)] transition-all"
+              className="mt-7 w-full inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-[#0B1B33] border-[1.5px] border-[#E1E8EF] hover:border-[#0B1B33] hover:bg-[rgba(11,37,69,0.04)] transition-all"
             >
               Elegir plan
             </Link>
           </div>
 
-          <div className="relative bg-white rounded-[18px] border border-[#0B2545] p-8 shadow-[0_4px_24px_rgba(11,37,69,0.15)]">
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0B2545] text-white text-[11px] font-bold px-3.5 py-1 rounded-full tracking-wide whitespace-nowrap">
+          <div className="relative bg-white rounded-[18px] border border-[#0B1B33] p-8 shadow-[0_4px_24px_rgba(11,37,69,0.15)]">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0B1B33] text-white text-[11px] font-bold px-3.5 py-1 rounded-full tracking-wide whitespace-nowrap">
               Más completo
             </span>
             <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#7F8C8D] mb-3">
               Plan Integral
             </p>
-            <p className="text-[42px] font-extrabold text-[#0B2545] tracking-[-2px] leading-none">
+            <p className="text-[42px] font-extrabold text-[#0B1B33] tracking-[-2px] leading-none">
               <sup className="text-lg font-semibold tracking-normal align-top">$</sup>
               150.000
             </p>
             <p className="text-[13px] text-[#7F8C8D] mt-1 mb-6">CLP / mes</p>
             <div className="h-px bg-[#E1E8EF] my-6" />
             {PLAN_INTEGRAL.map((f) => (
-              <div key={f} className="flex items-start gap-2.5 text-[13.5px] text-[#0B2545] mb-3">
+              <div key={f} className="flex items-start gap-2.5 text-[13.5px] text-[#0B1B33] mb-3">
                 <CheckIcon />
                 {f}
               </div>
             ))}
             <Link
               href="/register"
-              className="mt-7 w-full inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white bg-[#0B2545] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all"
+              className="mt-7 w-full inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white bg-[#0B1B33] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all"
             >
               Comenzar ahora
             </Link>
@@ -467,7 +467,7 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="px-4 sm:px-8 py-16 sm:py-20 text-center">
         <div className="max-w-[640px] mx-auto">
-          <h2 className="text-[clamp(1.75rem,3.5vw,2.375rem)] font-extrabold text-[#0B2545] tracking-tight leading-[1.15] mb-4">
+          <h2 className="text-[clamp(1.75rem,3.5vw,2.375rem)] font-extrabold text-[#0B1B33] tracking-tight leading-[1.15] mb-4">
             ¿Listo para estar siempre en regla?
           </h2>
           <p className="text-[17px] text-[#7F8C8D] leading-relaxed mb-9">
@@ -476,13 +476,13 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-2.5 max-w-[440px] mx-auto">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white bg-[#0B2545] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all flex-1"
+              className="inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white bg-[#0B1B33] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all flex-1"
             >
               Crear cuenta
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-[#0B2545] border-[1.5px] border-[#E1E8EF] hover:border-[#0B2545] transition-all"
+              className="inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-[#0B1B33] border-[1.5px] border-[#E1E8EF] hover:border-[#0B1B33] transition-all"
             >
               Iniciar sesión
             </Link>
@@ -491,7 +491,7 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-[#0B2545] text-white/60 px-4 sm:px-8 py-12">
+      <footer className="bg-[#0B1B33] text-white/60 px-4 sm:px-8 py-12">
         <div className="max-w-[1100px] mx-auto grid sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 pb-10 border-b border-white/[0.08]">
           <div>
             <div className="flex items-center gap-3 text-base font-bold text-white mb-3">

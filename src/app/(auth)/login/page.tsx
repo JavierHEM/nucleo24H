@@ -45,9 +45,10 @@ function LoginForm() {
   const errorParam = searchParams.get("error");
   const next = searchParams.get("next") ?? "/";
 
+  const invitacionRota = errorParam === "auth_callback" || errorParam === "missing_code";
   const [serverError, setServerError] = useState<string | null>(
-    errorParam === "auth_callback"
-      ? "El enlace de invitación ha expirado. Solicita uno nuevo."
+    invitacionRota
+      ? "Ese enlace no activó la cuenta. Pide que te reenvíen la invitación. No crees una cuenta nueva: la empresa ya está registrada."
       : errorParam === "cuenta_baja"
         ? "Esta cuenta está dada de baja. Contacta a Nucleo 24H."
         : null
@@ -84,7 +85,7 @@ function LoginForm() {
   return (
     <div className="min-h-screen flex">
       {/* Panel marca */}
-      <aside className="relative hidden lg:flex w-[460px] xl:w-[500px] shrink-0 flex-col bg-[#0B2545] px-10 xl:px-12 py-10 overflow-hidden">
+      <aside className="relative hidden lg:flex w-[460px] xl:w-[500px] shrink-0 flex-col bg-[#0B1B33] px-10 xl:px-12 py-10 overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -104,7 +105,7 @@ function LoginForm() {
         <div className="relative z-10 flex-1 flex flex-col justify-center py-12">
           <h1 className="text-[34px] font-extrabold text-white leading-[1.15] tracking-tight mb-4">
             Cumplimiento normativo{" "}
-            <span className="text-[#4B8B2E]">sin complicaciones</span>
+            <span className="text-[#2F6B2A]">sin complicaciones</span>
           </h1>
           <p className="text-[15px] text-white/60 leading-relaxed max-w-[320px] mb-10">
             Accede a tu panel para gestionar registros, documentos, alertas y sellos de tu
@@ -115,7 +116,7 @@ function LoginForm() {
             {FEATURES.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-center gap-3.5">
                 <span className="w-9 h-9 rounded-[9px] bg-white/[0.08] border border-white/10 flex items-center justify-center shrink-0">
-                  <Icon size={18} className="text-[#4B8B2E]" />
+                  <Icon size={18} className="text-[#2F6B2A]" />
                 </span>
                 <span className="text-sm font-medium text-white/75">{text}</span>
               </li>
@@ -132,7 +133,7 @@ function LoginForm() {
       </aside>
 
       {/* Panel formulario */}
-      <main className="relative flex-1 flex items-center justify-center px-4 sm:px-8 py-10 bg-[#F8F9FA]">
+      <main className="relative flex-1 flex items-center justify-center px-4 sm:px-8 py-10 bg-[#F4F6F3]">
         <div
           className="absolute inset-0 pointer-events-none opacity-60"
           style={{
@@ -144,7 +145,7 @@ function LoginForm() {
         <div className="relative w-full max-w-[400px]">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0B2545] mb-8 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-[#5B6980] hover:text-[#0B1B33] mb-8 transition-colors"
           >
             <IconArrowLeft size={16} />
             Volver al inicio
@@ -157,7 +158,7 @@ function LoginForm() {
 
           <div className="bg-white rounded-2xl border border-[#E1E8EF] shadow-[0_8px_40px_rgba(11,37,69,0.08)] overflow-hidden">
             <div className="px-6 sm:px-8 pt-7 pb-2">
-              <h2 className="text-2xl font-extrabold text-[#0B2545] tracking-tight">
+              <h2 className="text-2xl font-extrabold text-[#0B1B33] tracking-tight">
                 Iniciar sesión
               </h2>
               <p className="text-sm text-[#7F8C8D] mt-1.5">
@@ -167,11 +168,11 @@ function LoginForm() {
 
             <div className="px-6 sm:px-8 pb-7 pt-5 space-y-5">
               {mensaje === "verifica-email" && (
-                <div className="flex items-start gap-3 bg-[#EBF5E6] rounded-xl px-4 py-3">
-                  <IconCircleCheck size={18} className="text-[#4B8B2E] shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 bg-[#E5F1E3] rounded-xl px-4 py-3">
+                  <IconCircleCheck size={18} className="text-[#2F6B2A] shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-[#0B2545]">Revisa tu correo</p>
-                    <p className="text-xs text-[#3A6E24] mt-0.5">
+                    <p className="text-sm font-medium text-[#0B1B33]">Revisa tu correo</p>
+                    <p className="text-xs text-[#255620] mt-0.5">
                       Te enviamos un enlace de confirmación para activar tu cuenta.
                     </p>
                   </div>
@@ -179,7 +180,7 @@ function LoginForm() {
               )}
 
               {serverError && (
-                <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-4 py-3">
+                <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-4 py-3">
                   {serverError}
                 </p>
               )}
@@ -197,12 +198,12 @@ function LoginForm() {
                       type="email"
                       placeholder="tu@local.cl"
                       autoComplete="email"
-                      className="pl-10 min-h-12 bg-[#F8F9FA] border-[#E1E8EF] focus-visible:ring-[#4B8B2E]"
+                      className="pl-10 min-h-12 bg-[#F4F6F3] border-[#E1E8EF] focus-visible:ring-[#2F6B2A]"
                       {...register("email")}
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.email.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.email.message}</p>
                   )}
                 </div>
 
@@ -211,7 +212,7 @@ function LoginForm() {
                     <Label htmlFor="password">Contraseña</Label>
                     <Link
                       href="/login/recuperar"
-                      className="text-xs font-medium text-[#4B8B2E] hover:underline"
+                      className="text-xs font-medium text-[#2F6B2A] hover:underline"
                     >
                       ¿Olvidaste tu contraseña?
                     </Link>
@@ -225,19 +226,19 @@ function LoginForm() {
                       id="password"
                       type="password"
                       autoComplete="current-password"
-                      className="pl-10 min-h-12 bg-[#F8F9FA] border-[#E1E8EF] focus-visible:ring-[#4B8B2E]"
+                      className="pl-10 min-h-12 bg-[#F4F6F3] border-[#E1E8EF] focus-visible:ring-[#2F6B2A]"
                       {...register("password")}
                     />
                   </div>
                   {errors.password && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.password.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.password.message}</p>
                   )}
                 </div>
 
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full min-h-12 mt-1 bg-[#0B2545] hover:bg-[#081C33] text-white gap-2 shadow-[0_2px_8px_rgba(11,37,69,0.25)]"
+                  className="w-full min-h-12 mt-1 bg-[#0B1B33] hover:bg-[#081C33] text-white gap-2 shadow-[0_2px_8px_rgba(11,37,69,0.25)]"
                 >
                   {isSubmitting ? (
                     <>
@@ -249,12 +250,14 @@ function LoginForm() {
                 </Button>
               </form>
 
-              <p className="text-sm text-[#7F8C8D] text-center pt-1">
-                ¿No tienes cuenta?{" "}
-                <Link href="/register" className="text-[#4B8B2E] font-semibold hover:underline">
-                  Crear cuenta
-                </Link>
-              </p>
+              {!invitacionRota && (
+                <p className="text-sm text-[#7F8C8D] text-center pt-1">
+                  ¿No tienes cuenta?{" "}
+                  <Link href="/register" className="text-[#2F6B2A] font-semibold hover:underline">
+                    Crear cuenta
+                  </Link>
+                </p>
+              )}
             </div>
           </div>
 
@@ -271,8 +274,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#0B2545]">
-          <div className="w-8 h-8 border-2 border-[#4B8B2E] border-t-transparent rounded-full animate-spin" />
+        <div className="min-h-screen flex items-center justify-center bg-[#0B1B33]">
+          <div className="w-8 h-8 border-2 border-[#2F6B2A] border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

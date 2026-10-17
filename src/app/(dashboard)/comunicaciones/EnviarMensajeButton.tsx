@@ -57,7 +57,7 @@ export function EnviarMensajeButton() {
     <>
       <Button
         onClick={handleOpen}
-        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+        className="bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
         size="sm"
       >
         <IconPencil size={16} />
@@ -67,9 +67,9 @@ export function EnviarMensajeButton() {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0B2545]">Nuevo mensaje</p>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
+              <p className="font-semibold text-[#0B1B33]">Nuevo mensaje</p>
+              <button onClick={() => setOpen(false)} className="text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
@@ -77,13 +77,13 @@ export function EnviarMensajeButton() {
             <div className="p-5 space-y-4">
               {/* Destinatario */}
               <div>
-                <label className="text-sm font-medium text-[#0B2545] block mb-2">
+                <label className="text-sm font-medium text-[#0B1B33] block mb-2">
                   Para
                 </label>
                 {cargandoContactos ? (
-                  <div className="h-10 bg-[#F8F9FA] rounded-xl animate-pulse" />
+                  <div className="h-10 bg-[#F4F6F3] rounded-xl animate-pulse" />
                 ) : !contactos || contactos.length === 0 ? (
-                  <div className="flex items-center gap-2 p-3 bg-[#F8F9FA] rounded-xl text-sm text-[#64748B]">
+                  <div className="flex items-center gap-2 p-3 bg-[#F4F6F3] rounded-xl text-sm text-[#5B6980]">
                     <IconUser size={16} />
                     {contactos === undefined
                       ? "Cargando..."
@@ -98,16 +98,16 @@ export function EnviarMensajeButton() {
                         onClick={() => setParaId(c.id)}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-colors text-left ${
                           paraId === c.id
-                            ? "border-[#4B8B2E] bg-[#EBF5E6]"
-                            : "border-[#E2E8F0] hover:border-[#4B8B2E]/40"
+                            ? "border-[#2F6B2A] bg-[#E5F1E3]"
+                            : "border-[#DDE3EA] hover:border-[#2F6B2A]/40"
                         }`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-[#143556] flex items-center justify-center shrink-0 text-white text-xs font-bold">
+                        <div className="w-8 h-8 rounded-full bg-[#16294A] flex items-center justify-center shrink-0 text-white text-xs font-bold">
                           {c.nombre.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-[#0B2545]">{c.nombre}</p>
-                          <p className="text-xs text-[#64748B] capitalize">{c.rol.replace("_", " ")}</p>
+                          <p className="text-sm font-medium text-[#0B1B33]">{c.nombre}</p>
+                          <p className="text-xs text-[#5B6980] capitalize">{c.rol.replace("_", " ")}</p>
                         </div>
                       </button>
                     ))}
@@ -117,7 +117,7 @@ export function EnviarMensajeButton() {
 
               {/* Mensaje */}
               <div>
-                <label className="text-sm font-medium text-[#0B2545] block mb-2">
+                <label className="text-sm font-medium text-[#0B1B33] block mb-2">
                   Mensaje
                 </label>
                 <textarea
@@ -125,15 +125,15 @@ export function EnviarMensajeButton() {
                   onChange={(e) => setContenido(e.target.value)}
                   placeholder="Escribe tu consulta o comentario..."
                   rows={4}
-                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+                  className="w-full rounded-xl border border-[#DDE3EA] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                 />
-                {error && <p className="text-xs text-[#DC2626] mt-1">{error}</p>}
+                {error && <p className="text-xs text-[#B42318] mt-1">{error}</p>}
               </div>
 
               <Button
                 onClick={handleEnviar}
                 disabled={isPending || !paraId || contenido.trim().length === 0}
-                className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
               >
                 <IconSend size={16} />
                 {isPending ? "Enviando..." : "Enviar mensaje"}

@@ -55,7 +55,7 @@ export function AsesorAcciones({ id, nombre, activo }: Props) {
             setNombreEdit(nombre);
             setModo("editar");
           }}
-          className="text-xs font-medium text-[#143556] border border-[#E2E8F0] rounded-lg px-2.5 py-1.5 hover:bg-[#F8FAFC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4B8B2E]"
+          className="text-xs font-medium text-[#16294A] border border-[#DDE3EA] rounded-lg px-2.5 py-1.5 hover:bg-[#F8FAFC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2F6B2A]"
         >
           <span className="inline-flex items-center gap-1">
             <IconPencil size={13} />
@@ -65,10 +65,10 @@ export function AsesorAcciones({ id, nombre, activo }: Props) {
         <button
           type="button"
           onClick={() => setModo("estado")}
-          className={`text-xs font-medium rounded-lg px-2.5 py-1.5 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4B8B2E] ${
+          className={`text-xs font-medium rounded-lg px-2.5 py-1.5 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2F6B2A] ${
             activo
-              ? "text-[#DC2626] border-[#FECACA] hover:bg-red-50"
-              : "text-[#3A6E24] border-[#BBF7D0] hover:bg-[#EBF5E6]"
+              ? "text-[#B42318] border-[#FECACA] hover:bg-red-50"
+              : "text-[#255620] border-[#BBF7D0] hover:bg-[#E5F1E3]"
           }`}
         >
           <span className="inline-flex items-center gap-1">
@@ -85,13 +85,13 @@ export function AsesorAcciones({ id, nombre, activo }: Props) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="asesor-accion-titulo"
-            className="relative bg-white rounded-2xl shadow-xl border border-[#E2E8F0] p-6 w-full max-w-md z-10"
+            className="relative bg-white rounded-2xl shadow-xl border border-[#DDE3EA] p-6 w-full max-w-md z-10"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 id="asesor-accion-titulo" className="font-bold text-[#0B2545]">
+              <h2 id="asesor-accion-titulo" className="font-bold text-[#0B1B33]">
                 {modo === "editar" ? "Editar asesor" : activo ? "Dar de baja" : "Reactivar asesor"}
               </h2>
-              <button type="button" onClick={cerrar} className="text-[#94A3B8] hover:text-[#64748B]">
+              <button type="button" onClick={cerrar} className="text-[#94A3B8] hover:text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
@@ -112,25 +112,25 @@ export function AsesorAcciones({ id, nombre, activo }: Props) {
                     id={`nombre-${id}`}
                     value={nombreEdit}
                     onChange={(e) => setNombreEdit(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-[#0B2545] text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-[#0B1B33] text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/30 focus:border-[#2F6B2A]"
                   />
                 </div>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-[#5B6980]">
                   El correo es la cuenta de acceso y no se modifica desde aquí.
                 </p>
-                {error && <p className="text-xs text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+                {error && <p className="text-xs text-[#B42318] bg-red-50 rounded-lg px-3 py-2">{error}</p>}
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={cerrar}
-                    className="flex-1 py-2.5 rounded-xl border border-[#E2E8F0] text-[#64748B] text-sm font-medium"
+                    className="flex-1 py-2.5 rounded-xl border border-[#DDE3EA] text-[#5B6980] text-sm font-medium"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={loading || nombreEdit.trim().length < 2}
-                    className="flex-1 py-2.5 rounded-xl bg-[#4B8B2E] text-white text-sm font-medium disabled:opacity-60"
+                    className="flex-1 py-2.5 rounded-xl bg-[#2F6B2A] text-white text-sm font-medium disabled:opacity-60"
                   >
                     {loading ? "Guardando..." : "Guardar"}
                   </button>
@@ -143,12 +143,12 @@ export function AsesorAcciones({ id, nombre, activo }: Props) {
                     ? `${nombre} dejará de ingresar y se le quitarán los locales asignados.`
                     : `${nombre} podrá ingresar de nuevo. Los locales hay que volver a asignarlos.`}
                 </p>
-                {error && <p className="text-xs text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+                {error && <p className="text-xs text-[#B42318] bg-red-50 rounded-lg px-3 py-2">{error}</p>}
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={cerrar}
-                    className="flex-1 py-2.5 rounded-xl border border-[#E2E8F0] text-[#64748B] text-sm font-medium"
+                    className="flex-1 py-2.5 rounded-xl border border-[#DDE3EA] text-[#5B6980] text-sm font-medium"
                   >
                     Cancelar
                   </button>
@@ -157,7 +157,7 @@ export function AsesorAcciones({ id, nombre, activo }: Props) {
                     disabled={loading}
                     onClick={() => void guardar({ activo: !activo })}
                     className={`flex-1 py-2.5 rounded-xl text-white text-sm font-medium disabled:opacity-60 ${
-                      activo ? "bg-[#DC2626] hover:bg-[#B91C1C]" : "bg-[#4B8B2E] hover:bg-[#3A6E24]"
+                      activo ? "bg-[#B42318] hover:bg-[#B91C1C]" : "bg-[#2F6B2A] hover:bg-[#255620]"
                     }`}
                   >
                     {loading ? "Guardando..." : activo ? "Dar de baja" : "Reactivar"}

@@ -9,14 +9,14 @@ export default async function ConfiguracionPage() {
   return (
     <div className="space-y-6 max-w-xl">
       <div>
-        <h1 className="text-2xl font-bold text-[#0B2545]">Configuración del Sello</h1>
-        <p className="text-sm text-[#64748B] mt-1">
+        <h1 className="text-2xl font-bold text-[#0B1B33]">Configuración del Sello</h1>
+        <p className="text-sm text-[#5B6980] mt-1">
           Ajusta los pesos y umbrales que determinan el nivel del sello mensual.
         </p>
       </div>
 
       {/* Info */}
-      <div className="bg-[#EBF5E6] rounded-xl p-4 text-sm text-[#3A6E24]">
+      <div className="bg-[#E5F1E3] rounded-xl p-4 text-sm text-[#255620]">
         <p className="font-medium mb-1">Fórmula del sello</p>
         <code className="text-xs bg-white/60 rounded px-2 py-0.5">
           Score = (Documentación × P1) + (Condiciones × P2) + (Capacitaciones × P3) + (Tareas × P4)

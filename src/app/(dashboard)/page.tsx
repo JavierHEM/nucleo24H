@@ -4,21 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { getCaller } from "@/lib/trpc/server";
 import { SelloWidget } from "@/components/dashboard/SelloWidget";
-import { KpiCard } from "@/components/dashboard/KpiCard";
 import { AlertasPanel } from "@/components/dashboard/AlertasPanel";
 import { getCurrentPeriodo, formatDate } from "@/lib/utils";
 import { DashboardChart } from "./DashboardChart";
 import {
-  IconClipboardList,
-  IconFileDescription,
-  IconSchool,
   IconMedal,
-  IconAlertTriangle,
   IconThermometer,
   IconChecklist,
   IconChartBar,
-  IconBuildingStore,
-  IconMapPin,
   IconArrowRight,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
@@ -99,15 +92,7 @@ export default async function DashboardPage() {
   const documentosData = documentos.status === "fulfilled" ? documentos.value : [];
 
   const hoy = new Date();
-  const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
 
-  const registrosMes = registrosData.filter(
-    (r: { fecha: Date }) => new Date(r.fecha) >= inicioMes
-  ).length;
-
-  const docsPendientes = documentosData.filter(
-    (d: { estado: string }) => d.estado === "pendiente"
-  ).length;
   const docsObservados = documentosData.filter(
     (d: { estado: string }) => d.estado === "observado"
   ).length;
@@ -117,6 +102,11 @@ export default async function DashboardPage() {
   }).length;
 
   const periodoActual = getCurrentPeriodo();
+  const hoyTexto = new Date().toLocaleDateString("es-CL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   const chartData = [...historialData]
     .reverse()
@@ -139,16 +129,16 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545]">{tenantNombre}</h1>
-          <p className="text-sm text-[#64748B] mt-1">
-            Resumen de cumplimiento — {periodoActual}
-          </p>
+          <p className="text-[13px] font-semibold text-[#5B6980] capitalize">{hoyTexto} · {tenantNombre}</p>
+          <h1 className="text-[34px] font-extrabold leading-none tracking-tight text-[#0B1B33] mt-1">
+            Buen día, {dbUser?.nombre?.split(" ")[0] ?? "equipo"}
+          </h1>
         </div>
         {/* Acceso rápido a informes para asesor/admin_nucleo */}
         {(userRole === "asesor" || userRole === "admin_nucleo") && (
           <Link
             href={userRole === "asesor" ? "/asesor/informes" : "/admin/informes"}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0D2137] text-white text-sm font-medium hover:bg-[#143556] transition-colors shrink-0"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B1B33] text-white text-sm font-medium hover:bg-[#16294A] transition-colors shrink-0"
           >
             <IconChartBar size={16} />
             <span className="hidden sm:inline">Informes</span>
@@ -156,98 +146,37 @@ export default async function DashboardPage() {
         )}
       </div>
 
+      {sello ? (
+        <Link href="/sellos" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded-[14px]">
+          <SelloWidget
+            nivel={sello.nivel as "inicial" | "intermedio" | "avanzado" | "premium"}
+            score={sello.score_general}
+            periodo={sello.periodo}
+            planMejoras={(sello.plan_mejoras ?? []) as string[]}
+            descargosHabilitados={sello.descargos_habilitados ?? false}
+            dimensiones={[
+              { nombre: "Documentación", valor: sello.score_documentacion },
+              { nombre: "Condiciones", valor: sello.score_condiciones },
+              { nombre: "Capacitaciones", valor: sello.score_capacitaciones },
+              { nombre: "Tareas", valor: sello.score_tareas },
+            ]}
+          />
+        </Link>
+      ) : (
+        <div className="rounded-[14px] border border-dashed border-[#DDE3EA] bg-white p-8 text-center flex flex-col items-center justify-center gap-3">
+          <IconMedal size={24} className="text-[#2F6B2A]" />
+          <div>
+            <p className="font-extrabold text-[#0B1B33]">Sin sello para {periodoActual}</p>
+            <p className="text-sm font-medium text-[#5B6980] mt-1">
+              {userRole === "asesor" || userRole === "admin_nucleo"
+                ? "Ve a Sellos para emitirlo."
+                : "Tu asesor lo emitirá al cierre del mes."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <GuiaDelDia puedeAjustar={puedeOperarLocal(userRole) || userRole === "asesor"} />
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          {sello ? (
-            <Link href="/sellos" className="block hover:opacity-90 transition-opacity h-full">
-              <SelloWidget
-                nivel={sello.nivel as "inicial" | "intermedio" | "avanzado" | "premium"}
-                score={sello.score_general}
-                periodo={sello.periodo}
-                planMejoras={(sello.plan_mejoras ?? []) as string[]}
-                descargosHabilitados={sello.descargos_habilitados ?? false}
-              />
-            </Link>
-          ) : (
-            <div className="rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white p-8 text-center flex flex-col items-center justify-center gap-3 h-full min-h-[200px]">
-              <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center">
-                <IconMedal size={24} className="text-[#4B8B2E]" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-[#0B2545]">
-                  Sin sello para {periodoActual}
-                </p>
-                <p className="text-xs text-[#64748B] mt-1">
-                  {userRole === "asesor" || userRole === "admin_nucleo"
-                    ? "Ve a Sellos para emitirlo."
-                    : "Tu asesor lo emitirá al cierre del mes."}
-                </p>
-              </div>
-              {(userRole === "asesor" || userRole === "admin_nucleo") && (
-                <Link
-                  href="/sellos"
-                  className="text-xs font-medium text-[#4B8B2E] hover:underline"
-                >
-                  Emitir sello →
-                </Link>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-          <Link href="/registros">
-            <KpiCard
-              title="Registros este mes"
-              value={registrosMes}
-              icon={IconClipboardList}
-              description={`${registrosData.length} total en el período`}
-              trend="neutral"
-            />
-          </Link>
-          <Link href="/documentos">
-            <KpiCard
-              title="Docs. pendientes"
-              value={docsPendientes}
-              icon={IconFileDescription}
-              trend={docsPendientes > 0 ? "down" : "up"}
-              description={docsPendientes > 0 ? "Requieren atención" : "Todo al día ✓"}
-            />
-          </Link>
-          <Link href="/documentos">
-            <KpiCard
-              title="Docs. observados"
-              value={docsObservados}
-              icon={IconAlertTriangle}
-              trend={docsObservados > 0 ? "down" : "neutral"}
-              description={docsObservados > 0 ? "Requieren corrección" : "Sin observaciones"}
-            />
-          </Link>
-          {(userRole === "asesor" || userRole === "admin_nucleo") ? (
-            <Link href="/visitas">
-              <KpiCard
-                title="Visitas"
-                value="Ver"
-                icon={IconMapPin}
-                description="Historial de visitas"
-                trend="neutral"
-              />
-            </Link>
-          ) : (
-            <Link href="/capacitaciones">
-              <KpiCard
-                title="Capacitaciones"
-                value="Ver"
-                icon={IconSchool}
-                description="Historial de capacitaciones"
-                trend="neutral"
-              />
-            </Link>
-          )}
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {chartData.length >= 2 && (
@@ -261,12 +190,12 @@ export default async function DashboardPage() {
       </div>
 
       {registrosData.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold text-[#0B2545]">Últimos registros BPM</p>
+            <p className="text-sm font-semibold text-[#0B1B33]">Últimos registros BPM</p>
             <Link
               href="/registros"
-              className="text-xs text-[#4B8B2E] hover:underline font-medium"
+              className="text-xs text-[#2F6B2A] hover:underline font-medium"
             >
               Ver todos →
             </Link>
@@ -277,13 +206,13 @@ export default async function DashboardPage() {
               .map((r: { id: string; tipo: string; fecha: Date; estado: string }) => (
                 <div
                   key={r.id}
-                  className="flex items-center justify-between py-2.5 border-b border-[#E2E8F0] last:border-0"
+                  className="flex items-center justify-between py-2.5 border-b border-[#DDE3EA] last:border-0"
                 >
                   <div className="flex items-center gap-2">
-                    <IconThermometer size={14} className="text-[#64748B]" />
-                    <span className="text-sm capitalize text-[#0B2545]">{r.tipo}</span>
+                    <IconThermometer size={14} className="text-[#5B6980]" />
+                    <span className="text-sm capitalize text-[#0B1B33]">{r.tipo}</span>
                   </div>
-                  <span className="text-xs text-[#64748B]">{formatDate(r.fecha)}</span>
+                  <span className="text-xs text-[#5B6980]">{formatDate(r.fecha)}</span>
                 </div>
               ))}
           </div>
@@ -310,35 +239,34 @@ function TrabajadorDashboard({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0B2545]">
+        <h1 className="text-2xl font-bold text-[#0B1B33]">
           Hola{userName ? `, ${userName.split(" ")[0]}` : ""}
         </h1>
-        <p className="text-sm text-[#64748B] mt-1 capitalize">{hoy} · {tenantNombre}</p>
+        <p className="text-sm text-[#5B6980] mt-1 capitalize">{hoy} · {tenantNombre}</p>
       </div>
 
       <GuiaDelDia puedeAjustar={false} />
 
-      {/* Progreso del día */}
       {tareas.total > 0 && (
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <IconChecklist size={18} className="text-[#4B8B2E]" />
-              <span className="font-semibold text-[#0B2545] text-sm">Tareas de hoy</span>
+              <IconChecklist size={18} className="text-[#2F6B2A]" />
+              <span className="font-semibold text-[#0B1B33] text-sm">Tareas de hoy</span>
             </div>
-            <span className="text-sm font-bold text-[#0B2545]">
+            <span className="text-sm font-bold text-[#0B1B33]">
               {tareas.completadas}/{tareas.total}
             </span>
           </div>
           <div className="w-full bg-[#F1F5F9] rounded-full h-2 mb-3">
             <div
-              className="h-2 rounded-full bg-[#4B8B2E] transition-all"
+              className="h-2 rounded-full bg-[#2F6B2A] transition-all"
               style={{ width: `${pct}%` }}
             />
           </div>
           <Link
             href="/tareas"
-            className="flex items-center justify-between text-sm text-[#4B8B2E] font-medium hover:underline"
+            className="flex items-center justify-between text-sm text-[#2F6B2A] font-medium hover:underline"
           >
             <span>{pct === 100 ? "¡Todas completadas!" : `${pct}% completado`}</span>
             <span className="flex items-center gap-1">Ver tareas <IconArrowRight size={14} /></span>
@@ -346,48 +274,6 @@ function TrabajadorDashboard({
         </div>
       )}
 
-      {/* Acciones rápidas */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Link href="/tareas">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
-            <div className="w-12 h-12 rounded-xl bg-[#EBF5E6] flex items-center justify-center mb-3">
-              <IconChecklist size={24} className="text-[#4B8B2E]" />
-            </div>
-            <p className="font-semibold text-[#0B2545]">Mis Tareas</p>
-            <p className="text-sm text-[#64748B] mt-1">Checklist diario del turno</p>
-          </div>
-        </Link>
-
-        <Link href="/registros">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
-              <IconThermometer size={24} className="text-blue-600" />
-            </div>
-            <p className="font-semibold text-[#0B2545]">Registros BPM</p>
-            <p className="text-sm text-[#64748B] mt-1">Temperatura, limpieza y más</p>
-          </div>
-        </Link>
-
-        <Link href="/capacitaciones">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
-            <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
-              <IconSchool size={24} className="text-purple-600" />
-            </div>
-            <p className="font-semibold text-[#0B2545]">Capacitaciones</p>
-            <p className="text-sm text-[#64748B] mt-1">Ver mis capacitaciones</p>
-          </div>
-        </Link>
-
-        <Link href="/mi-cuenta">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 hover:border-[#4B8B2E]/40 hover:shadow-sm transition-all cursor-pointer">
-            <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mb-3">
-              <IconBuildingStore size={24} className="text-orange-600" />
-            </div>
-            <p className="font-semibold text-[#0B2545]">Mi Cuenta</p>
-            <p className="text-sm text-[#64748B] mt-1">Datos personales y ARSOPB</p>
-          </div>
-        </Link>
-      </div>
     </div>
   );
 }

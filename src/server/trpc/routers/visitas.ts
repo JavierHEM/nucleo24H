@@ -1,8 +1,15 @@
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireAsesor, requireAdmin } from "@/server/middleware/rbac";
+import {
+  itemEvaluacionSchema,
+  noConformidadesDe,
+  validarEvaluacion,
+  TIPOS_VISITA,
+} from "@/lib/bpm/visita";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const asesorProcedure = protectedProcedure.use(requireAsesor);
@@ -47,34 +54,39 @@ export const visitasRouter = router({
     .input(
       z.object({
         tenant_id: z.string().uuid(),
-        tipo: z.enum(["programada", "sorpresa"]),
+        tipo: z.enum(TIPOS_VISITA),
         fecha: z.string().datetime(),
-        hallazgos: z.string().max(2000).optional(),
-        no_conformidades: z
-          .array(
-            z.object({
-              descripcion: z.string().min(5),
-              severidad: z.enum(["menor", "mayor"]),
-              fecha_limite: z.string().datetime().optional(),
-            })
-          )
-          .max(20)
-          .default([]),
+        hallazgos: z.string().trim().max(2000).optional(),
+        evaluacion: z.array(itemEvaluacionSchema),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const error = validarEvaluacion(input.tipo, input.evaluacion);
+      if (error) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: error });
+      }
+
+      const noConformidades = noConformidadesDe(input.evaluacion);
+      const evaluacion = input.evaluacion.map((item) => ({
+        area: item.area,
+        resultado: item.resultado,
+        ...(item.nota ? { nota: item.nota } : {}),
+        ...(item.fecha_limite ? { fecha_limite: item.fecha_limite } : {}),
+      }));
       return ctx.prisma.visita.create({
         data: {
           tenant_id: input.tenant_id,
           asesor_id: ctx.userId!,
           tipo: input.tipo,
           fecha: new Date(input.fecha),
-          hallazgos: input.hallazgos,
+          hallazgos: input.hallazgos || null,
+          evaluacion: evaluacion as Prisma.InputJsonValue,
           no_conformidades: {
-            create: input.no_conformidades.map((nc) => ({
+            create: noConformidades.map((nc) => ({
+              area: nc.area,
               descripcion: nc.descripcion,
               severidad: nc.severidad,
-              fecha_limite: nc.fecha_limite ? new Date(nc.fecha_limite) : undefined,
+              fecha_limite: nc.fecha_limite ? new Date(`${nc.fecha_limite}T12:00:00`) : undefined,
             })),
           },
         },

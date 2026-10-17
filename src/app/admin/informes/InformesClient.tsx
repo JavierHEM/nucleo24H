@@ -15,7 +15,7 @@ const NIVEL_COLORS: Record<string, string> = {
   inicial: "bg-red-100 text-red-700",
   intermedio: "bg-yellow-100 text-yellow-700",
   avanzado: "bg-blue-100 text-blue-700",
-  premium: "bg-[#4B8B2E]/10 text-[#4B8B2E]",
+  premium: "bg-[#2F6B2A]/10 text-[#2F6B2A]",
 };
 
 const NIVEL_LABEL: Record<string, string> = {
@@ -89,17 +89,17 @@ export function InformesClient() {
       <div>
         <button
           onClick={() => setSelectedTenant(null)}
-          className="flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0D2137] mb-6 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-[#5B6980] hover:text-[#0B1B33] mb-6 transition-colors"
         >
           ← Volver al resumen
         </button>
 
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-[#0D2137]">
+            <h2 className="text-xl font-bold text-[#0B1B33]">
               {detalle.tenant?.nombre}
             </h2>
-            <p className="text-sm text-[#64748B]">
+            <p className="text-sm text-[#5B6980]">
               {detalle.tenant?.ciudad} · Plan {detalle.tenant?.plan}
             </p>
           </div>
@@ -111,9 +111,9 @@ export function InformesClient() {
         </div>
 
         {/* Historial de sellos */}
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 mb-4">
-          <h3 className="font-semibold text-[#0D2137] mb-4 flex items-center gap-2">
-            <IconChartBar size={18} className="text-[#4B8B2E]" />
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5 mb-4">
+          <h3 className="font-semibold text-[#0B1B33] mb-4 flex items-center gap-2">
+            <IconChartBar size={18} className="text-[#2F6B2A]" />
             Historial de Sellos
           </h3>
           {detalle.sellosHistorial.length === 0 ? (
@@ -141,13 +141,13 @@ export function InformesClient() {
                           {NIVEL_LABEL[s.nivel] ?? s.nivel}
                         </span>
                       </td>
-                      <td className="py-2.5 text-right font-semibold text-[#0D2137]">
+                      <td className="py-2.5 text-right font-semibold text-[#0B1B33]">
                         {Math.round(s.score_general)}%
                       </td>
-                      <td className="py-2.5 text-right text-[#64748B]">{Math.round(s.score_documentacion)}%</td>
-                      <td className="py-2.5 text-right text-[#64748B]">{Math.round(s.score_condiciones)}%</td>
-                      <td className="py-2.5 text-right text-[#64748B]">{Math.round(s.score_capacitaciones)}%</td>
-                      <td className="py-2.5 text-right text-[#64748B]">{Math.round(s.score_tareas)}%</td>
+                      <td className="py-2.5 text-right text-[#5B6980]">{Math.round(s.score_documentacion)}%</td>
+                      <td className="py-2.5 text-right text-[#5B6980]">{Math.round(s.score_condiciones)}%</td>
+                      <td className="py-2.5 text-right text-[#5B6980]">{Math.round(s.score_capacitaciones)}%</td>
+                      <td className="py-2.5 text-right text-[#5B6980]">{Math.round(s.score_tareas)}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -157,8 +157,8 @@ export function InformesClient() {
         </div>
 
         {/* Visitas y NCs */}
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
-          <h3 className="font-semibold text-[#0D2137] mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5">
+          <h3 className="font-semibold text-[#0B1B33] mb-4 flex items-center gap-2">
             <IconAlertTriangle size={18} className="text-amber-500" />
             Visitas recientes y No Conformidades
           </h3>
@@ -189,14 +189,14 @@ export function InformesClient() {
                           </span>
                         )}
                         {v.no_conformidades.length === 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#64748B]">
+                          <span className="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#5B6980]">
                             Sin NC
                           </span>
                         )}
                       </div>
                     </div>
                     {v.hallazgos && (
-                      <p className="text-xs text-[#64748B]">{v.hallazgos}</p>
+                      <p className="text-xs text-[#5B6980]">{v.hallazgos}</p>
                     )}
                   </div>
                 );
@@ -213,15 +213,15 @@ export function InformesClient() {
       {/* Header con selector de período */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#0D2137]">Informes mensuales</h1>
-          <p className="text-sm text-[#64748B] mt-0.5">Resumen de tus locales asignados</p>
+          <h1 className="text-2xl font-bold text-[#0B1B33]">Informes mensuales</h1>
+          <p className="text-sm text-[#5B6980] mt-0.5">Resumen de tus locales asignados</p>
         </div>
         <div className="flex items-center gap-2">
-          <IconCalendar size={16} className="text-[#64748B]" />
+          <IconCalendar size={16} className="text-[#5B6980]" />
           <select
             value={periodo}
             onChange={(e) => setPeriodo(e.target.value)}
-            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] text-sm text-[#334155] focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30"
+            className="px-3 py-1.5 rounded-lg border border-[#DDE3EA] text-sm text-[#334155] focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/30"
           >
             {periodos.map((p) => (
               <option key={p} value={p}>
@@ -234,41 +234,41 @@ export function InformesClient() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-4">
           <p className="text-xs text-[#94A3B8] mb-1">Locales activos</p>
-          <p className="text-2xl font-bold text-[#0D2137]">{totalLocales}</p>
+          <p className="text-2xl font-bold text-[#0B1B33]">{totalLocales}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-4">
           <p className="text-xs text-[#94A3B8] mb-1">Con sello emitido</p>
-          <p className="text-2xl font-bold text-[#4B8B2E]">{conSello}</p>
+          <p className="text-2xl font-bold text-[#2F6B2A]">{conSello}</p>
           <p className="text-xs text-[#94A3B8]">de {totalLocales}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-4">
           <p className="text-xs text-[#94A3B8] mb-1">Score promedio</p>
-          <p className="text-2xl font-bold text-[#0D2137]">
+          <p className="text-2xl font-bold text-[#0B1B33]">
             {avgScore !== null ? `${avgScore}%` : "—"}
           </p>
         </div>
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-4">
           <p className="text-xs text-[#94A3B8] mb-1">NCs abiertas</p>
-          <p className={`text-2xl font-bold ${totalNCs > 0 ? "text-red-600" : "text-[#0D2137]"}`}>
+          <p className={`text-2xl font-bold ${totalNCs > 0 ? "text-red-600" : "text-[#0B1B33]"}`}>
             {totalNCs}
           </p>
         </div>
       </div>
 
       {/* Tabla de locales */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#DDE3EA] overflow-hidden">
         <div className="p-5 border-b border-[#F1F5F9]">
-          <h2 className="font-semibold text-[#0D2137] flex items-center gap-2">
-            <IconBuilding size={18} className="text-[#4B8B2E]" />
+          <h2 className="font-semibold text-[#0B1B33] flex items-center gap-2">
+            <IconBuilding size={18} className="text-[#2F6B2A]" />
             Detalle por local
           </h2>
         </div>
 
         {isLoading ? (
           <div className="p-12 text-center">
-            <div className="w-8 h-8 border-2 border-[#4B8B2E] border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-2 border-[#2F6B2A] border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
         ) : !locales || locales.length === 0 ? (
           <div className="p-12 text-center text-[#94A3B8]">
@@ -286,7 +286,7 @@ export function InformesClient() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-medium text-[#0D2137] truncate">
+                      <span className="font-medium text-[#0B1B33] truncate">
                         {row.tenant.nombre}
                       </span>
                       {row.sello ? (
@@ -317,14 +317,14 @@ export function InformesClient() {
                     {row.sello && (
                       <div className="text-right hidden sm:block">
                         <p className="text-xs text-[#94A3B8]">Score general</p>
-                        <p className="text-lg font-bold text-[#0D2137]">
+                        <p className="text-lg font-bold text-[#0B1B33]">
                           {Math.round(row.sello.score_general)}%
                         </p>
                       </div>
                     )}
                     <IconChevronRight
                       size={16}
-                      className="text-[#CBD5E1] group-hover:text-[#64748B] transition-colors"
+                      className="text-[#CBD5E1] group-hover:text-[#5B6980] transition-colors"
                     />
                   </div>
                 </div>

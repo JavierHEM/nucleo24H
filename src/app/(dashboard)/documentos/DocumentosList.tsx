@@ -14,6 +14,7 @@ import { trpc } from "@/lib/trpc/client";
 import { formatDate, getCurrentPeriodo, cn } from "@/lib/utils";
 import { RevisarDocumentoButton } from "./RevisarDocumentoButton";
 import { hrefArchivo } from "@/lib/storage/rutas";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 
 const ESTADO_CONFIG = {
   pendiente: {
@@ -52,33 +53,59 @@ export function DocumentosList({ userRole }: Props) {
     <div className="space-y-4">
       {/* Filtro de período */}
       <div className="flex items-center gap-2">
-        <IconCalendar size={16} className="text-[#64748B] shrink-0" />
+        <IconCalendar size={16} className="text-[#5B6980] shrink-0" />
         <label className="text-sm font-medium text-[#334155]">Período:</label>
         <input
           type="month"
           value={mes}
           onChange={(e) => setMes(e.target.value)}
-          className="h-9 rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm text-[#0B2545] focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/40"
+          className="h-9 rounded-xl border border-[#DDE3EA] bg-white px-3 text-sm text-[#0B1B33] focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/40"
         />
       </div>
+
+      {data && (
+        <ScoreCards
+          items={[
+            { label: "Del mes", value: data.length, hint: "Cargados en el período", tone: "neutral" },
+            {
+              label: "Aprobados",
+              value: data.filter((doc) => doc.estado === "aprobado").length,
+              hint: "Listos para auditoría",
+              tone: "ok",
+            },
+            {
+              label: "Por revisar",
+              value: data.filter((doc) => doc.estado === "pendiente" || doc.estado === "observado").length,
+              hint: "Pendientes u observados",
+              tone: data.some((doc) => doc.estado === "pendiente" || doc.estado === "observado") ? "alerta" : "ok",
+            },
+            {
+              label: "Vencidos",
+              value: data.filter((doc) => doc.vencimiento && new Date(doc.vencimiento) < new Date()).length,
+              hint: "Fecha ya pasada",
+              tone: data.some((doc) => doc.vencimiento && new Date(doc.vencimiento) < new Date()) ? "alerta" : "ok",
+            },
+          ]}
+        />
+      )}
 
       {/* Loading skeleton */}
       {isLoading && (
         <div className="space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-[#E2E8F0] animate-pulse" />
+            <div key={i} className="h-16 rounded-xl bg-[#DDE3EA] animate-pulse" />
           ))}
         </div>
       )}
 
       {/* Estado vacío */}
       {!isLoading && (!data || data.length === 0) && (
-        <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#F8F9FA] flex items-center justify-center mx-auto mb-3">
+        <div className="bg-white rounded-xl border-2 border-dashed border-[#DDE3EA] p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#F4F6F3] flex items-center justify-center mx-auto mb-3">
             <IconFileDescription size={24} className="text-[#94A3B8]" />
           </div>
-          <p className="font-semibold text-[#0B2545]">Sin documentos para este período</p>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="font-semibold text-[#0B1B33]">Sin documentos para este período</p>
+          <p className="text-sm text-[#5B6980] mt-1">
             Sube documentos con el botón &ldquo;Subir documento&rdquo;.
           </p>
         </div>
@@ -86,17 +113,17 @@ export function DocumentosList({ userRole }: Props) {
 
       {/* Lista de documentos */}
       {data && data.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm overflow-hidden">
           {/* Header — solo desktop */}
-          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-2.5 bg-[#F8F9FA] border-b border-[#E2E8F0]">
-            <span className="text-xs font-semibold text-[#64748B]">Nombre</span>
-            <span className="text-xs font-semibold text-[#64748B]">Categoría</span>
-            <span className="text-xs font-semibold text-[#64748B]">Vencimiento</span>
-            <span className="text-xs font-semibold text-[#64748B]">Estado</span>
+          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-2.5 bg-[#F4F6F3] border-b border-[#DDE3EA]">
+            <span className="text-xs font-semibold text-[#5B6980]">Nombre</span>
+            <span className="text-xs font-semibold text-[#5B6980]">Categoría</span>
+            <span className="text-xs font-semibold text-[#5B6980]">Vencimiento</span>
+            <span className="text-xs font-semibold text-[#5B6980]">Estado</span>
             <span />
           </div>
 
-          <div className="divide-y divide-[#E2E8F0]">
+          <div className="divide-y divide-[#DDE3EA]">
             {data.map((doc) => {
               const estadoKey = (doc.estado as EstadoKey) in ESTADO_CONFIG
                 ? (doc.estado as EstadoKey)
@@ -111,13 +138,13 @@ export function DocumentosList({ userRole }: Props) {
                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#F8FAFC] transition-colors"
                 >
                   {/* Ícono */}
-                  <div className="w-9 h-9 rounded-lg bg-[#F8F9FA] flex items-center justify-center shrink-0">
-                    <IconFileDescription size={18} className="text-[#64748B]" />
+                  <div className="w-9 h-9 rounded-lg bg-[#F4F6F3] flex items-center justify-center shrink-0">
+                    <IconFileDescription size={18} className="text-[#5B6980]" />
                   </div>
 
                   {/* Nombre + observación */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#0B2545] truncate">{doc.nombre}</p>
+                    <p className="text-sm font-medium text-[#0B1B33] truncate">{doc.nombre}</p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       <span className="text-xs text-[#94A3B8]">{doc.categoria}</span>
                       {doc.observacion && (
@@ -133,7 +160,7 @@ export function DocumentosList({ userRole }: Props) {
                     <span
                       className={cn(
                         "text-xs hidden sm:block shrink-0",
-                        vencido ? "text-[#DC2626] font-semibold" : "text-[#64748B]"
+                        vencido ? "text-[#B42318] font-semibold" : "text-[#5B6980]"
                       )}
                     >
                       {vencido && "⚠ "}{formatDate(doc.vencimiento)}
@@ -165,7 +192,7 @@ export function DocumentosList({ userRole }: Props) {
                     href={hrefArchivo(doc.url)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#4B8B2E] hover:bg-[#EBF5E6] transition-colors shrink-0"
+                    className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#2F6B2A] hover:bg-[#E5F1E3] transition-colors shrink-0"
                     title="Abrir documento"
                   >
                     <IconExternalLink size={15} />

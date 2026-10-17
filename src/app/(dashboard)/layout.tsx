@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar, type PlanLocal } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { BannerMora } from "@/components/dashboard/BannerMora";
 import type { UserRole } from "@/server/trpc/context";
+import { PLAN_PRECIOS_CLP } from "@/lib/payments/flow";
 
 export default async function DashboardLayout({
   children,
@@ -63,10 +64,36 @@ export default async function DashboardLayout({
       ? tenantActivoCookie
       : locales[0]?.id ?? null;
 
+  const localNombre = locales.find((local) => local.id === tenantActivo)?.nombre;
+  let plan: PlanLocal | null = null;
+  if (tenantActivo && userRole === "admin_local") {
+    const suscripcion = await prisma.suscripcion.findUnique({
+      where: { tenant_id: tenantActivo },
+      select: { plan: true, estado: true, monto_clp: true, dia_cobro: true },
+    });
+    const tenant = suscripcion
+      ? null
+      : await prisma.tenant.findUnique({ where: { id: tenantActivo }, select: { plan: true } });
+    const nombrePlan = suscripcion?.plan ?? tenant?.plan;
+    if (nombrePlan) {
+      plan = {
+        nombre: nombrePlan === "integral" ? "Integral" : "Calidad",
+        estado: suscripcion?.estado ?? "activa",
+        monto: suscripcion?.monto_clp ?? PLAN_PRECIOS_CLP[nombrePlan] ?? PLAN_PRECIOS_CLP.calidad,
+        diaCobro: suscripcion?.dia_cobro ?? 5,
+      };
+    }
+  }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
-      <Sidebar userRole={userRole} />
+    <div className="flex h-screen overflow-hidden bg-[#F4F6F3]">
+      <Sidebar
+        userRole={userRole}
+        locales={locales}
+        tenantActivo={tenantActivo ?? undefined}
+        localNombre={localNombre}
+        plan={plan}
+      />
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar
           userName={userName}

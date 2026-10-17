@@ -124,7 +124,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#143556] hover:bg-[#0B2545] text-white gap-2 shrink-0"
+        className="bg-[#16294A] hover:bg-[#0B1B33] text-white gap-2 shrink-0"
         size="sm"
       >
         <IconMedal size={16} />
@@ -135,12 +135,12 @@ export function EmitirSelloButton({ tenantId }: Props) {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] sticky top-0 bg-white rounded-t-2xl z-10">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA] sticky top-0 bg-white rounded-t-2xl z-10">
               <div className="flex items-center gap-2">
-                <IconMedal size={20} className="text-[#4B8B2E]" />
-                <p className="font-semibold text-[#0B2545]">Emitir sello mensual</p>
+                <IconMedal size={20} className="text-[#2F6B2A]" />
+                <p className="font-semibold text-[#0B1B33]">Emitir sello mensual</p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
+              <button onClick={() => setOpen(false)} className="text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
@@ -153,15 +153,15 @@ export function EmitirSelloButton({ tenantId }: Props) {
                   id="periodo"
                   type="month"
                   {...register("periodo")}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                 />
                 {errors.periodo && (
-                  <p className="text-xs text-[#DC2626] mt-1">{errors.periodo.message}</p>
+                  <p className="text-xs text-[#B42318] mt-1">{errors.periodo.message}</p>
                 )}
               </div>
 
               {/* Info */}
-              <div className="flex items-start gap-2 bg-[#EBF5E6] rounded-xl p-3 text-xs text-[#3A6E24]">
+              <div className="flex items-start gap-2 bg-[#E5F1E3] rounded-xl p-3 text-xs text-[#255620]">
                 <IconInfoCircle size={15} className="shrink-0 mt-0.5" />
                 <p>
                   Estas notas salen de los registros, documentos y tareas del mes. Ajústalas si la visita mostró algo distinto.
@@ -212,9 +212,9 @@ export function EmitirSelloButton({ tenantId }: Props) {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor={key}>{label}</Label>
-                          <p className="text-xs text-[#64748B]">{desc}</p>
+                          <p className="text-xs text-[#5B6980]">{desc}</p>
                         </div>
-                        <span className="text-xs text-[#64748B] shrink-0 ml-2">
+                        <span className="text-xs text-[#5B6980] shrink-0 ml-2">
                           peso {peso}
                         </span>
                       </div>
@@ -229,24 +229,24 @@ export function EmitirSelloButton({ tenantId }: Props) {
                           {...register(key, { valueAsNumber: true })}
                         />
                         <div className="flex-1">
-                          <div className="h-2.5 rounded-full bg-[#E2E8F0] overflow-hidden">
+                          <div className="h-2.5 rounded-full bg-[#DDE3EA] overflow-hidden">
                             <div
                               className={cn(
                                 "h-full rounded-full transition-all duration-300",
                                 value >= 80
-                                  ? "bg-[#16A34A]"
+                                  ? "bg-[#2F6B2A]"
                                   : value >= 60
                                   ? "bg-[#D97706]"
-                                  : "bg-[#DC2626]"
+                                  : "bg-[#B42318]"
                               )}
                               style={{ width: `${value}%` }}
                             />
                           </div>
-                          <p className="text-right text-xs text-[#64748B] mt-0.5">{value}%</p>
+                          <p className="text-right text-xs text-[#5B6980] mt-0.5">{value}%</p>
                         </div>
                       </div>
                       {errors[key] && (
-                        <p className="text-xs text-[#DC2626]">{errors[key]?.message}</p>
+                        <p className="text-xs text-[#B42318]">{errors[key]?.message}</p>
                       )}
                     </div>
                   );
@@ -259,13 +259,13 @@ export function EmitirSelloButton({ tenantId }: Props) {
                   className={cn(
                     "rounded-xl p-4 border-l-4",
                     SELLO_CONFIG[preview.nivel as NivelSello].border,
-                    "bg-white border border-[#E2E8F0]"
+                    "bg-white border border-[#DDE3EA]"
                   )}
                 >
-                  <p className="text-xs text-[#64748B] mb-1">Vista previa del sello</p>
+                  <p className="text-xs text-[#5B6980] mb-1">Vista previa del sello</p>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-[#0B2545]">
+                      <span className="text-2xl font-bold text-[#0B1B33]">
                         {preview.score_general.toFixed(1)}%
                       </span>
                       <span
@@ -297,7 +297,7 @@ export function EmitirSelloButton({ tenantId }: Props) {
               <Button
                 type="submit"
                 disabled={isPending || propuesta.isLoading}
-                className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
               >
                 <IconMedal size={18} />
                 {isPending ? "Emitiendo sello..." : "Confirmar y emitir sello"}

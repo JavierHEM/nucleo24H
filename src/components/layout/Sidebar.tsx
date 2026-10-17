@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_NAME } from "@/lib/branding";
-import { BrandLogo } from "@/components/BrandLogo";
+import { formatCLP } from "@/lib/utils";
+import { LocalSelector } from "./LocalSelector";
 import {
   IconLayoutDashboard,
   IconThermometer,
@@ -22,6 +23,7 @@ import {
   IconChecklist,
   IconChartBar,
   IconCreditCard,
+  IconDots,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 
@@ -30,220 +32,196 @@ interface NavItem {
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   roles: UserRole[];
+  active?: string[];
 }
 
-const DASHBOARD_ITEMS: NavItem[] = [
-  {
-    href: "/",
-    label: "Dashboard",
-    icon: IconLayoutDashboard,
-    roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/tareas",
-    label: "Tareas",
-    icon: IconChecklist,
-    roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/registros",
-    label: "Registros",
-    icon: IconThermometer,
-    roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/documentos",
-    label: "Documentos",
-    icon: IconFileDescription,
-    roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/sellos",
-    label: "Sellos",
-    icon: IconMedal,
-    roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/visitas",
-    label: "Visitas",
-    icon: IconMapPin,
-    roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/capacitaciones",
-    label: "Capacitaciones",
-    icon: IconSchool,
-    roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/comunicaciones",
-    label: "Comunicaciones",
-    icon: IconMessage2,
-    roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
-  {
-    href: "/equipo",
-    label: "Mi Equipo",
-    icon: IconUsers,
-    roles: ["jefe_local", "admin_local", "admin_nucleo"],
-  },
-  {
-    href: "/suscripcion",
-    label: "Suscripción",
-    icon: IconCreditCard,
-    roles: ["admin_local", "admin_nucleo"],
-  },
-  {
-    href: "/mi-cuenta",
-    label: "Mi Cuenta",
-    icon: IconUser,
-    roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"],
-  },
+const LOCAL_PRIMARIOS: NavItem[] = [
+  { href: "/", label: "Hoy", icon: IconLayoutDashboard, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/documentos", label: "Documentos", icon: IconFileDescription, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/sellos", label: "Sello y visitas", icon: IconMedal, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], active: ["/sellos", "/visitas"] },
+  { href: "/equipo", label: "Equipo y cuenta", icon: IconUsers, roles: ["jefe_local", "admin_local", "admin_nucleo"], active: ["/equipo", "/mi-cuenta", "/suscripcion", "/comunicaciones"] },
+  { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["trabajador_local"] },
+];
+
+const LOCAL_MAS: NavItem[] = [
+  { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local", "admin_nucleo"] },
+  { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
-  {
-    href: "/admin",
-    label: "Resumen",
-    icon: IconLayoutDashboard,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/locales",
-    label: "Locales",
-    icon: IconBuildingStore,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/asesores",
-    label: "Asesores",
-    icon: IconUserCheck,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/pagos",
-    label: "Pagos",
-    icon: IconCreditCard,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/arsopb",
-    label: "ARSOPB",
-    icon: IconShield,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/informes",
-    label: "Informes",
-    icon: IconChartBar,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/configuracion",
-    label: "Configuración",
-    icon: IconSettings,
-    roles: ["admin_nucleo"],
-  },
+  { href: "/admin", label: "Resumen", icon: IconLayoutDashboard, roles: ["admin_nucleo"] },
+  { href: "/admin/locales", label: "Locales", icon: IconBuildingStore, roles: ["admin_nucleo"] },
+  { href: "/admin/asesores", label: "Asesores", icon: IconUserCheck, roles: ["admin_nucleo"] },
+  { href: "/admin/pagos", label: "Pagos", icon: IconCreditCard, roles: ["admin_nucleo"] },
+  { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
+  { href: "/admin/informes", label: "Informes", icon: IconChartBar, roles: ["admin_nucleo"] },
+  { href: "/admin/configuracion", label: "Configuración", icon: IconSettings, roles: ["admin_nucleo"] },
 ];
 
 const ASESOR_ITEMS: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
-  { href: "/asesor/informes", label: "Mis Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
+  { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
-  { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
+  { href: "/sellos", label: "Sellos por revisar", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
+  { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
   { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
-  { href: "/mi-cuenta", label: "Mi Cuenta", icon: IconUser, roles: ["asesor", "admin_nucleo"] },
+  { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["asesor", "admin_nucleo"] },
 ];
+
+function activo(item: NavItem, pathname: string) {
+  const rutas = item.active ?? [item.href];
+  return rutas.some((href) => (href === "/" || href === "/admin" ? pathname === href : pathname.startsWith(href)));
+}
+
+function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
+  const isActive = activo(item, pathname);
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      aria-current={isActive ? "page" : undefined}
+      className={`flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-[15px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341] ${
+        isActive ? "bg-white text-[#0B1B33]" : "text-[#C9D3E3] hover:bg-[#16294A] hover:text-white"
+      }`}
+    >
+      <Icon size={22} />
+      {item.label}
+    </Link>
+  );
+}
+
+function Marca() {
+  return (
+    <div className="w-9 h-9 rounded-[10px] bg-[#E3B341] text-[#0B1B33] flex items-center justify-center shrink-0" aria-hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z" />
+        <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+      </svg>
+    </div>
+  );
+}
+
+export interface PlanLocal {
+  nombre: string;
+  estado: string;
+  monto: number;
+  diaCobro: number;
+}
+
+interface Local {
+  id: string;
+  nombre: string;
+}
 
 interface SidebarProps {
   userRole: UserRole | null;
   mode?: "dashboard" | "admin" | "asesor";
+  locales?: Local[];
+  tenantActivo?: string;
+  localNombre?: string;
+  plan?: PlanLocal | null;
 }
 
-export function Sidebar({ userRole, mode = "dashboard" }: SidebarProps) {
-  const pathname = usePathname();
+const ESTADO_PLAN: Record<string, { label: string; className: string }> = {
+  activa: { label: "Al día", className: "bg-[#E5F1E3] text-[#255620]" },
+  morosa: { label: "Pago pendiente", className: "bg-[#FCF0D0] text-[#7A5000]" },
+  suspendida: { label: "Suspendida", className: "bg-[#FCE4E1] text-[#9A1C12]" },
+  cancelada: { label: "Cancelada", className: "bg-[#DDE3EA] text-[#41506A]" },
+};
 
-  const items = mode === "admin" ? ADMIN_ITEMS : mode === "asesor" ? ASESOR_ITEMS : DASHBOARD_ITEMS;
-  const visibleItems = items.filter(
-    (item) => userRole && item.roles.includes(userRole)
-  );
+export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActivo, localNombre, plan }: SidebarProps) {
+  const pathname = usePathname();
+  const catalogo = mode === "admin" ? ADMIN_ITEMS : mode === "asesor" ? ASESOR_ITEMS : LOCAL_PRIMARIOS;
+  const visibles = (items: NavItem[]) => items.filter((item) => userRole && item.roles.includes(userRole));
+  const principales = visibles(catalogo);
+  const mas = mode === "dashboard" ? visibles(LOCAL_MAS) : [];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 min-h-screen bg-[#0B2545] text-white shrink-0">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10">
-        <BrandLogo variant="mark" className="w-11 h-11" priority />
-        <div className="min-w-0">
-          <p className="font-semibold text-sm leading-tight truncate">{APP_NAME}</p>
-          <p className="text-[11px] text-white/50 truncate">
-            {mode === "admin" ? "Panel Admin" : "Gestión y cumplimiento"}
-          </p>
-        </div>
+    <aside className="hidden md:flex flex-col w-[272px] min-h-screen bg-[#0B1B33] text-white shrink-0 px-4 py-6 gap-6">
+      <div className="flex items-center gap-2.5 px-1.5">
+        <Marca />
+        <p className="font-extrabold text-lg leading-tight tracking-tight">{APP_NAME}</p>
       </div>
 
-      {/* Navegación */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {visibleItems.map((item) => {
-          const isActive =
-            item.href === "/" || item.href === "/admin"
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
-          const Icon = item.icon;
+      {mode === "dashboard" && (locales.length > 1 || localNombre) && (
+        locales.length > 1 ? (
+          <LocalSelector locales={locales} tenantActivo={tenantActivo} isAdmin={userRole === "admin_nucleo"} tone="dark" />
+        ) : (
+          <div className="flex flex-col gap-0.5 min-h-14 justify-center px-3.5 rounded-xl bg-[#16294A] border border-[#2A4068]">
+            <span className="text-xs font-semibold text-[#9FB0CC]">Local activo</span>
+            <span className="text-sm font-bold truncate">{localNombre}</span>
+          </div>
+        )
+      )}
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all
-                ${
-                  isActive
-                    ? "bg-[#143556] text-white border-l-[3px] border-[#4B8B2E] pl-[9px]"
-                    : "text-white/70 hover:bg-[#143556] hover:text-white"
-                }`}
-            >
-              <Icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Toggle entre dashboard/asesor/admin */}
-      {(userRole === "admin_nucleo" || userRole === "asesor") && (
-        <div className="px-3 pb-3 border-t border-white/10 pt-3 space-y-0.5">
-          {mode !== "dashboard" && (
-            <Link
-              href="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#143556] hover:text-white transition-all"
-            >
-              <IconArrowLeft size={18} />
-              Dashboard
-            </Link>
-          )}
-          {userRole === "asesor" && mode !== "asesor" && (
-            <Link
-              href="/asesor/informes"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#143556] hover:text-white transition-all"
-            >
-              <IconChartBar size={18} />
-              Mis Informes
-            </Link>
-          )}
-          {userRole === "admin_nucleo" && mode !== "admin" && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-[#143556] hover:text-white transition-all"
-            >
-              <IconSettings size={18} />
-              Panel Admin
-            </Link>
-          )}
+      {mode === "asesor" && (
+        <div className="px-1.5">
+          <p className="text-xs font-semibold text-[#9FB0CC]">Asesor</p>
+          <p className="text-[15px] font-bold">Cartera del local activo</p>
         </div>
       )}
 
-      {/* Osorno, Chile */}
-      <div className="px-6 py-4 border-t border-white/10">
-        <p className="text-[11px] text-white/30">Osorno, Chile</p>
+      <nav aria-label="Principal" className="flex flex-col gap-1">
+        {principales.map((item) => (
+          <NavLink key={item.href} item={item} pathname={pathname} />
+        ))}
+      </nav>
+
+      {mas.length > 0 && (
+        <details className="group">
+          <summary className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-[15px] font-bold text-[#C9D3E3] cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-[#16294A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341]">
+            <IconDots size={22} />
+            Más
+          </summary>
+          <div className="mt-1 flex flex-col gap-1">
+            {mas.map((item) => (
+              <NavLink key={item.href} item={item} pathname={pathname} />
+            ))}
+          </div>
+        </details>
+      )}
+
+      <div className="mt-auto flex flex-col gap-3">
+        {plan && userRole === "admin_local" && (
+          <div className="rounded-xl bg-[#16294A] p-4 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-bold">Plan {plan.nombre}</span>
+              <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-bold ${ESTADO_PLAN[plan.estado]?.className ?? ESTADO_PLAN.activa.className}`}>
+                {ESTADO_PLAN[plan.estado]?.label ?? plan.estado}
+              </span>
+            </div>
+            <p className="text-[13px] leading-snug font-semibold text-[#9FB0CC]">
+              Cobro el día {plan.diaCobro}. {formatCLP(plan.monto)} al mes.
+            </p>
+          </div>
+        )}
+
+        {(userRole === "admin_nucleo" || userRole === "asesor") && (
+          <div className="flex flex-col gap-1 border-t border-white/10 pt-3">
+            {mode !== "dashboard" && (
+              <Link href="/" className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-sm font-bold text-[#C9D3E3] hover:bg-[#16294A]">
+                <IconArrowLeft size={18} />
+                Hoy
+              </Link>
+            )}
+            {userRole === "asesor" && mode !== "asesor" && (
+              <Link href="/asesor/informes" className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-sm font-bold text-[#C9D3E3] hover:bg-[#16294A]">
+                <IconChartBar size={18} />
+                Informes
+              </Link>
+            )}
+            {userRole === "admin_nucleo" && mode !== "admin" && (
+              <Link href="/admin" className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-sm font-bold text-[#C9D3E3] hover:bg-[#16294A]">
+                <IconSettings size={18} />
+                Panel Admin
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

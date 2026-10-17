@@ -34,7 +34,7 @@ export function AlertaMorosidadEmail({
   return (
     <Html lang="es">
       <Head />
-      <Body style={{ backgroundColor: "#F8F9FA", fontFamily: "Inter, sans-serif" }}>
+      <Body style={{ backgroundColor: "#F4F6F3", fontFamily: "Inter, sans-serif" }}>
         <Container style={{ maxWidth: 600, margin: "0 auto", padding: "32px 0" }}>
           {/* Header */}
           <Section
@@ -102,7 +102,7 @@ export function AlertaMorosidadEmail({
               <Button
                 href={`${appUrl}/suscripcion`}
                 style={{
-                  backgroundColor: "#DC2626",
+                  backgroundColor: "#B42318",
                   color: "#FFFFFF",
                   borderRadius: 8,
                   padding: "12px 28px",
@@ -116,9 +116,9 @@ export function AlertaMorosidadEmail({
               </Button>
             </Section>
 
-            <Hr style={{ borderColor: "#E2E8F0", margin: "24px 0" }} />
+            <Hr style={{ borderColor: "#DDE3EA", margin: "24px 0" }} />
 
-            <Text style={{ fontSize: 13, color: "#64748B", margin: 0 }}>
+            <Text style={{ fontSize: 13, color: "#5B6980", margin: 0 }}>
               Si ya realizaste el pago, por favor ignora este mensaje o contacta a tu
               asesor para confirmar la regularización.
             </Text>
@@ -127,7 +127,7 @@ export function AlertaMorosidadEmail({
           {/* Footer */}
           <Section
             style={{
-              backgroundColor: "#F8F9FA",
+              backgroundColor: "#F4F6F3",
               borderRadius: "0 0 12px 12px",
               padding: "18px 32px",
               textAlign: "center",

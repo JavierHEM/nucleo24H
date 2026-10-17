@@ -45,11 +45,11 @@ export default async function SellosPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
-            <IconMedal size={26} className="text-[#4B8B2E]" />
+          <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
+            <IconMedal size={26} className="text-[#2F6B2A]" />
             Sello de Cumplimiento
           </h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-sm text-[#5B6980] mt-1">
             Seguimiento del nivel de cumplimiento BPM
           </p>
         </div>
@@ -59,7 +59,7 @@ export default async function SellosPage() {
               href={`${appUrl}/sello/${selloActualDb.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[#64748B] hover:text-[#0B2545] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F8F9FA] transition-colors"
+              className="text-xs text-[#5B6980] hover:text-[#0B1B33] border border-[#DDE3EA] rounded-lg px-3 py-1.5 hover:bg-[#F4F6F3] transition-colors"
             >
               Ver certificado público →
             </Link>

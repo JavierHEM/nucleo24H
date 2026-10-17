@@ -72,7 +72,7 @@ export function InvitarMiembroButton({ puedeAsignarCargos }: { puedeAsignarCargo
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+        className="bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
         size="sm"
       >
         <IconUserPlus size={16} />
@@ -82,24 +82,24 @@ export function InvitarMiembroButton({ puedeAsignarCargos }: { puedeAsignarCargo
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
               <div className="flex items-center gap-2">
-                <IconUserPlus size={18} className="text-[#4B8B2E]" />
-                <p className="font-semibold text-[#0B2545] text-sm">Invitar miembro</p>
+                <IconUserPlus size={18} className="text-[#2F6B2A]" />
+                <p className="font-semibold text-[#0B1B33] text-sm">Invitar miembro</p>
               </div>
-              <button onClick={handleClose} className="text-[#64748B]">
+              <button onClick={handleClose} className="text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
 
             {result?.ok ? (
               <div className="p-8 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
-                  <IconCircleCheck size={24} className="text-[#16A34A]" />
+                <div className="w-12 h-12 rounded-full bg-[#E5F1E3] flex items-center justify-center mx-auto mb-3">
+                  <IconCircleCheck size={24} className="text-[#2F6B2A]" />
                 </div>
-                <p className="text-sm font-semibold text-[#0B2545]">{result.msg}</p>
+                <p className="text-sm font-semibold text-[#0B1B33]">{result.msg}</p>
                 <Button
-                  className="mt-5 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
+                  className="mt-5 bg-[#2F6B2A] hover:bg-[#255620] text-white"
                   size="sm"
                   onClick={handleClose}
                 >
@@ -144,14 +144,14 @@ export function InvitarMiembroButton({ puedeAsignarCargos }: { puedeAsignarCargo
                           onClick={() => setRol(r.value)}
                           className={`rounded-xl border-2 p-3 text-left transition-colors ${
                             rol === r.value
-                              ? "border-[#4B8B2E] bg-[#EBF5E6]"
-                              : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
+                              ? "border-[#2F6B2A] bg-[#E5F1E3]"
+                              : "border-[#DDE3EA] hover:border-[#2F6B2A]/50"
                           }`}
                         >
-                          <p className={`text-sm font-medium ${rol === r.value ? "text-[#3A6E24]" : "text-[#0B2545]"}`}>
+                          <p className={`text-sm font-medium ${rol === r.value ? "text-[#255620]" : "text-[#0B1B33]"}`}>
                             {r.label}
                           </p>
-                          <p className="text-xs text-[#64748B] mt-0.5">{r.desc}</p>
+                          <p className="text-xs text-[#5B6980] mt-0.5">{r.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -159,7 +159,7 @@ export function InvitarMiembroButton({ puedeAsignarCargos }: { puedeAsignarCargo
                 )}
 
                 {result && !result.ok && (
-                  <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-3 py-2">
+                  <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-3 py-2">
                     {result.msg}
                   </p>
                 )}
@@ -177,7 +177,7 @@ export function InvitarMiembroButton({ puedeAsignarCargos }: { puedeAsignarCargo
                     type="button"
                     disabled={!email || loading}
                     onClick={handleSubmit}
-                    className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                    className="flex-1 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                   >
                     {loading ? (
                       <IconLoader2 size={16} className="animate-spin" />

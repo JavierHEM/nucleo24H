@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { sendInvitacionAsesor } from "@/lib/email/sendInvitacion";
 import { APP_NAME } from "@/lib/branding";
+import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
 
 const bodySchema = z.object({
   nombre: z.string().min(2),
@@ -44,7 +45,6 @@ export async function POST(req: NextRequest) {
     type: "invite",
     email,
     options: {
-      redirectTo: `${appUrl}/api/auth/callback?next=/onboarding`,
       data: {
         nombre,
         rol: "asesor",
@@ -70,7 +70,10 @@ export async function POST(req: NextRequest) {
 
   // Enviar email brandedizado via Resend
   const invitadoPor = dbUser.nombre ?? dbUser.email ?? APP_NAME;
-  const linkAcceso = linkData.properties?.action_link ?? `${appUrl}/login`;
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/onboarding");
+  if (!linkAcceso) {
+    return NextResponse.json({ error: "No se pudo armar el enlace de invitación." }, { status: 500 });
+  }
 
   void sendInvitacionAsesor({ to: email, nombre, invitadoPor, linkAcceso }).catch((err) =>
     console.error("[invitar-asesor] Error Resend:", err)

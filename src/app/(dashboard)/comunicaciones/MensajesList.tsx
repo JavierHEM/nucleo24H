@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { IconMessage2, IconCheck, IconChecks, IconLoader2 } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { createClient } from "@/lib/supabase/client";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 
 interface Props {
   userId: string;
@@ -85,22 +86,39 @@ export function MensajesList({ userId, tenantId }: Props) {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-12 flex items-center justify-center">
-        <IconLoader2 size={24} className="animate-spin text-[#4B8B2E]" />
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-12 flex items-center justify-center">
+        <IconLoader2 size={24} className="animate-spin text-[#2F6B2A]" />
       </div>
     );
   }
 
+  const lista = mensajes ?? [];
+  const sinLeer = lista.filter((m) => !m.leido && m.para === userId).length;
+  const enviados = lista.filter((m) => m.de === userId).length;
+  const scores = (
+    <ScoreCards
+      items={[
+        { label: "Mensajes", value: lista.length, hint: "En la conversación", tone: "neutral" },
+        { label: "Sin leer", value: sinLeer, hint: "Para ti", tone: sinLeer > 0 ? "alerta" : "ok" },
+        { label: "Enviados", value: enviados, hint: "Por ti", tone: "neutral" },
+        { label: "Recibidos", value: lista.length - enviados, hint: "Del equipo o el asesor", tone: "neutral" },
+      ]}
+    />
+  );
+
   if (!mensajes || mensajes.length === 0) {
     return (
-      <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-        <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
-          <IconMessage2 size={24} className="text-[#4B8B2E]" />
+      <div className="space-y-4">
+        {scores}
+      <div className="bg-white rounded-xl border-2 border-dashed border-[#DDE3EA] p-12 text-center">
+        <div className="w-12 h-12 rounded-full bg-[#E5F1E3] flex items-center justify-center mx-auto mb-3">
+          <IconMessage2 size={24} className="text-[#2F6B2A]" />
         </div>
-        <p className="font-semibold text-[#0B2545]">Sin mensajes</p>
-        <p className="text-sm text-[#64748B] mt-1">
+        <p className="font-semibold text-[#0B1B33]">Sin mensajes</p>
+        <p className="text-sm text-[#5B6980] mt-1">
           Usa el botón &ldquo;Nuevo mensaje&rdquo; para contactar a tu asesor o equipo.
         </p>
+      </div>
       </div>
     );
   }
@@ -119,14 +137,16 @@ export function MensajesList({ userId, tenantId }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm flex flex-col">
+    <div className="space-y-4">
+      {scores}
+    <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm flex flex-col">
       <div className="flex-1 overflow-y-auto p-4 space-y-1 min-h-[300px] max-h-[60vh]">
         {grupos.map((grupo) => (
           <div key={grupo.fecha}>
             <div className="flex items-center gap-3 my-4">
-              <div className="flex-1 h-px bg-[#E2E8F0]" />
+              <div className="flex-1 h-px bg-[#DDE3EA]" />
               <span className="text-xs text-[#94A3B8] font-medium px-2">{grupo.fecha}</span>
-              <div className="flex-1 h-px bg-[#E2E8F0]" />
+              <div className="flex-1 h-px bg-[#DDE3EA]" />
             </div>
 
             {grupo.items.map((m) => {
@@ -143,14 +163,14 @@ export function MensajesList({ userId, tenantId }: Props) {
                   className={`flex gap-2 items-end mb-2 ${esPropio ? "justify-end" : "justify-start"}`}
                 >
                   {!esPropio && (
-                    <div className="w-7 h-7 rounded-full bg-[#143556] flex items-center justify-center shrink-0 text-white text-xs font-bold mb-1">
+                    <div className="w-7 h-7 rounded-full bg-[#16294A] flex items-center justify-center shrink-0 text-white text-xs font-bold mb-1">
                       {inicial}
                     </div>
                   )}
 
                   <div className={`max-w-[75%] flex flex-col ${esPropio ? "items-end" : "items-start"}`}>
                     {!esPropio && (
-                      <span className="text-xs text-[#64748B] font-medium mb-1 ml-1">
+                      <span className="text-xs text-[#5B6980] font-medium mb-1 ml-1">
                         {nombreRemitente}
                       </span>
                     )}
@@ -158,8 +178,8 @@ export function MensajesList({ userId, tenantId }: Props) {
                     <div
                       className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                         esPropio
-                          ? "bg-[#143556] text-white rounded-br-sm"
-                          : "bg-[#F8F9FA] text-[#0B2545] rounded-bl-sm"
+                          ? "bg-[#16294A] text-white rounded-br-sm"
+                          : "bg-[#F4F6F3] text-[#0B1B33] rounded-bl-sm"
                       }`}
                     >
                       {m.contenido}
@@ -171,7 +191,7 @@ export function MensajesList({ userId, tenantId }: Props) {
                       </span>
                       {esPropio && (
                         m.leido
-                          ? <IconChecks size={12} className="text-[#4B8B2E]" />
+                          ? <IconChecks size={12} className="text-[#2F6B2A]" />
                           : <IconCheck size={12} className="text-[#94A3B8]" />
                       )}
                     </div>
@@ -183,6 +203,7 @@ export function MensajesList({ userId, tenantId }: Props) {
         ))}
         <div ref={bottomRef} />
       </div>
+    </div>
     </div>
   );
 }

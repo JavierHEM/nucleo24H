@@ -15,11 +15,11 @@ export const viewport: Viewport = {
 
 export default function PoliticaPrivacidadPage() {
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
-      <header className="bg-[#0D2137] border-b border-white/10">
+    <div className="min-h-screen bg-[#F4F6F3]">
+      <header className="bg-[#0B1B33] border-b border-white/10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#4B8B2E] flex items-center justify-center font-bold text-white text-sm">
+            <div className="w-8 h-8 rounded-lg bg-[#2F6B2A] flex items-center justify-center font-bold text-white text-sm">
               N
             </div>
             <span className="font-bold text-white">Nucleo 24H</span>
@@ -35,18 +35,18 @@ export default function PoliticaPrivacidadPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8 md:p-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#DDE3EA] p-8 md:p-12">
           <div className="flex items-center gap-3 mb-2">
-            <IconShield size={28} className="text-[#4B8B2E]" />
-            <h1 className="text-3xl font-bold text-[#0D2137]">Política de Privacidad</h1>
+            <IconShield size={28} className="text-[#2F6B2A]" />
+            <h1 className="text-3xl font-bold text-[#0B1B33]">Política de Privacidad</h1>
           </div>
-          <p className="text-[#64748B] text-sm mb-10">
+          <p className="text-[#5B6980] text-sm mb-10">
             Versión 1.0 — Vigente desde el 1 de diciembre de 2026
           </p>
 
           <div className="space-y-10 text-[#334155]">
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 1. Responsable del tratamiento
               </h2>
               <p className="text-sm leading-relaxed">
@@ -56,14 +56,14 @@ export default function PoliticaPrivacidadPage() {
               </p>
               <p className="text-sm leading-relaxed mt-2">
                 Contacto para asuntos de privacidad:{" "}
-                <a href="mailto:privacidad@nucleosur.cl" className="text-[#4B8B2E] underline">
+                <a href="mailto:privacidad@nucleosur.cl" className="text-[#2F6B2A] underline">
                   privacidad@nucleosur.cl
                 </a>
               </p>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 2. Datos personales que tratamos
               </h2>
               <ul className="text-sm space-y-2 pl-4">
@@ -74,7 +74,7 @@ export default function PoliticaPrivacidadPage() {
                   ["Datos técnicos", "dirección IP, tipo de dispositivo, logs de acceso"],
                 ].map(([bold, rest]) => (
                   <li key={bold} className="flex gap-2 items-start">
-                    <span className="text-[#4B8B2E] mt-1 shrink-0">•</span>
+                    <span className="text-[#2F6B2A] mt-1 shrink-0">•</span>
                     <span><strong>{bold}:</strong> {rest}</span>
                   </li>
                 ))}
@@ -82,7 +82,7 @@ export default function PoliticaPrivacidadPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 3. Finalidades del tratamiento
               </h2>
               <ul className="text-sm space-y-2 pl-4">
@@ -94,7 +94,7 @@ export default function PoliticaPrivacidadPage() {
                   "Cumplimiento de obligaciones legales",
                 ].map((item) => (
                   <li key={item} className="flex gap-2 items-start">
-                    <span className="text-[#4B8B2E] mt-1 shrink-0">•</span>
+                    <span className="text-[#2F6B2A] mt-1 shrink-0">•</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -102,7 +102,7 @@ export default function PoliticaPrivacidadPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 4. Base de legitimación
               </h2>
               <p className="text-sm leading-relaxed">
@@ -113,16 +113,16 @@ export default function PoliticaPrivacidadPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 5. Encargados de tratamiento (subprocesadores)
               </h2>
-              <div className="overflow-x-auto rounded-xl border border-[#E2E8F0]">
+              <div className="overflow-x-auto rounded-xl border border-[#DDE3EA]">
                 <table className="w-full text-sm">
                   <thead className="bg-[#F8FAFC]">
                     <tr>
-                      <th className="text-left px-4 py-3 font-semibold text-[#0D2137]">Proveedor</th>
-                      <th className="text-left px-4 py-3 font-semibold text-[#0D2137]">País</th>
-                      <th className="text-left px-4 py-3 font-semibold text-[#0D2137]">Finalidad</th>
+                      <th className="text-left px-4 py-3 font-semibold text-[#0B1B33]">Proveedor</th>
+                      <th className="text-left px-4 py-3 font-semibold text-[#0B1B33]">País</th>
+                      <th className="text-left px-4 py-3 font-semibold text-[#0B1B33]">Finalidad</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F1F5F9]">
@@ -134,21 +134,21 @@ export default function PoliticaPrivacidadPage() {
                     ].map(([prov, pais, fin]) => (
                       <tr key={prov}>
                         <td className="px-4 py-3">{prov}</td>
-                        <td className="px-4 py-3 text-[#64748B]">{pais}</td>
-                        <td className="px-4 py-3 text-[#64748B]">{fin}</td>
+                        <td className="px-4 py-3 text-[#5B6980]">{pais}</td>
+                        <td className="px-4 py-3 text-[#5B6980]">{fin}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="text-xs text-[#64748B] mt-3">
+              <p className="text-xs text-[#5B6980] mt-3">
                 Todos los encargados cuentan con Acuerdo de Procesamiento de Datos (DPA) firmado
                 y ofrecen garantías adecuadas conforme a la Ley 21.719.
               </p>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 6. Sus derechos (ARSOPB)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -164,7 +164,7 @@ export default function PoliticaPrivacidadPage() {
                   ["Bloqueo", "suspender temporalmente el tratamiento de sus datos"],
                 ].map(([bold, rest]) => (
                   <li key={bold} className="flex gap-2 items-start">
-                    <span className="text-[#4B8B2E] mt-1 shrink-0">•</span>
+                    <span className="text-[#2F6B2A] mt-1 shrink-0">•</span>
                     <span><strong>{bold}:</strong> {rest}</span>
                   </li>
                 ))}
@@ -173,7 +173,7 @@ export default function PoliticaPrivacidadPage() {
                 Para ejercer sus derechos, ingresa a{" "}
                 <strong>Mi Cuenta → Mis Derechos</strong> dentro de la plataforma, o envía tu
                 solicitud a{" "}
-                <a href="mailto:privacidad@nucleosur.cl" className="text-[#4B8B2E] underline">
+                <a href="mailto:privacidad@nucleosur.cl" className="text-[#2F6B2A] underline">
                   privacidad@nucleosur.cl
                 </a>
                 . Responderemos dentro de <strong>30 días corridos</strong>.
@@ -181,7 +181,7 @@ export default function PoliticaPrivacidadPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 7. Retención de datos
               </h2>
               <p className="text-sm leading-relaxed">
@@ -192,7 +192,7 @@ export default function PoliticaPrivacidadPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 8. Seguridad
               </h2>
               <p className="text-sm leading-relaxed">
@@ -203,7 +203,7 @@ export default function PoliticaPrivacidadPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-[#0D2137] mb-3">
+              <h2 className="text-lg font-semibold text-[#0B1B33] mb-3">
                 9. Cambios a esta política
               </h2>
               <p className="text-sm leading-relaxed">
@@ -213,7 +213,7 @@ export default function PoliticaPrivacidadPage() {
               </p>
             </section>
 
-            <div className="border-t border-[#E2E8F0] pt-6 text-xs text-[#94A3B8]">
+            <div className="border-t border-[#DDE3EA] pt-6 text-xs text-[#94A3B8]">
               <p>Última actualización: 1 de diciembre de 2026 — Versión 1.0</p>
               <p className="mt-1">
                 En caso de conflicto entre esta política y la normativa vigente, prevalece la{" "}
@@ -221,7 +221,7 @@ export default function PoliticaPrivacidadPage() {
                   href="https://bcn.cl/gJo3hf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#4B8B2E] underline"
+                  className="text-[#2F6B2A] underline"
                 >
                   Ley N° 21.719
                 </a>

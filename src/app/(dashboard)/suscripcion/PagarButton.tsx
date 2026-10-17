@@ -27,7 +27,7 @@ export function PagarButton({ periodo, monto, disponible }: PagarButtonProps) {
     return (
       <button
         disabled
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#E2E8F0] text-[#94A3B8] cursor-not-allowed min-h-12"
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#DDE3EA] text-[#94A3B8] cursor-not-allowed min-h-12"
         title="El pago en línea estará disponible próximamente"
       >
         <IconCreditCard size={18} />
@@ -44,7 +44,7 @@ export function PagarButton({ periodo, monto, disponible }: PagarButtonProps) {
           pagar.mutate({ periodo });
         }}
         disabled={pagar.isPending}
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#4B8B2E] text-white hover:bg-[#3A6E24] transition-colors disabled:opacity-60 min-h-12"
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#2F6B2A] text-white hover:bg-[#255620] transition-colors disabled:opacity-60 min-h-12"
       >
         {pagar.isPending ? (
           <IconLoader2 size={18} className="animate-spin" />

@@ -27,7 +27,7 @@ export default async function AdminLayout({
   if (dbUser?.rol !== "admin_nucleo") redirect("/");
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
+    <div className="flex h-screen overflow-hidden bg-[#F4F6F3]">
       <Sidebar userRole="admin_nucleo" mode="admin" />
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar userName={dbUser.nombre} />

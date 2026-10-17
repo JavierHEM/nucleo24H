@@ -21,17 +21,17 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
   return (
     <Html lang="es">
       <Head />
-      <Body style={{ backgroundColor: "#F8F9FA", fontFamily: "Inter, sans-serif" }}>
+      <Body style={{ backgroundColor: "#F4F6F3", fontFamily: "Inter, sans-serif" }}>
         <Container style={{ maxWidth: 600, margin: "0 auto", padding: "32px 0" }}>
           {/* Header */}
           <Section
             style={{
-              backgroundColor: "#0B2545",
+              backgroundColor: "#0B1B33",
               borderRadius: "12px 12px 0 0",
               padding: "28px 32px",
             }}
           >
-            <Text style={{ color: "#4B8B2E", fontWeight: 700, fontSize: 13, margin: 0 }}>
+            <Text style={{ color: "#2F6B2A", fontWeight: 700, fontSize: 13, margin: 0 }}>
               {APP_NAME_UPPER}
             </Text>
             <Heading
@@ -54,13 +54,13 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
 
             <Section
               style={{
-                backgroundColor: "#EBF5E6",
+                backgroundColor: "#E5F1E3",
                 borderRadius: 10,
                 padding: "16px 20px",
                 margin: "20px 0",
               }}
             >
-              <Text style={{ fontSize: 14, color: "#3A6E24", fontWeight: 600, margin: 0 }}>
+              <Text style={{ fontSize: 14, color: "#255620", fontWeight: 600, margin: 0 }}>
                 ¿Qué puedes hacer como Asesor?
               </Text>
               <Text style={{ fontSize: 14, color: "#334155", margin: "10px 0 0 0" }}>
@@ -77,7 +77,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
               </Text>
             </Section>
 
-            <Text style={{ fontSize: 14, color: "#64748B", margin: "0 0 24px 0" }}>
+            <Text style={{ fontSize: 14, color: "#5B6980", margin: "0 0 24px 0" }}>
               Haz clic en el botón para crear tu contraseña y acceder al portal:
             </Text>
 
@@ -85,7 +85,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
               <Button
                 href={linkAcceso}
                 style={{
-                  backgroundColor: "#4B8B2E",
+                  backgroundColor: "#2F6B2A",
                   color: "#FFFFFF",
                   borderRadius: 8,
                   padding: "12px 28px",
@@ -99,7 +99,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
               </Button>
             </Section>
 
-            <Hr style={{ borderColor: "#E2E8F0", margin: "24px 0" }} />
+            <Hr style={{ borderColor: "#DDE3EA", margin: "24px 0" }} />
 
             <Text style={{ fontSize: 12, color: "#94A3B8", margin: 0 }}>
               Si no solicitaste esta invitación, puedes ignorar este correo. El enlace
@@ -110,7 +110,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
           {/* Footer */}
           <Section
             style={{
-              backgroundColor: "#F8F9FA",
+              backgroundColor: "#F4F6F3",
               borderRadius: "0 0 12px 12px",
               padding: "18px 32px",
               textAlign: "center",

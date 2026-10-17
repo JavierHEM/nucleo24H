@@ -22,6 +22,7 @@ import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { FAMILIAS, etiquetaPlanilla, resumenRegistro, type FamiliaId } from "@/lib/bpm/planillas";
 import { hrefArchivo } from "@/lib/storage/rutas";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 
 type Tipo = FamiliaId | "temperatura";
 
@@ -45,16 +46,16 @@ const TIPO_CONFIG: Record<
   higiene: {
     label: "Higiene",
     icon: IconHandSanitizer,
-    bg: "bg-[#EBF5E6]",
-    text: "text-[#3A6E24]",
-    iconColor: "text-[#4B8B2E]",
+    bg: "bg-[#E5F1E3]",
+    text: "text-[#255620]",
+    iconColor: "text-[#2F6B2A]",
   },
   recepcion: {
     label: "Recepción",
     icon: IconTruckDelivery,
     bg: "bg-[#F1F5F9]",
-    text: "text-[#143556]",
-    iconColor: "text-[#143556]",
+    text: "text-[#16294A]",
+    iconColor: "text-[#16294A]",
   },
   almacenamiento: {
     label: "Almacenamiento",
@@ -67,8 +68,8 @@ const TIPO_CONFIG: Record<
     label: "Residuos",
     icon: IconTrash,
     bg: "bg-[#F1F5F9]",
-    text: "text-[#143556]",
-    iconColor: "text-[#143556]",
+    text: "text-[#16294A]",
+    iconColor: "text-[#16294A]",
   },
   agua: {
     label: "Agua",
@@ -80,16 +81,16 @@ const TIPO_CONFIG: Record<
   produccion: {
     label: "Producción",
     icon: IconToolsKitchen2,
-    bg: "bg-[#EBF5E6]",
-    text: "text-[#3A6E24]",
-    iconColor: "text-[#4B8B2E]",
+    bg: "bg-[#E5F1E3]",
+    text: "text-[#255620]",
+    iconColor: "text-[#2F6B2A]",
   },
   limpieza: {
     label: "Limpieza",
     icon: IconDroplets,
-    bg: "bg-[#EBF5E6]",
-    text: "text-[#3A6E24]",
-    iconColor: "text-[#4B8B2E]",
+    bg: "bg-[#E5F1E3]",
+    text: "text-[#255620]",
+    iconColor: "text-[#2F6B2A]",
   },
   plagas: {
     label: "Plagas",
@@ -111,9 +112,9 @@ const ESTADO_CONFIG: Record<
   string,
   { icon: React.ComponentType<{ size?: number; className?: string }>; color: string; label: string }
 > = {
-  completo: { icon: IconCircleCheck, color: "text-[#16A34A]", label: "Completo" },
+  completo: { icon: IconCircleCheck, color: "text-[#2F6B2A]", label: "Completo" },
   pendiente: { icon: IconClock, color: "text-[#D97706]", label: "Pendiente" },
-  observado: { icon: IconAlertTriangle, color: "text-[#DC2626]", label: "Observado" },
+  observado: { icon: IconAlertTriangle, color: "text-[#B42318]", label: "Observado" },
 };
 
 const FILTROS: Array<{ value: FamiliaId | "todos"; label: string }> = [
@@ -128,10 +129,23 @@ export function RegistrosList() {
     tipo: filtro === "todos" ? undefined : filtro,
     limit: 50,
   });
+  const resumen = trpc.registros.list.useQuery({ limit: 100 });
+  const filas = resumen.data ?? [];
+  const hoy = new Date();
+  const deHoy = filas.filter((registro) => {
+    const fecha = new Date(registro.fecha);
+    return fecha.getFullYear() === hoy.getFullYear() && fecha.getMonth() === hoy.getMonth() && fecha.getDate() === hoy.getDate();
+  }).length;
+  const delMes = filas.filter((registro) => {
+    const fecha = new Date(registro.fecha);
+    return fecha.getFullYear() === hoy.getFullYear() && fecha.getMonth() === hoy.getMonth();
+  }).length;
+  const enRevision = filas.filter((registro) => registro.origen === "papel" && registro.estado === "pendiente").length;
+  const observados = filas.filter((registro) => registro.estado === "observado").length;
 
   if (error) {
     return (
-      <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-[#DC2626]">
+      <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-[#B42318]">
         Error al cargar registros: {error.message}
       </div>
     );
@@ -139,9 +153,19 @@ export function RegistrosList() {
 
   return (
     <div className="space-y-4">
+      {resumen.data && (
+        <ScoreCards
+          items={[
+            { label: "Hoy", value: deHoy, hint: "Registros del día", tone: deHoy > 0 ? "ok" : "alerta" },
+            { label: "Este mes", value: delMes, hint: "En el período", tone: "neutral" },
+            { label: "En revisión", value: enRevision, hint: "Planillas en papel", tone: enRevision > 0 ? "alerta" : "ok" },
+            { label: "Observados", value: observados, hint: "Con hallazgo", tone: observados > 0 ? "alerta" : "ok" },
+          ]}
+        />
+      )}
       {/* Filtros */}
       <div className="flex items-center gap-2 flex-wrap">
-        <IconFilter size={15} className="text-[#64748B] shrink-0" />
+        <IconFilter size={15} className="text-[#5B6980] shrink-0" />
         {FILTROS.map((f) => (
           <button
             key={f.value}
@@ -149,8 +173,8 @@ export function RegistrosList() {
             className={cn(
               "text-sm px-3 py-1.5 rounded-full border transition-colors",
               filtro === f.value
-                ? "bg-[#143556] text-white border-[#143556]"
-                : "bg-white text-[#334155] border-[#E2E8F0] hover:border-[#143556] hover:text-[#143556]"
+                ? "bg-[#16294A] text-white border-[#16294A]"
+                : "bg-white text-[#334155] border-[#DDE3EA] hover:border-[#16294A] hover:text-[#16294A]"
             )}
           >
             {f.label}
@@ -162,17 +186,17 @@ export function RegistrosList() {
       {isLoading && (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[72px] rounded-xl bg-[#E2E8F0] animate-pulse" />
+            <div key={i} className="h-[72px] rounded-xl bg-[#DDE3EA] animate-pulse" />
           ))}
         </div>
       )}
 
       {/* Vacío */}
       {!isLoading && (!data || data.length === 0) && (
-        <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-          <IconClipboardList size={36} className="mx-auto text-[#E2E8F0] mb-3" />
-          <p className="font-medium text-[#0B2545]">No hay registros aún</p>
-          <p className="text-sm text-[#64748B] mt-1">
+        <div className="bg-white rounded-xl border-2 border-dashed border-[#DDE3EA] p-12 text-center">
+          <IconClipboardList size={36} className="mx-auto text-[#DDE3EA] mb-3" />
+          <p className="font-medium text-[#0B1B33]">No hay registros aún</p>
+          <p className="text-sm text-[#5B6980] mt-1">
             Completa una planilla en el sistema o carga la impresa.
           </p>
         </div>
@@ -200,7 +224,7 @@ export function RegistrosList() {
             return (
               <div
                 key={registro.id}
-                className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm flex items-center gap-4 px-4 py-3 hover:shadow-md transition-shadow"
+                className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm flex items-center gap-4 px-4 py-3 hover:shadow-md transition-shadow"
               >
                 <div
                   className={cn(
@@ -213,11 +237,11 @@ export function RegistrosList() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm text-[#0B2545]">
+                    <p className="font-semibold text-sm text-[#0B1B33]">
                       {titulo}
                     </p>
                     {registro.codigo && (
-                      <span className="font-mono text-[10px] text-[#64748B]">{registro.codigo}</span>
+                      <span className="font-mono text-[10px] text-[#5B6980]">{registro.codigo}</span>
                     )}
                     <span
                       className={cn(
@@ -229,13 +253,13 @@ export function RegistrosList() {
                       {registro.tipo}
                     </span>
                   </div>
-                  <p className="text-xs text-[#64748B] mt-0.5 truncate">{detalle}</p>
+                  <p className="text-xs text-[#5B6980] mt-0.5 truncate">{detalle}</p>
                   {esPapel && registro.adjunto_url && (
                     <a
                       href={hrefArchivo(registro.adjunto_url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-[#143556] underline"
+                      className="text-xs text-[#16294A] underline"
                     >
                       Ver planilla
                     </a>
@@ -243,7 +267,7 @@ export function RegistrosList() {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <p className="text-xs text-[#64748B]">{formatDate(registro.fecha)}</p>
+                  <p className="text-xs text-[#5B6980]">{formatDate(registro.fecha)}</p>
                   <div className={cn("flex items-center justify-end gap-1 mt-1", estadoCfg.color)}>
                     <EstadoIcon size={13} />
                     <span className="text-xs font-medium">{estadoLabel}</span>

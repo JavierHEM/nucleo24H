@@ -28,8 +28,8 @@ export default async function AdminArsopbPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0B2545]">Panel ARSOPB</h1>
-        <p className="text-sm text-[#64748B] mt-1">
+        <h1 className="text-2xl font-bold text-[#0B1B33]">Panel ARSOPB</h1>
+        <p className="text-sm text-[#5B6980] mt-1">
           Gestión de derechos de titulares — Ley 21.719
         </p>
       </div>
@@ -37,12 +37,12 @@ export default async function AdminArsopbPage() {
       {/* Alertas urgentes */}
       {urgentes.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-          <IconAlertTriangle size={18} className="text-[#DC2626] shrink-0 mt-0.5" />
+          <IconAlertTriangle size={18} className="text-[#B42318] shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-[#DC2626]">
+            <p className="text-sm font-semibold text-[#B42318]">
               {urgentes.length} solicitud{urgentes.length > 1 ? "es" : ""} próxima{urgentes.length > 1 ? "s" : ""} a vencer (48h)
             </p>
-            <p className="text-xs text-[#DC2626]/80 mt-1">
+            <p className="text-xs text-[#B42318]/80 mt-1">
               El incumplimiento del plazo de 30 días puede constituir infracción a la Ley 21.719.
             </p>
           </div>
@@ -50,11 +50,11 @@ export default async function AdminArsopbPage() {
       )}
 
       {/* Solicitudes pendientes */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E2E8F0]">
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EA]">
           <div className="flex items-center gap-2">
-            <IconShield size={18} className="text-[#4B8B2E]" />
-            <p className="text-sm font-semibold text-[#0B2545]">Solicitudes pendientes</p>
+            <IconShield size={18} className="text-[#2F6B2A]" />
+            <p className="text-sm font-semibold text-[#0B1B33]">Solicitudes pendientes</p>
           </div>
           <span className="text-xs bg-yellow-100 text-yellow-800 rounded-full px-2 py-0.5 font-medium">
             {solicitudes.length}
@@ -62,12 +62,12 @@ export default async function AdminArsopbPage() {
         </div>
 
         {solicitudes.length === 0 ? (
-          <div className="p-8 text-center text-[#64748B] text-sm flex items-center justify-center gap-2">
-            <IconCircleCheck size={18} className="text-[#16A34A]" />
+          <div className="p-8 text-center text-[#5B6980] text-sm flex items-center justify-center gap-2">
+            <IconCircleCheck size={18} className="text-[#2F6B2A]" />
             Sin solicitudes pendientes
           </div>
         ) : (
-          <div className="divide-y divide-[#E2E8F0]">
+          <div className="divide-y divide-[#DDE3EA]">
             {solicitudes.map(
               (s: {
                 id: string;
@@ -89,23 +89,23 @@ export default async function AdminArsopbPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-[#0B2545]">
+                          <span className="text-sm font-semibold text-[#0B1B33]">
                             {TIPO_LABEL[s.tipo_derecho] ?? s.tipo_derecho}
                           </span>
                           {s.tenant && (
-                            <span className="text-xs text-[#64748B]">
+                            <span className="text-xs text-[#5B6980]">
                               · {s.tenant.nombre}
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-[#64748B]">
+                        <div className="flex items-center gap-4 text-xs text-[#5B6980]">
                           <span className="flex items-center gap-1">
                             <IconClock size={12} />
                             Ingreso: {formatDate(s.fecha_ingreso)}
                           </span>
                           <span
                             className={`flex items-center gap-1 font-medium ${
-                              isUrgente ? "text-[#DC2626]" : "text-[#D97706]"
+                              isUrgente ? "text-[#B42318]" : "text-[#D97706]"
                             }`}
                           >
                             Vence: {formatDate(s.fecha_limite)}

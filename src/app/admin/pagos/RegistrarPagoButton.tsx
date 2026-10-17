@@ -58,7 +58,7 @@ export function RegistrarPagoButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs text-[#3A6E24] font-medium hover:text-[#4B8B2E] transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#255620] font-medium hover:text-[#2F6B2A] transition-colors"
       >
         <IconCashBanknote size={14} />
         Registrar pago
@@ -67,23 +67,23 @@ export function RegistrarPagoButton({
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
               <div className="flex items-center gap-2">
-                <IconCashBanknote size={18} className="text-[#4B8B2E]" />
-                <p className="font-semibold text-[#0B2545] text-sm">
+                <IconCashBanknote size={18} className="text-[#2F6B2A]" />
+                <p className="font-semibold text-[#0B1B33] text-sm">
                   Registrar pago por transferencia
                 </p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
+              <button onClick={() => setOpen(false)} className="text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-[#F8F9FA] rounded-xl p-3">
-                <p className="text-xs text-[#64748B]">Local</p>
-                <p className="text-sm font-semibold text-[#0B2545]">{tenantNombre}</p>
-                <p className="text-xs text-[#64748B] mt-1 capitalize">
+              <div className="bg-[#F4F6F3] rounded-xl p-3">
+                <p className="text-xs text-[#5B6980]">Local</p>
+                <p className="text-sm font-semibold text-[#0B1B33]">{tenantNombre}</p>
+                <p className="text-xs text-[#5B6980] mt-1 capitalize">
                   Período: {formatPeriodo(periodo)}
                 </p>
               </div>
@@ -102,7 +102,7 @@ export function RegistrarPagoButton({
                   className="min-h-12"
                 />
                 {montoValido && (
-                  <p className="text-xs text-[#64748B] mt-1">{formatCLP(montoNum)}</p>
+                  <p className="text-xs text-[#5B6980] mt-1">{formatCLP(montoNum)}</p>
                 )}
               </div>
 
@@ -122,7 +122,7 @@ export function RegistrarPagoButton({
               </div>
 
               {registrar.error && (
-                <p className="text-sm text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">
+                <p className="text-sm text-[#B42318] bg-red-50 rounded-lg px-3 py-2">
                   {registrar.error.message}
                 </p>
               )}
@@ -140,7 +140,7 @@ export function RegistrarPagoButton({
                   type="button"
                   disabled={!montoValido || registrar.isPending}
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                  className="flex-1 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                 >
                   {registrar.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

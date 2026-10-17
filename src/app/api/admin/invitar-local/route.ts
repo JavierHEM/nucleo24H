@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
+import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
+import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { APP_NAME } from "@/lib/branding";
 
 const bodySchema = z.object({
   email: z.string().email("Email inválido"),
@@ -94,34 +97,51 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Caso 2: usuario nuevo → invitar; el trigger handle_new_user
-  // vinculará el tenant_id que va en la metadata.
+  // Caso 2: usuario nuevo. El correo lo manda la app: el enlace de Supabase
+  // deja la sesión en el fragmento y el dueño cae en el login.
   const supabaseAdmin = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nucleosur.cl";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
 
-  const { data: inviteData, error: inviteError } =
-    await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${appUrl}/api/auth/callback?next=/`,
+  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+    type: "invite",
+    email,
+    options: {
       data: {
         tenant_id: tenant.id,
         rol: "admin_local",
       },
-    });
+    },
+  });
 
-  if (inviteError || !inviteData.user) {
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/onboarding");
+  if (linkError || !linkData?.user || !linkAcceso) {
     await prisma.tenant.delete({ where: { id: tenant.id } }).catch(() => {});
-    console.error("[invitar-local] Error Supabase invite:", inviteError);
+    console.error("[invitar-local] Error generando link:", linkError);
     return NextResponse.json(
-      { error: `Error al enviar invitación: ${inviteError?.message ?? "desconocido"}` },
+      { error: `Error al enviar invitación: ${linkError?.message ?? "desconocido"}` },
       { status: 500 }
     );
   }
 
-  await syncUserClaims(inviteData.user.id);
+  await syncUserClaims(linkData.user.id);
+
+  const invitador = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { nombre: true, email: true },
+  });
+
+  void sendInvitacionLocal({
+    to: email,
+    nombre: email.split("@")[0] ?? email,
+    nombreLocal: nombre,
+    rol: "admin_local",
+    invitadoPor: invitador?.nombre ?? invitador?.email ?? APP_NAME,
+    linkAcceso,
+  }).catch((err) => console.error("[invitar-local] Error Resend:", err));
 
   return NextResponse.json({
     success: true,
     tenantId: tenant.id,
-    message: `Invitación enviada a ${email}.`,
+    message: `Invitación enviada a ${email}. El enlace abre la creación de su clave.`,
   });
 }

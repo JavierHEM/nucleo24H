@@ -44,7 +44,7 @@ function OnboardingForm() {
     // 1. Actualizar contraseña y metadata en Supabase Auth
     const { error: pwError } = await supabase.auth.updateUser({
       password: data.password,
-      data: { nombre: data.nombre },
+      data: { nombre: data.nombre, clave_definida: true },
     });
 
     if (pwError) {
@@ -71,33 +71,33 @@ function OnboardingForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3] px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#0B2545] flex items-center justify-center">
-            <IconShieldCheck size={22} className="text-[#4B8B2E]" />
+          <div className="w-10 h-10 rounded-xl bg-[#0B1B33] flex items-center justify-center">
+            <IconShieldCheck size={22} className="text-[#2F6B2A]" />
           </div>
-          <span className="text-xl font-bold text-[#0B2545]">Nucleo 24H</span>
+          <span className="text-xl font-bold text-[#0B1B33]">Nucleo 24H</span>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#DDE3EA] overflow-hidden">
           {step === "done" ? (
             <div className="p-10 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-4">
-                <IconShieldCheck size={28} className="text-[#16A34A]" />
+              <div className="w-14 h-14 rounded-full bg-[#E5F1E3] flex items-center justify-center mx-auto mb-4">
+                <IconShieldCheck size={28} className="text-[#2F6B2A]" />
               </div>
-              <h2 className="text-lg font-bold text-[#0B2545] mb-1">
+              <h2 className="text-lg font-bold text-[#0B1B33] mb-1">
                 ¡Cuenta configurada!
               </h2>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[#5B6980]">
                 Redirigiendo al panel...
               </p>
             </div>
           ) : (
             <>
               {/* Header */}
-              <div className="bg-[#0B2545] px-6 py-5">
+              <div className="bg-[#0B1B33] px-6 py-5">
                 <h1 className="text-white font-bold text-lg">Bienvenido a Nucleo 24H</h1>
                 <p className="text-white/60 text-sm mt-0.5">
                   Configura tu cuenta para comenzar
@@ -106,7 +106,7 @@ function OnboardingForm() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
                 {serverError && (
-                  <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-4 py-3">
+                  <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-4 py-3">
                     {serverError}
                   </p>
                 )}
@@ -117,7 +117,7 @@ function OnboardingForm() {
                   <div className="relative mt-1">
                     <IconUser
                       size={16}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5B6980]"
                     />
                     <Input
                       id="nombre-ob"
@@ -127,7 +127,7 @@ function OnboardingForm() {
                     />
                   </div>
                   {errors.nombre && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.nombre.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.nombre.message}</p>
                   )}
                 </div>
 
@@ -137,7 +137,7 @@ function OnboardingForm() {
                   <div className="relative mt-1">
                     <IconLock
                       size={16}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5B6980]"
                     />
                     <Input
                       id="pw-ob"
@@ -149,7 +149,7 @@ function OnboardingForm() {
                     />
                   </div>
                   {errors.password && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.password.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.password.message}</p>
                   )}
                 </div>
 
@@ -159,7 +159,7 @@ function OnboardingForm() {
                   <div className="relative mt-1">
                     <IconLock
                       size={16}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5B6980]"
                     />
                     <Input
                       id="confirm-ob"
@@ -171,14 +171,14 @@ function OnboardingForm() {
                     />
                   </div>
                   {errors.confirmar && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.confirmar.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.confirmar.message}</p>
                   )}
                 </div>
 
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                  className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -200,8 +200,8 @@ function OnboardingForm() {
 export default function OnboardingPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
-        <div className="w-8 h-8 border-2 border-[#4B8B2E] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3]">
+        <div className="w-8 h-8 border-2 border-[#2F6B2A] border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <OnboardingForm />

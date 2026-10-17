@@ -27,7 +27,7 @@ export function SolicitarRevisionButton({ selloId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-[#64748B] hover:text-[#0B2545] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F8F9FA] transition-colors flex items-center gap-1.5"
+        className="text-xs text-[#5B6980] hover:text-[#0B1B33] border border-[#DDE3EA] rounded-lg px-3 py-1.5 hover:bg-[#F4F6F3] transition-colors flex items-center gap-1.5"
       >
         <IconMessageQuestion size={14} />
         Solicitar revisión
@@ -36,23 +36,23 @@ export function SolicitarRevisionButton({ selloId }: Props) {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
               <div className="flex items-center gap-2">
                 <IconMessageQuestion size={20} className="text-amber-500" />
-                <p className="font-semibold text-[#0B2545]">Solicitar revisión del sello</p>
+                <p className="font-semibold text-[#0B1B33]">Solicitar revisión del sello</p>
               </div>
-              <button onClick={() => { setOpen(false); setMotivo(""); reset(); }} className="text-[#64748B] hover:text-[#0B2545]">
+              <button onClick={() => { setOpen(false); setMotivo(""); reset(); }} className="text-[#5B6980] hover:text-[#0B1B33]">
                 <IconX size={20} />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[#5B6980]">
                 Explica al asesor por qué consideras que el resultado del sello no refleja
                 correctamente las condiciones del local.
               </p>
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1.5">
+                <label className="text-xs font-medium text-[#5B6980] block mb-1.5">
                   Motivo de la revisión <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -60,19 +60,19 @@ export function SolicitarRevisionButton({ selloId }: Props) {
                   value={motivo}
                   onChange={(e) => setMotivo(e.target.value)}
                   placeholder="Ej: Los documentos de limpieza estaban actualizados pero no fueron considerados..."
-                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+                  className="w-full rounded-xl border border-[#DDE3EA] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                 />
                 <p className="text-xs text-[#94A3B8] mt-1 text-right">{motivo.length}/10 mín.</p>
               </div>
 
               {error && (
-                <p className="text-xs text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#B42318] bg-red-50 rounded-lg px-3 py-2">
                   {error.message}
                 </p>
               )}
 
               {isSuccess && (
-                <p className="text-xs text-[#16A34A] bg-green-50 rounded-lg px-3 py-2 font-medium">
+                <p className="text-xs text-[#2F6B2A] bg-green-50 rounded-lg px-3 py-2 font-medium">
                   ✓ Solicitud enviada. Tu asesor la revisará pronto.
                 </p>
               )}

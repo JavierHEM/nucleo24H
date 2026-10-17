@@ -28,10 +28,10 @@ interface Props {
 }
 
 const NIVEL_COLOR: Record<string, string> = {
-  inicial: "#DC2626",
+  inicial: "#B42318",
   intermedio: "#D97706",
-  avanzado: "#16A34A",
-  premium: "#0B2545",
+  avanzado: "#2F6B2A",
+  premium: "#0B1B33",
 };
 
 const NIVEL_LABEL: Record<string, string> = {
@@ -54,7 +54,7 @@ export function SelloEmitidoEmail({
   descargosHabilitados,
   appUrl,
 }: Props) {
-  const nivelColor = NIVEL_COLOR[nivel] ?? "#0B2545";
+  const nivelColor = NIVEL_COLOR[nivel] ?? "#0B1B33";
   const nivelLabel = NIVEL_LABEL[nivel] ?? nivel;
 
   const [year, month] = periodo.split("-");
@@ -67,18 +67,18 @@ export function SelloEmitidoEmail({
   return (
     <Html lang="es">
       <Head />
-      <Body style={{ backgroundColor: "#F8F9FA", fontFamily: "Inter, sans-serif" }}>
+      <Body style={{ backgroundColor: "#F4F6F3", fontFamily: "Inter, sans-serif" }}>
         <Container style={{ maxWidth: 600, margin: "0 auto", padding: "32px 0" }}>
           {/* Header */}
           <Section
             style={{
-              backgroundColor: "#0B2545",
+              backgroundColor: "#0B1B33",
               borderRadius: "12px 12px 0 0",
               padding: "28px 32px",
             }}
           >
             <Text
-              style={{ color: "#4B8B2E", fontWeight: 700, fontSize: 13, margin: 0 }}
+              style={{ color: "#2F6B2A", fontWeight: 700, fontSize: 13, margin: 0 }}
             >
               {APP_NAME_UPPER}
             </Text>
@@ -110,7 +110,7 @@ export function SelloEmitidoEmail({
             {/* Sello badge */}
             <Section
               style={{
-                backgroundColor: "#F8F9FA",
+                backgroundColor: "#F4F6F3",
                 borderRadius: 12,
                 padding: "20px 24px",
                 marginTop: 20,
@@ -147,7 +147,7 @@ export function SelloEmitidoEmail({
               style={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: "#64748B",
+                color: "#5B6980",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
                 margin: "0 0 12px 0",
@@ -176,10 +176,10 @@ export function SelloEmitidoEmail({
                       fontWeight: 700,
                       color:
                         cat.score >= 80
-                          ? "#16A34A"
+                          ? "#2F6B2A"
                           : cat.score >= 60
                           ? "#D97706"
-                          : "#DC2626",
+                          : "#B42318",
                       margin: 0,
                     }}
                   >
@@ -189,7 +189,7 @@ export function SelloEmitidoEmail({
               </Row>
             ))}
 
-            <Hr style={{ borderColor: "#E2E8F0", margin: "20px 0" }} />
+            <Hr style={{ borderColor: "#DDE3EA", margin: "20px 0" }} />
 
             {/* Plan de mejoras */}
             {planMejoras.length > 0 && (
@@ -198,7 +198,7 @@ export function SelloEmitidoEmail({
                   style={{
                     fontSize: 13,
                     fontWeight: 700,
-                    color: "#64748B",
+                    color: "#5B6980",
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
                     margin: "0 0 10px 0",
@@ -219,7 +219,7 @@ export function SelloEmitidoEmail({
                     {i + 1}. {mejora}
                   </Text>
                 ))}
-                <Hr style={{ borderColor: "#E2E8F0", margin: "20px 0" }} />
+                <Hr style={{ borderColor: "#DDE3EA", margin: "20px 0" }} />
               </>
             )}
 
@@ -227,7 +227,7 @@ export function SelloEmitidoEmail({
             {descargosHabilitados && (
               <Section
                 style={{
-                  backgroundColor: "#0B2545",
+                  backgroundColor: "#0B1B33",
                   borderRadius: 10,
                   padding: "14px 18px",
                   marginBottom: 20,
@@ -252,7 +252,7 @@ export function SelloEmitidoEmail({
               <Button
                 href={`${appUrl}/sellos`}
                 style={{
-                  backgroundColor: "#4B8B2E",
+                  backgroundColor: "#2F6B2A",
                   color: "#FFFFFF",
                   borderRadius: 8,
                   padding: "12px 28px",
@@ -270,7 +270,7 @@ export function SelloEmitidoEmail({
           {/* Footer */}
           <Section
             style={{
-              backgroundColor: "#F8F9FA",
+              backgroundColor: "#F4F6F3",
               borderRadius: "0 0 12px 12px",
               padding: "18px 32px",
               textAlign: "center",

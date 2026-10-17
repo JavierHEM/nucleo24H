@@ -22,11 +22,11 @@ export default async function DocumentosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
-            <IconFileDescription size={26} className="text-[#4B8B2E]" />
+          <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
+            <IconFileDescription size={26} className="text-[#2F6B2A]" />
             Documentos
           </h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-sm text-[#5B6980] mt-1">
             Protocolos para imprimir y documentos del local
           </p>
         </div>
@@ -34,11 +34,11 @@ export default async function DocumentosPage() {
 
       <BibliotecaProtocolos />
 
-      <section className="space-y-4 border-t border-[#E2E8F0] pt-6">
+      <section className="space-y-4 border-t border-[#DDE3EA] pt-6">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#0B2545]">Documentos del local</h2>
-            <p className="text-sm text-[#64748B] mt-1">
+            <h2 className="text-lg font-bold text-[#0B1B33]">Documentos del local</h2>
+            <p className="text-sm text-[#5B6980] mt-1">
               Permiso sanitario, certificados y lo que el local sube para revisión.
             </p>
           </div>

@@ -50,15 +50,15 @@ function NuevaClaveForm() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3] px-4">
         <div className="w-full max-w-md text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#4B8B2E]/10 mb-4">
-            <IconCircleCheck size={32} className="text-[#4B8B2E]" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#2F6B2A]/10 mb-4">
+            <IconCircleCheck size={32} className="text-[#2F6B2A]" />
           </div>
-          <h1 className="text-xl font-semibold text-[#0D2137] mb-2">
+          <h1 className="text-xl font-semibold text-[#0B1B33] mb-2">
             Contraseña actualizada
           </h1>
-          <p className="text-[#64748B] text-sm">
+          <p className="text-[#5B6980] text-sm">
             Redirigiendo al panel...
           </p>
         </div>
@@ -67,17 +67,17 @@ function NuevaClaveForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3] px-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#DDE3EA] p-8">
           <div className="mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0D2137]/5 mb-4">
-              <IconLock size={22} className="text-[#0D2137]" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0B1B33]/5 mb-4">
+              <IconLock size={22} className="text-[#0B1B33]" />
             </div>
-            <h1 className="text-2xl font-bold text-[#0D2137] mb-1">
+            <h1 className="text-2xl font-bold text-[#0B1B33] mb-1">
               Nueva contraseña
             </h1>
-            <p className="text-sm text-[#64748B]">
+            <p className="text-sm text-[#5B6980]">
               Elige una contraseña segura para tu cuenta.
             </p>
           </div>
@@ -93,12 +93,12 @@ function NuevaClaveForm() {
                   autoComplete="new-password"
                   placeholder="Mínimo 8 caracteres"
                   {...register("password")}
-                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#CBD5E1] bg-white text-[#0D2137] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E] transition"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#CBD5E1] bg-white text-[#0B1B33] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/30 focus:border-[#2F6B2A] transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#64748B]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#5B6980]"
                 >
                   {showPwd ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                 </button>
@@ -117,7 +117,7 @@ function NuevaClaveForm() {
                 autoComplete="new-password"
                 placeholder="Repite la contraseña"
                 {...register("confirm")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] bg-white text-[#0D2137] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E] transition"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] bg-white text-[#0B1B33] placeholder-[#94A3B8] text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/30 focus:border-[#2F6B2A] transition"
               />
               {errors.confirm && (
                 <p className="mt-1 text-xs text-red-500">{errors.confirm.message}</p>
@@ -133,7 +133,7 @@ function NuevaClaveForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 rounded-xl bg-[#4B8B2E] text-white font-semibold text-sm hover:bg-[#336B2C] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-2.5 rounded-xl bg-[#2F6B2A] text-white font-semibold text-sm hover:bg-[#336B2C] transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Guardando..." : "Guardar nueva contraseña"}
             </button>
@@ -147,8 +147,8 @@ function NuevaClaveForm() {
 export default function NuevaClavePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
-        <div className="w-8 h-8 border-2 border-[#4B8B2E] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3]">
+        <div className="w-8 h-8 border-2 border-[#2F6B2A] border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <NuevaClaveForm />

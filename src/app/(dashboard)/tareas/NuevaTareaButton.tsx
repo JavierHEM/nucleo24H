@@ -45,7 +45,7 @@ export function NuevaTareaButton() {
       <Button
         onClick={() => setOpen(true)}
         size="sm"
-        className="bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
+        className="bg-[#16294A] hover:bg-[#0B1B33] text-white gap-2"
       >
         <IconPlus size={16} />
         Nueva tarea
@@ -54,9 +54,9 @@ export function NuevaTareaButton() {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0B2545]">Nueva tarea</p>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
+              <p className="font-semibold text-[#0B1B33]">Nueva tarea</p>
+              <button onClick={() => setOpen(false)} className="text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
@@ -71,7 +71,7 @@ export function NuevaTareaButton() {
                   {...register("titulo")}
                 />
                 {errors.titulo && (
-                  <p className="text-xs text-[#DC2626] mt-1">{errors.titulo.message}</p>
+                  <p className="text-xs text-[#B42318] mt-1">{errors.titulo.message}</p>
                 )}
               </div>
 
@@ -90,7 +90,7 @@ export function NuevaTareaButton() {
                 <select
                   id="frec-t"
                   {...register("frecuencia")}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                 >
                   <option value="diaria">Diaria</option>
                   <option value="semanal">Semanal</option>
@@ -99,7 +99,7 @@ export function NuevaTareaButton() {
               </div>
 
               {crear.error && (
-                <p className="text-sm text-[#DC2626]">{crear.error.message}</p>
+                <p className="text-sm text-[#B42318]">{crear.error.message}</p>
               )}
 
               <div className="flex gap-3">
@@ -114,7 +114,7 @@ export function NuevaTareaButton() {
                 <Button
                   type="submit"
                   disabled={crear.isPending}
-                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                  className="flex-1 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                 >
                   {crear.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

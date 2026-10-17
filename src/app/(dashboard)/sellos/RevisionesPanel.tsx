@@ -38,9 +38,9 @@ export function RevisionesPanel() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 animate-pulse">
-        <div className="h-4 w-40 bg-[#E2E8F0] rounded mb-3" />
-        <div className="h-16 bg-[#F8F9FA] rounded-xl" />
+      <div className="bg-white rounded-xl border border-[#DDE3EA] p-5 animate-pulse">
+        <div className="h-4 w-40 bg-[#DDE3EA] rounded mb-3" />
+        <div className="h-16 bg-[#F4F6F3] rounded-xl" />
       </div>
     );
   }
@@ -76,17 +76,17 @@ export function RevisionesPanel() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="font-medium text-sm text-[#0B2545]">
+                    <span className="font-medium text-sm text-[#0B1B33]">
                       {rev.sello.tenant.nombre}
                     </span>
-                    <span className="text-xs text-[#64748B] capitalize">
+                    <span className="text-xs text-[#5B6980] capitalize">
                       {rev.sello.periodo} · {rev.sello.nivel} ({Math.round(rev.sello.score_general)}%)
                     </span>
                   </div>
                   <p className="text-sm text-[#334155] line-clamp-2">{rev.motivo}</p>
                   <p className="text-xs text-[#94A3B8] mt-1">{formatDate(rev.created_at)}</p>
                 </div>
-                <span className="text-[#64748B] shrink-0">
+                <span className="text-[#5B6980] shrink-0">
                   {isOpen ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
                 </span>
               </button>
@@ -98,7 +98,7 @@ export function RevisionesPanel() {
                     {rev.motivo}
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-[#64748B] block mb-1.5">
+                    <label className="text-xs font-medium text-[#5B6980] block mb-1.5">
                       Tu respuesta
                     </label>
                     <textarea
@@ -108,12 +108,12 @@ export function RevisionesPanel() {
                         setRespuestas((prev) => ({ ...prev, [rev.id]: e.target.value }))
                       }
                       placeholder="Explica el resultado del sello y las acciones recomendadas..."
-                      className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+                      className="w-full rounded-xl border border-[#DDE3EA] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                     />
                   </div>
 
                   {resolver.error && resolver.variables?.revision_id === rev.id && (
-                    <p className="text-xs text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">
+                    <p className="text-xs text-[#B42318] bg-red-50 rounded-lg px-3 py-2">
                       {resolver.error.message}
                     </p>
                   )}
@@ -138,7 +138,7 @@ export function RevisionesPanel() {
                           ["score_tareas", "Tareas"],
                         ] as const
                       ).map(([key, label]) => (
-                        <label key={key} className="text-xs text-[#64748B]">
+                        <label key={key} className="text-xs text-[#5B6980]">
                           {label}
                           <input
                             type="number"
@@ -151,7 +151,7 @@ export function RevisionesPanel() {
                                 [rev.id]: { ...nota, [key]: Number(event.target.value) },
                               }))
                             }
-                            className="mt-1 min-h-10 w-full rounded-lg border border-[#E2E8F0] px-2 text-sm text-[#0B2545]"
+                            className="mt-1 min-h-10 w-full rounded-lg border border-[#DDE3EA] px-2 text-sm text-[#0B1B33]"
                           />
                         </label>
                       ))}
@@ -168,7 +168,7 @@ export function RevisionesPanel() {
                         corregir: vaACorregir ? nota : undefined,
                       })
                     }
-                    className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                    className="bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                   >
                     {resolver.isPending && resolver.variables?.revision_id === rev.id ? (
                       <IconLoader2 size={14} className="animate-spin" />

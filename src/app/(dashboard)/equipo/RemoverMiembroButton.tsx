@@ -27,7 +27,7 @@ export function RemoverMiembroButton({ userId, nombre }: Props) {
     return (
       <button
         onClick={() => setConfirmar(true)}
-        className="text-[#DC2626] hover:text-red-800 transition-colors p-1 rounded"
+        className="text-[#B42318] hover:text-red-800 transition-colors p-1 rounded"
         title="Remover del local"
       >
         <IconTrash size={15} />
@@ -37,17 +37,17 @@ export function RemoverMiembroButton({ userId, nombre }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-[#64748B]">¿Remover a {nombre.split(" ")[0]}?</span>
+      <span className="text-xs text-[#5B6980]">¿Remover a {nombre.split(" ")[0]}?</span>
       <button
         onClick={() => remover.mutate({ user_id: userId })}
         disabled={remover.isPending}
-        className="text-xs font-semibold text-[#DC2626] hover:underline"
+        className="text-xs font-semibold text-[#B42318] hover:underline"
       >
         {remover.isPending ? <IconLoader2 size={12} className="animate-spin" /> : "Sí"}
       </button>
       <button
         onClick={() => setConfirmar(false)}
-        className="text-xs text-[#64748B] hover:underline"
+        className="text-xs text-[#5B6980] hover:underline"
       >
         No
       </button>

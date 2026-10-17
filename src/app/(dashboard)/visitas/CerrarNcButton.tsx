@@ -49,7 +49,7 @@ export function CerrarNcButton({ ncId, descripcion, onSuccess }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs font-medium text-[#4B8B2E] hover:text-[#3A6E24] hover:underline flex items-center gap-1 mt-1.5"
+        className="text-xs font-medium text-[#2F6B2A] hover:text-[#255620] hover:underline flex items-center gap-1 mt-1.5"
       >
         <IconCircleCheck size={13} />
         Marcar como resuelta
@@ -58,17 +58,17 @@ export function CerrarNcButton({ ncId, descripcion, onSuccess }: Props) {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0B2545] text-sm">Cerrar no conformidad</p>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
+            <div className="flex items-center justify-between p-4 border-b border-[#DDE3EA]">
+              <p className="font-semibold text-[#0B1B33] text-sm">Cerrar no conformidad</p>
+              <button onClick={() => setOpen(false)} className="text-[#5B6980]">
                 <IconX size={18} />
               </button>
             </div>
 
             <div className="p-4 space-y-4">
-              <div className="bg-[#F8F9FA] rounded-xl p-3">
-                <p className="text-xs text-[#64748B] mb-1">No conformidad</p>
-                <p className="text-sm text-[#0B2545] leading-snug">{descripcion}</p>
+              <div className="bg-[#F4F6F3] rounded-xl p-3">
+                <p className="text-xs text-[#5B6980] mb-1">No conformidad</p>
+                <p className="text-sm text-[#0B1B33] leading-snug">{descripcion}</p>
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
@@ -79,15 +79,15 @@ export function CerrarNcButton({ ncId, descripcion, onSuccess }: Props) {
                     rows={3}
                     placeholder="ej: Se limpió la cámara de frío y se calibró el termómetro..."
                     {...register("evidencia")}
-                    className="mt-1 flex w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E] resize-none"
+                    className="mt-1 flex w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A] resize-none"
                   />
                   {errors.evidencia && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.evidencia.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.evidencia.message}</p>
                   )}
                 </div>
 
                 {cerrar.error && (
-                  <p className="text-xs text-[#DC2626]">{cerrar.error.message}</p>
+                  <p className="text-xs text-[#B42318]">{cerrar.error.message}</p>
                 )}
 
                 <div className="flex gap-2">
@@ -104,7 +104,7 @@ export function CerrarNcButton({ ncId, descripcion, onSuccess }: Props) {
                     type="submit"
                     size="sm"
                     disabled={cerrar.isPending}
-                    className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-1"
+                    className="flex-1 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-1"
                   >
                     {cerrar.isPending ? (
                       <IconLoader2 size={14} className="animate-spin" />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { PlanillaSheet } from "@/components/registros/PlanillaSheet";
 import { AjustarProgramaSheet } from "@/components/guia/AjustarProgramaSheet";
 import type { ItemAgenda, Momento } from "@/lib/bpm/programa";
@@ -16,14 +17,8 @@ const MOMENTO_LABEL: Record<Momento, string> = {
 
 const ESTADO_LABEL = {
   pendiente: "Pendiente",
-  hecho: "Hecho",
-  observacion: "Con observación",
-} as const;
-
-const ESTADO_CLASS = {
-  pendiente: "bg-amber-50 text-amber-800",
-  hecho: "bg-[#EBF5E6] text-[#3A6E24]",
-  observacion: "bg-orange-50 text-orange-800",
+  hecho: "Listo",
+  observacion: "Observación",
 } as const;
 
 export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
@@ -35,59 +30,104 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
   const hoy = agenda.data?.hoy ?? [];
   const eventos = agenda.data?.eventos ?? [];
   const mes = agenda.data?.mes;
+  const siguiente = hoy.find((item) => item.estado !== "hecho");
+  const listos = hoy.filter((item) => item.estado === "hecho").length;
+  const avance = hoy.length > 0 ? Math.round((listos / hoy.length) * 100) : 0;
 
   return (
     <section className="space-y-4">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-[#0B2545]">Hoy en el local</h2>
-          <p className="text-sm text-[#64748B] mt-0.5">Lo que corresponde en este turno.</p>
+          <h2 className="text-lg font-bold text-[#0B1B33]">Hoy en el local</h2>
+          <p className="text-sm text-[#5B6980] mt-0.5">
+            {hoy.length === 0
+              ? "Lo que corresponde en este turno."
+              : siguiente
+                ? `${listos} de ${hoy.length} listos. Sigue con ${siguiente.nombre}.`
+                : "El turno de hoy está al día."}
+          </p>
         </div>
         {puedeAjustar && (
           <button
             type="button"
             onClick={() => setAjustando(true)}
-            className="text-sm font-medium text-[#143556] shrink-0"
+            className="text-sm font-medium text-[#16294A] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded"
           >
             Ajustar programa
           </button>
         )}
       </div>
 
-      {agenda.isLoading && <p className="text-sm text-[#64748B]">Cargando la guía…</p>}
+      {agenda.isLoading && <p className="text-sm text-[#5B6980]">Cargando la guía…</p>}
       {agenda.error && (
-        <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-3 py-2">{agenda.error.message}</p>
+        <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-3 py-2">{agenda.error.message}</p>
       )}
 
-      {mes && <ResumenMes mes={mes} />}
+      {hoy.length > 0 && (
+        <ScoreCards
+          items={[
+            { label: "Listos", value: `${listos}/${hoy.length}`, hint: `${avance}% del turno`, tone: listos === hoy.length ? "ok" : "neutral" },
+            {
+              label: "Pendientes",
+              value: hoy.filter((item) => item.estado === "pendiente").length,
+              hint: "Sin registrar",
+              tone: hoy.some((item) => item.estado === "pendiente") ? "alerta" : "ok",
+            },
+            {
+              label: "Con observación",
+              value: hoy.filter((item) => item.estado === "observacion").length,
+              hint: "Revisar la acción",
+              tone: hoy.some((item) => item.estado === "observacion") ? "alerta" : "ok",
+            },
+            { label: "Si pasa", value: eventos.length, hint: "Solo si ocurre", tone: "neutral" },
+          ]}
+        />
+      )}
 
       {(["inicio", "durante", "cierre"] as const).map((momento) => {
         const items = hoy.filter((item) => item.momento === momento);
         if (items.length === 0) return null;
         return (
           <div key={momento} className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-[#64748B]">{MOMENTO_LABEL[momento]}</p>
-            {items.map((item) => (
-              <Fila key={item.codigo} item={item} onRegistrar={() => setCodigo(item.codigo)} />
-            ))}
+            <p className="font-mono text-[10px] tracking-wide text-[#5B6980]">{MOMENTO_LABEL[momento]}</p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {items.map((item) => (
+                <li key={item.codigo}>
+                  <Tarjeta
+                    item={item}
+                    destacada={item.codigo === siguiente?.codigo}
+                    onRegistrar={() => setCodigo(item.codigo)}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
         );
       })}
 
       {!agenda.isLoading && hoy.length === 0 && (
-        <p className="text-sm text-[#64748B] bg-white border border-[#E2E8F0] rounded-xl px-4 py-3">
+        <p className="text-sm text-[#5B6980] bg-white border border-[#DDE3EA] rounded-xl px-4 py-3">
           No hay controles para hoy.
         </p>
       )}
 
       {eventos.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#64748B]">Si pasa esto</p>
-          {eventos.map((item) => (
-            <Fila key={item.codigo} item={item} onRegistrar={() => setCodigo(item.codigo)} evento />
-          ))}
-        </div>
+        <details className="bg-white rounded-xl border border-[#DDE3EA] group">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-[#0B1B33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded-xl">
+            Si pasa algo en el turno
+            <span className="ml-2 text-xs font-normal text-[#5B6980]">{eventos.length} registros</span>
+          </summary>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 px-3 pb-3">
+            {eventos.map((item) => (
+              <li key={item.codigo}>
+                <Tarjeta item={item} onRegistrar={() => setCodigo(item.codigo)} evento />
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
+
+      {mes && <ResumenMes mes={mes} />}
 
       <PlanillaSheet
         abierto={Boolean(codigo)}
@@ -100,25 +140,51 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
   );
 }
 
-function Fila({ item, onRegistrar, evento = false }: { item: ItemAgenda; onRegistrar: () => void; evento?: boolean }) {
+function Tarjeta({
+  item,
+  onRegistrar,
+  destacada = false,
+  evento = false,
+}: {
+  item: ItemAgenda;
+  onRegistrar: () => void;
+  destacada?: boolean;
+  evento?: boolean;
+}) {
+  const listo = item.estado === "hecho";
   return (
-    <article className="bg-white rounded-xl border border-[#E2E8F0] p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-medium text-sm text-[#0B2545]">{item.nombre}</p>
-          <p className="text-xs text-[#64748B] mt-1">{item.cuando}</p>
-        </div>
-        {!evento && (
-          <span className={`shrink-0 text-xs font-medium rounded-full px-2.5 py-1 ${ESTADO_CLASS[item.estado]}`}>
-            {ESTADO_LABEL[item.estado]}
-          </span>
-        )}
+    <article
+      className={`h-full rounded-xl border bg-white p-3 flex flex-col gap-2 ${
+        destacada ? "border-[#16294A]" : "border-[#DDE3EA]"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className={`text-sm leading-snug ${listo ? "text-[#5B6980]" : "font-medium text-[#0B1B33]"}`}>
+          {item.nombre}
+        </p>
+        <span
+          className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
+            listo ? "bg-[#2F6B2A]" : item.estado === "observacion" ? "bg-[#D97706]" : "bg-[#CBD5E1]"
+          }`}
+          aria-hidden
+        />
       </div>
-      <p className="text-sm text-[#334155] mt-2">{item.porque}</p>
-      {item.detalle && <p className="text-xs text-[#B45309] mt-1">{item.detalle}</p>}
-      <button type="button" onClick={onRegistrar} className="mt-3 text-sm font-medium text-[#4B8B2E]">
-        Registrar
-      </button>
+      <p className="text-xs text-[#5B6980]">{evento ? item.cuando : ESTADO_LABEL[item.estado]}</p>
+      {destacada && <p className="text-xs text-[#334155] line-clamp-2">{item.porque}</p>}
+      {item.detalle && <p className="text-xs text-[#B45309]">{item.detalle}</p>}
+      {!listo && (
+        <button
+          type="button"
+          onClick={onRegistrar}
+          className={`mt-auto min-h-9 rounded-lg text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
+            destacada
+              ? "bg-[#16294A] text-white hover:bg-[#0B1B33]"
+              : "border border-[#DDE3EA] text-[#16294A] hover:bg-[#F4F6F3]"
+          }`}
+        >
+          {destacada ? "Registrar ahora" : "Registrar"}
+        </button>
+      )}
     </article>
   );
 }
@@ -133,19 +199,12 @@ function ResumenMes({
     noConformidades: Array<{ id: string; descripcion: string; severidad: string; fechaLimite: string | null }>;
   };
 }) {
-  const hayAlgo = mes.pendientes > 0 || mes.observaciones > 0 || mes.documentos.length > 0 || mes.noConformidades.length > 0;
-  if (!hayAlgo) return null;
+  if (mes.documentos.length === 0 && mes.noConformidades.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 space-y-3">
-      <p className="text-sm font-semibold text-[#0B2545]">Para cerrar el mes</p>
+    <div className="rounded-xl border border-[#DDE3EA] bg-[#F8FAFC] p-4 space-y-2">
+      <p className="text-sm font-semibold text-[#0B1B33]">Fuera del turno, antes de cerrar el mes</p>
       <ul className="space-y-2 text-sm text-[#334155]">
-        {mes.pendientes > 0 && <li>{mes.pendientes} control{mes.pendientes === 1 ? "" : "es"} de hoy sin registrar.</li>}
-        {mes.observaciones > 0 && (
-          <li>
-            {mes.observaciones} control{mes.observaciones === 1 ? "" : "es"} de hoy con observación.
-          </li>
-        )}
         {mes.documentos.map((documento) => (
           <li key={documento.id}>
             <Link href="/documentos" className="underline">

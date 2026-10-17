@@ -111,7 +111,7 @@ export function EditarPerfilButton({ nombreActual }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-sm text-[#143556] border border-[#E2E8F0] rounded-lg px-3 py-1.5 hover:bg-[#F8F9FA] transition-colors"
+        className="flex items-center gap-1.5 text-sm text-[#16294A] border border-[#DDE3EA] rounded-lg px-3 py-1.5 hover:bg-[#F4F6F3] transition-colors"
       >
         <IconPencil size={14} />
         Editar perfil
@@ -121,15 +121,15 @@ export function EditarPerfilButton({ nombreActual }: Props) {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0B2545]">Editar perfil</p>
-              <button onClick={handleClose} className="text-[#64748B] hover:text-[#0B2545]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
+              <p className="font-semibold text-[#0B1B33]">Editar perfil</p>
+              <button onClick={handleClose} className="text-[#5B6980] hover:text-[#0B1B33]">
                 <IconX size={20} />
               </button>
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-[#E2E8F0]">
+            <div className="flex border-b border-[#DDE3EA]">
               {[
                 { id: "nombre" as const, label: "Nombre", icon: IconPencil },
                 { id: "password" as const, label: "Contraseña", icon: IconKey },
@@ -139,8 +139,8 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                   onClick={() => { setTab(id); setSuccess(null); setServerError(null); }}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
                     tab === id
-                      ? "border-[#4B8B2E] text-[#4B8B2E]"
-                      : "border-transparent text-[#64748B] hover:text-[#0B2545]"
+                      ? "border-[#2F6B2A] text-[#2F6B2A]"
+                      : "border-transparent text-[#5B6980] hover:text-[#0B1B33]"
                   }`}
                 >
                   <Icon size={15} />
@@ -153,14 +153,14 @@ export function EditarPerfilButton({ nombreActual }: Props) {
               {/* Éxito */}
               {success && (
                 <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-4">
-                  <IconCircleCheck size={16} className="text-[#16A34A] shrink-0" />
-                  <p className="text-sm text-[#16A34A] font-medium">{success}</p>
+                  <IconCircleCheck size={16} className="text-[#2F6B2A] shrink-0" />
+                  <p className="text-sm text-[#2F6B2A] font-medium">{success}</p>
                 </div>
               )}
 
               {/* Error servidor */}
               {serverError && (
-                <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-4 py-3 mb-4">
+                <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-4 py-3 mb-4">
                   {serverError}
                 </p>
               )}
@@ -177,13 +177,13 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                       {...registerNombre("nombre")}
                     />
                     {errorsNombre.nombre && (
-                      <p className="text-xs text-[#DC2626] mt-1">{errorsNombre.nombre.message}</p>
+                      <p className="text-xs text-[#B42318] mt-1">{errorsNombre.nombre.message}</p>
                     )}
                   </div>
                   <Button
                     type="submit"
                     disabled={submittingNombre}
-                    className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                    className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                   >
                     {submittingNombre ? (
                       <IconLoader2 size={16} className="animate-spin" />
@@ -208,7 +208,7 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                       {...registerPwd("password")}
                     />
                     {errorsPwd.password && (
-                      <p className="text-xs text-[#DC2626] mt-1">{errorsPwd.password.message}</p>
+                      <p className="text-xs text-[#B42318] mt-1">{errorsPwd.password.message}</p>
                     )}
                   </div>
                   <div>
@@ -221,13 +221,13 @@ export function EditarPerfilButton({ nombreActual }: Props) {
                       {...registerPwd("confirmar")}
                     />
                     {errorsPwd.confirmar && (
-                      <p className="text-xs text-[#DC2626] mt-1">{errorsPwd.confirmar.message}</p>
+                      <p className="text-xs text-[#B42318] mt-1">{errorsPwd.confirmar.message}</p>
                     )}
                   </div>
                   <Button
                     type="submit"
                     disabled={loadingPwd}
-                    className="w-full min-h-12 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
+                    className="w-full min-h-12 bg-[#16294A] hover:bg-[#0B1B33] text-white gap-2"
                   >
                     {loadingPwd ? (
                       <IconLoader2 size={16} className="animate-spin" />

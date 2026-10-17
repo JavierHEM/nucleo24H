@@ -54,12 +54,12 @@ export function NotificationBell({ tenantActivo }: Props) {
   return (
     <Link
       href="/comunicaciones"
-      className="relative p-2 rounded-lg hover:bg-[#F8F9FA] transition-colors text-[#64748B]"
+      className="relative w-12 h-12 rounded-[10px] bg-white border border-[#DDE3EA] text-[#0B1B33] flex items-center justify-center"
       title={unread > 0 ? `${unread} mensaje${unread > 1 ? "s" : ""} sin leer` : "Comunicaciones"}
     >
       <IconBell size={20} />
       {unread > 0 && (
-        <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-[#DC2626] rounded-full text-white text-[10px] font-bold flex items-center justify-center px-0.5 leading-none">
+        <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-[#B42318] rounded-full text-white text-[10px] font-bold flex items-center justify-center px-0.5 leading-none">
           {unread > 9 ? "9+" : unread}
         </span>
       )}

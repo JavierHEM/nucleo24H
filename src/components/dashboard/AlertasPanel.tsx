@@ -20,7 +20,7 @@ const TIPO_CONFIG = {
     icon: IconAlertTriangle,
     bg: "bg-red-50",
     border: "border-red-200",
-    color: "text-[#DC2626]",
+    color: "text-[#B42318]",
     label: "Vencido",
   },
   proximo: {
@@ -32,9 +32,9 @@ const TIPO_CONFIG = {
   },
   ok: {
     icon: IconCircleCheck,
-    bg: "bg-[#EBF5E6]",
+    bg: "bg-[#E5F1E3]",
     border: "border-green-200",
-    color: "text-[#16A34A]",
+    color: "text-[#2F6B2A]",
     label: "Al día",
   },
 };
@@ -44,9 +44,9 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
 
   if (activas.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0B2545] mb-3">Alertas</p>
-        <div className="flex items-center gap-3 text-sm text-[#16A34A]">
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33] mb-3">Alertas</p>
+        <div className="flex items-center gap-3 text-sm text-[#2F6B2A]">
           <IconCircleCheck size={18} />
           <span>Todo en orden, sin alertas pendientes</span>
         </div>
@@ -55,9 +55,9 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
+    <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold text-[#0B2545]">Alertas</p>
+        <p className="text-sm font-semibold text-[#0B1B33]">Alertas</p>
         <span className="text-xs bg-red-100 text-red-800 rounded-full px-2 py-0.5 font-medium">
           {activas.length}
         </span>
@@ -78,9 +78,9 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
             >
               <Icon size={16} className={cn("shrink-0 mt-0.5", config.color)} />
               <div className="flex-1 min-w-0">
-                <p className="text-[#0B2545] font-medium leading-snug">{alerta.mensaje}</p>
+                <p className="text-[#0B1B33] font-medium leading-snug">{alerta.mensaje}</p>
                 {alerta.fecha && (
-                  <p className="text-xs text-[#64748B] mt-0.5">
+                  <p className="text-xs text-[#5B6980] mt-0.5">
                     {formatDate(alerta.fecha)}
                   </p>
                 )}

@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { getCaller } from "@/lib/trpc/server";
 import { formatCLP, formatDate, formatPeriodo, getCurrentPeriodo, cn } from "@/lib/utils";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { PagarButton } from "./PagarButton";
 
 const PLAN_LABELS: Record<string, string> = {
@@ -54,7 +55,7 @@ export default async function SuscripcionPage() {
 
   if (!data) {
     return (
-      <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 text-center text-sm text-[#64748B]">
+      <div className="bg-white rounded-xl border border-[#DDE3EA] p-8 text-center text-sm text-[#5B6980]">
         No pudimos cargar la información de tu suscripción. Intenta de nuevo.
       </div>
     );
@@ -71,24 +72,38 @@ export default async function SuscripcionPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
-          <IconCreditCard size={26} className="text-[#4B8B2E]" />
+        <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
+          <IconCreditCard size={26} className="text-[#2F6B2A]" />
           Suscripción y Pagos
         </h1>
-        <p className="text-sm text-[#64748B] mt-1">
+        <p className="text-sm text-[#5B6980] mt-1">
           Estado de tu plan y historial de pagos
         </p>
       </div>
 
+      <ScoreCards
+        items={[
+          { label: "Plan", value: PLAN_LABELS[data.plan] ?? data.plan, hint: `${formatCLP(data.montoMensual)} / mes`, tone: "neutral" },
+          { label: "Estado", value: estadoSus.label, hint: "De la suscripción", tone: data.suscripcion?.estado === "activa" || !data.suscripcion ? "ok" : "alerta" },
+          { label: "Este mes", value: pagoPeriodoActual ? "Pagado" : "Por pagar", hint: formatPeriodo(periodoActual), tone: pagoPeriodoActual ? "ok" : "alerta" },
+          {
+            label: "Pagos",
+            value: data.pagos.filter((pago) => pago.estado === "pagado").length,
+            hint: `de ${data.pagos.length} registrados`,
+            tone: "neutral",
+          },
+        ]}
+      />
+
       {/* Plan actual */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-[#64748B]">Tu plan</p>
-            <p className="text-xl font-bold text-[#0B2545] mt-0.5">
+            <p className="text-sm text-[#5B6980]">Tu plan</p>
+            <p className="text-xl font-bold text-[#0B1B33] mt-0.5">
               {PLAN_LABELS[data.plan] ?? data.plan}
             </p>
-            <p className="text-sm text-[#64748B] mt-1">
+            <p className="text-sm text-[#5B6980] mt-1">
               {formatCLP(data.montoMensual)} / mes
             </p>
           </div>
@@ -102,10 +117,10 @@ export default async function SuscripcionPage() {
           </span>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-[#E2E8F0] flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-4 pt-4 border-t border-[#DDE3EA] flex flex-wrap items-center justify-between gap-3">
           <div className="text-sm">
-            <span className="text-[#64748B]">Período actual: </span>
-            <span className="font-medium text-[#0B2545] capitalize">
+            <span className="text-[#5B6980]">Período actual: </span>
+            <span className="font-medium text-[#0B1B33] capitalize">
               {formatPeriodo(periodoActual)}
             </span>
             {pagoPeriodoActual ? (
@@ -130,11 +145,11 @@ export default async function SuscripcionPage() {
 
       {/* Aviso pago por transferencia mientras Flow no esté activo */}
       {!data.pagosEnLineaDisponibles && (
-        <div className="bg-[#EBF5E6] rounded-xl border border-green-200 p-4 flex items-start gap-3">
-          <IconBuildingBank size={20} className="text-[#3A6E24] shrink-0 mt-0.5" />
-          <div className="text-sm text-[#3A6E24]">
+        <div className="bg-[#E5F1E3] rounded-xl border border-green-200 p-4 flex items-start gap-3">
+          <IconBuildingBank size={20} className="text-[#255620] shrink-0 mt-0.5" />
+          <div className="text-sm text-[#255620]">
             <p className="font-semibold">Pago por transferencia bancaria</p>
-            <p className="text-xs mt-1 text-[#4B8B2E]">
+            <p className="text-xs mt-1 text-[#2F6B2A]">
               El pago en línea estará disponible próximamente. Por ahora, realiza tu
               pago por transferencia y el equipo de Nucleo 24H lo registrará aquí.
             </p>
@@ -143,12 +158,12 @@ export default async function SuscripcionPage() {
       )}
 
       {/* Historial */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0B2545] mb-3">
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33] mb-3">
           Historial de pagos
         </p>
         {data.pagos.length === 0 ? (
-          <p className="text-sm text-[#64748B] text-center py-6 border border-dashed border-[#E2E8F0] rounded-xl">
+          <p className="text-sm text-[#5B6980] text-center py-6 border border-dashed border-[#DDE3EA] rounded-xl">
             Aún no hay pagos registrados.
           </p>
         ) : (
@@ -159,20 +174,20 @@ export default async function SuscripcionPage() {
               return (
                 <div
                   key={pago.id}
-                  className="flex items-center gap-3 py-2.5 border-b border-[#E2E8F0] last:border-0 text-sm"
+                  className="flex items-center gap-3 py-2.5 border-b border-[#DDE3EA] last:border-0 text-sm"
                 >
                   <EstadoIcon size={18} className={cn("shrink-0", estado.className)} />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#0B2545] capitalize">
+                    <p className="font-medium text-[#0B1B33] capitalize">
                       {formatPeriodo(pago.periodo)}
                     </p>
-                    <p className="text-xs text-[#64748B]">
+                    <p className="text-xs text-[#5B6980]">
                       {pago.metodo === "transferencia" ? "Transferencia" : "Pago en línea"}
                       {pago.pagado_at && ` · ${formatDate(pago.pagado_at)}`}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="font-medium text-[#0B2545]">
+                    <p className="font-medium text-[#0B1B33]">
                       {formatCLP(pago.monto_clp)}
                     </p>
                     <p className={cn("text-xs", estado.className)}>{estado.label}</p>

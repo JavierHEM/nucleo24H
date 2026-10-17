@@ -59,7 +59,7 @@ export function AgregarSucursalButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs text-[#143556] font-medium hover:text-[#4B8B2E] transition-colors"
+        className="flex items-center gap-1.5 text-xs text-[#16294A] font-medium hover:text-[#2F6B2A] transition-colors"
         title="Agregar sucursal de esta empresa"
       >
         <IconBuildingPlus size={14} />
@@ -69,21 +69,21 @@ export function AgregarSucursalButton({
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
               <div className="flex items-center gap-2">
-                <IconBuildingPlus size={18} className="text-[#4B8B2E]" />
-                <p className="font-semibold text-[#0B2545] text-sm">Agregar sucursal</p>
+                <IconBuildingPlus size={18} className="text-[#2F6B2A]" />
+                <p className="font-semibold text-[#0B1B33] text-sm">Agregar sucursal</p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
+              <button onClick={() => setOpen(false)} className="text-[#5B6980]">
                 <IconX size={20} />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="bg-[#F8F9FA] rounded-xl p-3">
-                <p className="text-xs text-[#64748B]">Casa central</p>
-                <p className="text-sm font-semibold text-[#0B2545]">{casaCentralNombre}</p>
-                <p className="text-xs text-[#64748B] mt-0.5">RUT {rut} (compartido)</p>
+              <div className="bg-[#F4F6F3] rounded-xl p-3">
+                <p className="text-xs text-[#5B6980]">Casa central</p>
+                <p className="text-sm font-semibold text-[#0B1B33]">{casaCentralNombre}</p>
+                <p className="text-xs text-[#5B6980] mt-0.5">RUT {rut} (compartido)</p>
               </div>
 
               <div>
@@ -120,8 +120,8 @@ export function AgregarSucursalButton({
                       onClick={() => setPlan(p)}
                       className={`rounded-xl border-2 p-2.5 text-sm font-medium capitalize transition-colors ${
                         plan === p
-                          ? "border-[#4B8B2E] bg-[#EBF5E6] text-[#3A6E24]"
-                          : "border-[#E2E8F0] text-[#64748B] hover:border-[#4B8B2E]/50"
+                          ? "border-[#2F6B2A] bg-[#E5F1E3] text-[#255620]"
+                          : "border-[#DDE3EA] text-[#5B6980] hover:border-[#2F6B2A]/50"
                       }`}
                     >
                       {p}
@@ -131,7 +131,7 @@ export function AgregarSucursalButton({
               </div>
 
               {crear.error && (
-                <p className="text-sm text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">
+                <p className="text-sm text-[#B42318] bg-red-50 rounded-lg px-3 py-2">
                   {crear.error.message}
                 </p>
               )}
@@ -153,7 +153,7 @@ export function AgregarSucursalButton({
                     crear.isPending
                   }
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+                  className="flex-1 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
                 >
                   {crear.isPending ? (
                     <IconLoader2 size={16} className="animate-spin" />

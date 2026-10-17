@@ -11,12 +11,12 @@ export const LOGO_SRC = "/logo/logo-nucleo.jpg";
 
 /** Paleta oficial alineada al logo */
 export const BRAND = {
-  navy: "#0B2545",
-  navyMid: "#143556",
+  navy: "#0B1B33",
+  navyMid: "#16294A",
   navyDark: "#081C33",
-  green: "#4B8B2E",
-  greenDark: "#3A6E24",
-  greenLight: "#EBF5E6",
-  bg: "#F8F9FA",
+  green: "#2F6B2A",
+  greenDark: "#255620",
+  greenLight: "#E5F1E3",
+  bg: "#F4F6F3",
   white: "#FFFFFF",
 } as const;

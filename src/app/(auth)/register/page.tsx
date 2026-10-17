@@ -83,16 +83,16 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3] px-4 py-10">
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <BrandLogo className="w-36 h-auto" priority />
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#DDE3EA] overflow-hidden">
           {/* Header */}
-          <div className="bg-[#0B2545] px-6 py-5">
+          <div className="bg-[#0B1B33] px-6 py-5">
             <h1 className="text-white font-bold text-lg">Crear cuenta</h1>
             <p className="text-white/60 text-sm mt-0.5">
               Comienza a gestionar el cumplimiento sanitario de tu local
@@ -101,7 +101,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
             {serverError && (
-              <p className="text-sm text-[#DC2626] bg-red-50 rounded-xl px-4 py-3">
+              <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-4 py-3">
                 {serverError}
               </p>
             )}
@@ -121,15 +121,15 @@ export default function RegisterPage() {
                     className={cn(
                       "rounded-xl border-2 p-4 text-left transition-colors",
                       selectedPlan === plan.value
-                        ? "border-[#4B8B2E] bg-[#EBF5E6]"
-                        : "border-[#E2E8F0] hover:border-[#4B8B2E]/50"
+                        ? "border-[#2F6B2A] bg-[#E5F1E3]"
+                        : "border-[#DDE3EA] hover:border-[#2F6B2A]/50"
                     )}
                   >
-                    <p className="font-semibold text-[#0B2545] text-sm">{plan.label}</p>
-                    <p className="text-sm font-medium text-[#4B8B2E] mt-0.5">
+                    <p className="font-semibold text-[#0B1B33] text-sm">{plan.label}</p>
+                    <p className="text-sm font-medium text-[#2F6B2A] mt-0.5">
                       {plan.precio}
                     </p>
-                    <p className="text-xs text-[#64748B] mt-1">{plan.descripcion}</p>
+                    <p className="text-xs text-[#5B6980] mt-1">{plan.descripcion}</p>
                   </button>
                 ))}
               </div>
@@ -146,7 +146,7 @@ export default function RegisterPage() {
                   {...register("nombre")}
                 />
                 {errors.nombre && (
-                  <p className="text-xs text-[#DC2626] mt-1">{errors.nombre.message}</p>
+                  <p className="text-xs text-[#B42318] mt-1">{errors.nombre.message}</p>
                 )}
               </div>
 
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className="text-xs text-[#DC2626] mt-1">{errors.email.message}</p>
+                  <p className="text-xs text-[#B42318] mt-1">{errors.email.message}</p>
                 )}
               </div>
 
@@ -176,14 +176,14 @@ export default function RegisterPage() {
                   {...register("password")}
                 />
                 {errors.password && (
-                  <p className="text-xs text-[#DC2626] mt-1">{errors.password.message}</p>
+                  <p className="text-xs text-[#B42318] mt-1">{errors.password.message}</p>
                 )}
               </div>
             </div>
 
             {/* Datos del local */}
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide">
+              <p className="text-xs font-semibold text-[#5B6980] uppercase tracking-wide">
                 Datos del local
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1">
@@ -196,7 +196,7 @@ export default function RegisterPage() {
                     {...register("nombre_local")}
                   />
                   {errors.nombre_local && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.nombre_local.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.nombre_local.message}</p>
                   )}
                 </div>
 
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                     {...register("rut_local")}
                   />
                   {errors.rut_local && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.rut_local.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.rut_local.message}</p>
                   )}
                 </div>
 
@@ -222,31 +222,31 @@ export default function RegisterPage() {
                     {...register("direccion")}
                   />
                   {errors.direccion && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.direccion.message}</p>
+                    <p className="text-xs text-[#B42318] mt-1">{errors.direccion.message}</p>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Consentimientos Ley 21.719 */}
-            <div className="space-y-3 rounded-xl border border-[#E2E8F0] bg-[#F8F9FA] p-4">
-              <p className="text-xs font-semibold text-[#0B2545]">
+            <div className="space-y-3 rounded-xl border border-[#DDE3EA] bg-[#F4F6F3] p-4">
+              <p className="text-xs font-semibold text-[#0B1B33]">
                 Consentimientos requeridos (Art. 12 Ley 21.719)
               </p>
 
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] accent-[#4B8B2E]"
+                  className="mt-0.5 w-4 h-4 rounded border-[#DDE3EA] accent-[#2F6B2A]"
                   checked={consentimientoDatos ?? false}
                   onChange={(e) => setValue("consentimiento_datos", e.target.checked)}
                 />
-                <span className="text-xs text-[#64748B] leading-relaxed">
+                <span className="text-xs text-[#5B6980] leading-relaxed">
                   Acepto el tratamiento de mis datos personales conforme a la{" "}
                   <Link
                     href="/politica-de-privacidad"
                     target="_blank"
-                    className="text-[#4B8B2E] font-medium hover:underline inline-flex items-center gap-0.5"
+                    className="text-[#2F6B2A] font-medium hover:underline inline-flex items-center gap-0.5"
                   >
                     Política de Privacidad
                     <IconExternalLink size={11} />
@@ -255,7 +255,7 @@ export default function RegisterPage() {
                 </span>
               </label>
               {errors.consentimiento_datos && (
-                <p className="text-xs text-[#DC2626] pl-7">
+                <p className="text-xs text-[#B42318] pl-7">
                   {errors.consentimiento_datos.message}
                 </p>
               )}
@@ -263,16 +263,16 @@ export default function RegisterPage() {
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] accent-[#4B8B2E]"
+                  className="mt-0.5 w-4 h-4 rounded border-[#DDE3EA] accent-[#2F6B2A]"
                   checked={consentimientoTerminos ?? false}
                   onChange={(e) => setValue("consentimiento_terminos", e.target.checked)}
                 />
-                <span className="text-xs text-[#64748B]">
+                <span className="text-xs text-[#5B6980]">
                   Acepto los términos y condiciones del servicio de {APP_NAME}.
                 </span>
               </label>
               {errors.consentimiento_terminos && (
-                <p className="text-xs text-[#DC2626] pl-7">
+                <p className="text-xs text-[#B42318] pl-7">
                   {errors.consentimiento_terminos.message}
                 </p>
               )}
@@ -281,7 +281,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+              className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -292,9 +292,9 @@ export default function RegisterPage() {
               )}
             </Button>
 
-            <p className="text-sm text-[#64748B] text-center">
+            <p className="text-sm text-[#5B6980] text-center">
               ¿Ya tienes cuenta?{" "}
-              <Link href="/login" className="text-[#4B8B2E] font-medium hover:underline">
+              <Link href="/login" className="text-[#2F6B2A] font-medium hover:underline">
                 Inicia sesión aquí
               </Link>
             </p>

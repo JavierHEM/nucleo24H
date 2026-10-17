@@ -42,15 +42,15 @@ export function AjustarProgramaSheet({ abierto, onCerrar }: { abierto: boolean; 
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onCerrar} />
       <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E2E8F0] sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
           <div>
-            <p className="font-semibold text-[#0B2545] text-sm">Programa del local</p>
-            <p className="text-xs text-[#64748B] mt-0.5">Elige qué controles aparecen en el día.</p>
+            <p className="font-semibold text-[#0B1B33] text-sm">Programa del local</p>
+            <p className="text-xs text-[#5B6980] mt-0.5">Elige qué controles aparecen en el día.</p>
           </div>
           <button
             type="button"
             onClick={onCerrar}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F8F9FA] text-[#64748B]"
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F4F6F3] text-[#5B6980]"
             aria-label="Cerrar"
           >
             <IconX size={18} />
@@ -58,11 +58,11 @@ export function AjustarProgramaSheet({ abierto, onCerrar }: { abierto: boolean; 
         </div>
 
         <div className="p-5 space-y-3">
-          {actual.isLoading && <p className="text-sm text-[#64748B]">Cargando programa…</p>}
+          {actual.isLoading && <p className="text-sm text-[#5B6980]">Cargando programa…</p>}
           {ajustes.map((item) => {
             const nombre = actual.data?.find((fila) => fila.codigo === item.codigo)?.nombre ?? item.codigo;
             return (
-              <div key={item.codigo} className="rounded-xl border border-[#E2E8F0] p-3 space-y-3">
+              <div key={item.codigo} className="rounded-xl border border-[#DDE3EA] p-3 space-y-3">
                 <label className="flex items-start gap-3">
                   <input
                     type="checkbox"
@@ -71,15 +71,15 @@ export function AjustarProgramaSheet({ abierto, onCerrar }: { abierto: boolean; 
                     onChange={(event) => actualizar(item.codigo, { activa: event.target.checked })}
                   />
                   <span>
-                    <span className="block text-sm font-medium text-[#0B2545]">{nombre}</span>
-                    <span className="block font-mono text-[11px] text-[#64748B]">{item.codigo}</span>
+                    <span className="block text-sm font-medium text-[#0B1B33]">{nombre}</span>
+                    <span className="block font-mono text-[11px] text-[#5B6980]">{item.codigo}</span>
                   </span>
                 </label>
                 {item.activa && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <select
                       aria-label={`Cuándo aplica ${nombre}`}
-                      className="min-h-10 rounded-lg border border-[#E2E8F0] px-2 text-sm"
+                      className="min-h-10 rounded-lg border border-[#DDE3EA] px-2 text-sm"
                       value={item.modo}
                       onChange={(event) => actualizar(item.codigo, { modo: event.target.value as AjustePrograma["modo"] })}
                     >
@@ -88,7 +88,7 @@ export function AjustarProgramaSheet({ abierto, onCerrar }: { abierto: boolean; 
                     </select>
                     <select
                       aria-label={`Momento de ${nombre}`}
-                      className="min-h-10 rounded-lg border border-[#E2E8F0] px-2 text-sm"
+                      className="min-h-10 rounded-lg border border-[#DDE3EA] px-2 text-sm"
                       value={item.momento}
                       disabled={item.modo === "evento"}
                       onChange={(event) =>
@@ -101,7 +101,7 @@ export function AjustarProgramaSheet({ abierto, onCerrar }: { abierto: boolean; 
                     </select>
                     <select
                       aria-label={`Frecuencia de ${nombre}`}
-                      className="min-h-10 rounded-lg border border-[#E2E8F0] px-2 text-sm"
+                      className="min-h-10 rounded-lg border border-[#DDE3EA] px-2 text-sm"
                       value={item.cadencia}
                       disabled={item.modo === "evento"}
                       onChange={(event) =>
@@ -118,14 +118,14 @@ export function AjustarProgramaSheet({ abierto, onCerrar }: { abierto: boolean; 
           })}
 
           {guardar.error && (
-            <p className="text-sm text-[#DC2626]">{guardar.error.message}</p>
+            <p className="text-sm text-[#B42318]">{guardar.error.message}</p>
           )}
 
           <Button
             type="button"
             disabled={guardar.isPending || ajustes.length === 0}
             onClick={() => guardar.mutate({ ajustes })}
-            className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
+            className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
           >
             {guardar.isPending ? (
               <span className="inline-flex items-center gap-2">

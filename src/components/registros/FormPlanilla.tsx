@@ -27,6 +27,84 @@ interface Props {
 
 type Valores = Record<string, unknown>;
 
+function fechaHoy() {
+  const ahora = new Date();
+  const mes = String(ahora.getMonth() + 1).padStart(2, "0");
+  const dia = String(ahora.getDate()).padStart(2, "0");
+  return `${ahora.getFullYear()}-${mes}-${dia}`;
+}
+
+function horaAhora() {
+  const ahora = new Date();
+  const total = ahora.getHours() * 60 + ahora.getMinutes();
+  const redondeado = Math.round(total / 5) * 5;
+  const minutos = ((redondeado % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hora = String(Math.floor(minutos / 60)).padStart(2, "0");
+  const minuto = String(minutos % 60).padStart(2, "0");
+  return `${hora}:${minuto}`;
+}
+
+const HORAS = Array.from({ length: 24 }, (_, hora) => String(hora).padStart(2, "0"));
+const MINUTOS = Array.from({ length: 12 }, (_, paso) => String(paso * 5).padStart(2, "0"));
+
+function CampoHora({
+  id,
+  valor,
+  onChange,
+}: {
+  id: string;
+  valor: string;
+  onChange: (valor: string) => void;
+}) {
+  const actual = /^\d{2}:\d{2}$/.test(valor) ? valor : horaAhora();
+  const [hora, minuto] = actual.split(":");
+  const minutos = MINUTOS.includes(minuto) ? MINUTOS : [...MINUTOS, minuto].sort();
+
+  function escribir(siguienteHora: string, siguienteMinuto: string) {
+    onChange(`${siguienteHora}:${siguienteMinuto}`);
+  }
+
+  return (
+    <div className="mt-1 flex items-center gap-2">
+      <select
+        id={id}
+        aria-label="Hora"
+        value={hora}
+        onChange={(event) => escribir(event.target.value, minuto)}
+        className="min-h-12 flex-1 rounded-xl border border-[#DDE3EA] bg-white px-3 text-sm tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
+      >
+        {HORAS.map((opcion) => (
+          <option key={opcion} value={opcion}>
+            {opcion}
+          </option>
+        ))}
+      </select>
+      <span className="text-[#5B6980]" aria-hidden>
+        :
+      </span>
+      <select
+        aria-label="Minutos"
+        value={minuto}
+        onChange={(event) => escribir(hora, event.target.value)}
+        className="min-h-12 flex-1 rounded-xl border border-[#DDE3EA] bg-white px-3 text-sm tabular-nums focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
+      >
+        {minutos.map((opcion) => (
+          <option key={opcion} value={opcion}>
+            {opcion}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        onClick={() => onChange(horaAhora())}
+        className="min-h-12 shrink-0 rounded-xl border border-[#DDE3EA] px-3 text-sm font-medium text-[#16294A] hover:bg-[#F4F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
+      >
+        Ahora
+      </button>
+    </div>
+  );
+}
+
 function fechaDelRegistro(datos: Valores) {
   const fecha = String(datos.fecha ?? "");
   const horaRaw = datos.hora ?? datos.hora_inicio;
@@ -49,6 +127,10 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
     items: planilla.items?.map(() => ""),
     asistentes: [{ nombre: "", cargo: "", evaluacion: "" }],
   };
+  for (const campo of planilla.campos) {
+    if (campo.tipo === "date") defaults[campo.key] = fechaHoy();
+    if (campo.tipo === "time") defaults[campo.key] = horaAhora();
+  }
 
   const {
     register,
@@ -85,8 +167,8 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <p className="font-mono text-xs text-[#64748B]">{planilla.codigo}</p>
-        <p className="text-xs text-[#64748B] mt-1">{planilla.frecuencia}</p>
+        <p className="font-mono text-xs text-[#5B6980]">{planilla.codigo}</p>
+        <p className="text-xs text-[#5B6980] mt-1">{planilla.frecuencia}</p>
         {guiaDe(planilla.codigo) && (
           <p className="text-sm text-[#334155] mt-2">{guiaDe(planilla.codigo)?.mirar}</p>
         )}
@@ -96,7 +178,7 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
       </div>
 
       {crear.error && (
-        <p className="text-sm text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">{crear.error.message}</p>
+        <p className="text-sm text-[#B42318] bg-red-50 rounded-lg px-3 py-2">{crear.error.message}</p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -104,12 +186,15 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
           if (campo.tipo === "asistentes" || campo.tipo === "textarea") return null;
           const id = `${planilla.codigo}-${campo.key}`;
           return (
-            <div key={campo.key} className={campo.tipo === "equipo" || campo.tipo === "area" ? "sm:col-span-2" : ""}>
+            <div
+              key={campo.key}
+              className={campo.tipo === "equipo" || campo.tipo === "area" || campo.tipo === "time" ? "sm:col-span-2" : ""}
+            >
               <Label htmlFor={id}>{campo.label}</Label>
               {campo.tipo === "equipo" && equipos.length > 0 ? (
                 <select
                   id={id}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 text-sm"
                   {...register("equipo")}
                   onChange={(event) => {
                     const nombre = event.target.value;
@@ -128,7 +213,7 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
               ) : campo.tipo === "area" && areas.length > 0 ? (
                 <select
                   id={id}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 text-sm"
                   {...register("area")}
                   onChange={(event) => {
                     const nombre = event.target.value;
@@ -147,7 +232,7 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
               ) : campo.tipo === "select" ? (
                 <select
                   id={id}
-                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 text-sm"
+                  className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 text-sm"
                   {...register(campo.key)}
                 >
                   <option value="">Selecciona</option>
@@ -157,17 +242,46 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
                     </option>
                   ))}
                 </select>
+              ) : campo.tipo === "date" ? (
+                <div className="mt-1 flex items-center gap-2">
+                  <Input id={id} type="date" className="min-h-12 flex-1" {...register(campo.key)} />
+                  <button
+                    type="button"
+                    onClick={() => setValue(campo.key, fechaHoy(), { shouldValidate: true })}
+                    className="min-h-12 shrink-0 rounded-xl border border-[#DDE3EA] px-3 text-sm font-medium text-[#16294A] hover:bg-[#F4F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
+                  >
+                    Hoy
+                  </button>
+                </div>
+              ) : campo.tipo === "time" ? (
+                <CampoHora
+                  id={id}
+                  valor={String(watch(campo.key) ?? "")}
+                  onChange={(valor) => setValue(campo.key, valor, { shouldValidate: true })}
+                />
+              ) : campo.tipo === "number" ? (
+                <div className="mt-1 flex items-center gap-2 min-h-14 rounded-xl border-2 border-[#0B1B33] bg-[#F4F6F3] px-4">
+                  <Input
+                    id={id}
+                    type="number"
+                    step="0.1"
+                    className="border-0 bg-transparent shadow-none px-0 h-12 font-mono text-3xl font-semibold focus-visible:ring-0"
+                    {...register(campo.key, { valueAsNumber: true })}
+                  />
+                  {"unidad" in campo && campo.unidad && (
+                    <span className="font-mono text-base text-[#5B6980] shrink-0">{campo.unidad}</span>
+                  )}
+                </div>
               ) : (
                 <Input
                   id={id}
-                  type={campo.tipo === "number" ? "number" : campo.tipo === "date" || campo.tipo === "time" ? campo.tipo : "text"}
-                  step={campo.tipo === "number" ? "0.1" : undefined}
+                  type="text"
                   placeholder={"placeholder" in campo ? campo.placeholder : undefined}
                   className="mt-1 min-h-12"
-                  {...register(campo.key, campo.tipo === "number" ? { valueAsNumber: true } : undefined)}
+                  {...register(campo.key)}
                 />
               )}
-              {errorDe(campo.key) && <p className="text-xs text-[#DC2626] mt-1">{errorDe(campo.key)}</p>}
+              {errorDe(campo.key) && <p className="text-xs text-[#B42318] mt-1">{errorDe(campo.key)}</p>}
             </div>
           );
         })}
@@ -181,22 +295,22 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
             <textarea
               id={`${planilla.codigo}-${campo.key}`}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+              className="mt-1 w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
               {...register(campo.key)}
             />
-            {errorDe(campo.key) && <p className="text-xs text-[#DC2626] mt-1">{errorDe(campo.key)}</p>}
+            {errorDe(campo.key) && <p className="text-xs text-[#B42318] mt-1">{errorDe(campo.key)}</p>}
           </div>
         ))}
 
       {planilla.items && (
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-[#0B2545]">Ítems</legend>
-          {errorDe("items") && <p className="text-xs text-[#DC2626]">{errorDe("items")}</p>}
+          <legend className="text-sm font-medium text-[#0B1B33]">Ítems</legend>
+          {errorDe("items") && <p className="text-xs text-[#B42318]">{errorDe("items")}</p>}
           <ul className="space-y-2">
             {planilla.items.map((item, index) => (
-              <li key={item} className="rounded-xl border border-[#E2E8F0] p-3">
-                <p className="text-sm text-[#0B2545]">
-                  <span className="font-mono text-xs text-[#64748B] mr-2">{String(index + 1).padStart(2, "0")}</span>
+              <li key={item} className="rounded-xl border border-[#DDE3EA] p-3">
+                <p className="text-sm text-[#0B1B33]">
+                  <span className="font-mono text-xs text-[#5B6980] mr-2">{String(index + 1).padStart(2, "0")}</span>
                   {item}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label={item}>
@@ -211,8 +325,8 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
                       key={value}
                       className={`text-xs rounded-full border px-3 py-1.5 cursor-pointer ${
                         items[index] === value
-                          ? "bg-[#143556] text-white border-[#143556]"
-                          : "border-[#E2E8F0] text-[#334155]"
+                          ? "bg-[#16294A] text-white border-[#16294A]"
+                          : "border-[#DDE3EA] text-[#334155]"
                       }`}
                     >
                       <input
@@ -233,17 +347,17 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
             <textarea
               id={`${planilla.codigo}-accion`}
               rows={2}
-              className="mt-1 w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm"
               {...register("accion")}
             />
-            {errorDe("accion") && <p className="text-xs text-[#DC2626] mt-1">{errorDe("accion")}</p>}
+            {errorDe("accion") && <p className="text-xs text-[#B42318] mt-1">{errorDe("accion")}</p>}
           </div>
         </fieldset>
       )}
 
       {planilla.campos.some((campo) => campo.tipo === "asistentes") && (
         <fieldset className="space-y-3">
-          <legend className="text-sm font-medium text-[#0B2545]">Asistentes</legend>
+          <legend className="text-sm font-medium text-[#0B1B33]">Asistentes</legend>
           {asistentes.fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
               <div>
@@ -257,7 +371,7 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
               <button
                 type="button"
                 onClick={() => asistentes.remove(index)}
-                className="min-h-12 px-3 text-[#64748B]"
+                className="min-h-12 px-3 text-[#5B6980]"
                 aria-label="Quitar asistente"
                 disabled={asistentes.fields.length === 1}
               >
@@ -265,11 +379,11 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
               </button>
             </div>
           ))}
-          {errorDe("asistentes") && <p className="text-xs text-[#DC2626]">{errorDe("asistentes")}</p>}
+          {errorDe("asistentes") && <p className="text-xs text-[#B42318]">{errorDe("asistentes")}</p>}
           <button
             type="button"
             onClick={() => asistentes.append({ nombre: "", cargo: "", evaluacion: "" })}
-            className="inline-flex items-center gap-1 text-sm text-[#143556]"
+            className="inline-flex items-center gap-1 text-sm text-[#16294A]"
           >
             <IconPlus size={14} />
             Agregar asistente
@@ -280,7 +394,7 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
       <Button
         type="submit"
         disabled={crear.isPending}
-        className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
+        className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
       >
         {crear.isPending ? (
           <span className="inline-flex items-center gap-2">

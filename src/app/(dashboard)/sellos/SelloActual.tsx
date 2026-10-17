@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc/client";
 import { SelloWidget } from "@/components/dashboard/SelloWidget";
 import { SELLO_CONFIG, type NivelSello } from "@/components/sellos/SelloBadge";
 import { SolicitarRevisionButton } from "./SolicitarRevisionButton";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { getCurrentPeriodo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -19,21 +20,21 @@ export function SelloActual({ userRole }: Props) {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-56 rounded-xl bg-[#E2E8F0] animate-pulse" />
-        <div className="h-32 rounded-xl bg-[#E2E8F0] animate-pulse" />
+        <div className="h-56 rounded-xl bg-[#DDE3EA] animate-pulse" />
+        <div className="h-32 rounded-xl bg-[#DDE3EA] animate-pulse" />
       </div>
     );
   }
 
   if (!sello) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white p-10 text-center flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center">
-          <IconMedal size={24} className="text-[#4B8B2E]" />
+      <div className="rounded-xl border-2 border-dashed border-[#DDE3EA] bg-white p-10 text-center flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-[#E5F1E3] flex items-center justify-center">
+          <IconMedal size={24} className="text-[#2F6B2A]" />
         </div>
         <div>
-          <p className="font-semibold text-[#0B2545]">Sin sello para {periodo}</p>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="font-semibold text-[#0B1B33]">Sin sello para {periodo}</p>
+          <p className="text-sm text-[#5B6980] mt-1">
             Tu asesor emitirá el sello al cierre del mes.
           </p>
         </div>
@@ -48,6 +49,14 @@ export function SelloActual({ userRole }: Props) {
 
   return (
     <div className="space-y-4">
+      <ScoreCards
+        items={[
+          { label: "Nivel", value: config.label, hint: periodo, tone: nivel === "avanzado" || nivel === "premium" ? "ok" : "alerta" },
+          { label: "Puntaje", value: Math.round(sello.score_general), hint: "De 100", tone: sello.score_general >= 75 ? "ok" : "alerta" },
+          { label: "Mejoras", value: planMejoras.length, hint: "En el plan", tone: planMejoras.length > 0 ? "alerta" : "ok" },
+          { label: "Descargos", value: descargos ? "Sí" : "No", hint: "Habilitados", tone: descargos ? "ok" : "neutral" },
+        ]}
+      />
       <SelloWidget
         nivel={nivel}
         score={sello.score_general}
@@ -64,8 +73,8 @@ export function SelloActual({ userRole }: Props) {
       )}
 
       {/* Desglose por categoría */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-        <p className="text-sm font-semibold text-[#0B2545] mb-4">Desglose por categoría</p>
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33] mb-4">Desglose por categoría</p>
         <div className="space-y-3">
           {[
             { label: "Documentación y registros", score: sello.score_documentacion, peso: "30%" },
@@ -76,23 +85,23 @@ export function SelloActual({ userRole }: Props) {
             <div key={cat.label}>
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#0B2545]">{cat.label}</span>
-                  <span className="text-xs text-[#64748B]">({cat.peso})</span>
+                  <span className="text-sm text-[#0B1B33]">{cat.label}</span>
+                  <span className="text-xs text-[#5B6980]">({cat.peso})</span>
                 </div>
                 <span
                   className={cn(
                     "text-sm font-semibold",
                     cat.score >= 80
-                      ? "text-[#16A34A]"
+                      ? "text-[#2F6B2A]"
                       : cat.score >= 60
                       ? "text-[#D97706]"
-                      : "text-[#DC2626]"
+                      : "text-[#B42318]"
                   )}
                 >
                   {cat.score.toFixed(1)}%
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-[#E2E8F0] overflow-hidden">
+              <div className="h-2 rounded-full bg-[#DDE3EA] overflow-hidden">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-500",
@@ -108,15 +117,15 @@ export function SelloActual({ userRole }: Props) {
 
       {/* Plan de mejoras */}
       {planMejoras.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
-            <IconListCheck size={18} className="text-[#4B8B2E]" />
-            <p className="text-sm font-semibold text-[#0B2545]">Plan de mejoras</p>
+            <IconListCheck size={18} className="text-[#2F6B2A]" />
+            <p className="text-sm font-semibold text-[#0B1B33]">Plan de mejoras</p>
           </div>
           <div className="space-y-2">
             {planMejoras.map((mejora, i) => (
               <div key={i} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-[#EBF5E6] text-[#3A6E24] text-xs flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                <span className="w-5 h-5 rounded-full bg-[#E5F1E3] text-[#255620] text-xs flex items-center justify-center shrink-0 mt-0.5 font-bold">
                   {i + 1}
                 </span>
                 <p className="text-sm text-[#334155] leading-snug">{mejora}</p>

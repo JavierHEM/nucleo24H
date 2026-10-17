@@ -1,51 +1,48 @@
 @import "tailwindcss";
 
 @theme {
-  /* Nucleo 24H — design system (paleta logo oficial) */
+  /* Nucleo 24H — guía de estilos v2 */
 
-  /* Paleta primaria */
-  --color-navy-dark:    #0B2545;
-  --color-navy-mid:     #143556;
-  --color-green-dark:   #3A6E24;
-  --color-green-mid:    #4B8B2E;
-  --color-green-light:  #EBF5E6;
+  --color-navy-dark:    #0B1B33;
+  --color-navy-mid:     #16294A;
+  --color-green-dark:   #255620;
+  --color-green-mid:    #2F6B2A;
+  --color-green-light:  #E5F1E3;
+  --color-gold:         #E3B341;
 
-  /* Sellos — colores exactos por nivel */
-  --color-sello-inicial:    #DC2626;
-  --color-sello-intermedio: #D97706;
-  --color-sello-avanzado:   #16A34A;
-  --color-sello-premium:    #1C1917;
+  --color-sello-inicial:    #B42318;
+  --color-sello-intermedio: #E8B100;
+  --color-sello-avanzado:   #2F6B2A;
+  --color-sello-premium:    #0B1B33;
 
-  /* Neutrales */
-  --color-gray-bg:     #F8F9FA;
-  --color-gray-border: #E2E8F0;
-  --color-gray-text:   #64748B;
+  --color-gray-bg:     #F4F6F3;
+  --color-gray-border: #DDE3EA;
+  --color-gray-text:   #5B6980;
 
-  /* shadcn/ui tokens — mapeados a paleta Nucleo 24H */
-  --color-background:         #F8F9FA;
-  --color-foreground:         #0B2545;
+  --color-background:         #F4F6F3;
+  --color-foreground:         #0B1B33;
   --color-card:               #FFFFFF;
-  --color-card-foreground:    #0B2545;
+  --color-card-foreground:    #0B1B33;
   --color-popover:            #FFFFFF;
-  --color-popover-foreground: #0B2545;
-  --color-primary:            #4B8B2E;
+  --color-popover-foreground: #0B1B33;
+  --color-primary:            #2F6B2A;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary:          #EBF5E6;
-  --color-secondary-foreground: #3A6E24;
-  --color-muted:              #F1F5F9;
-  --color-muted-foreground:   #64748B;
-  --color-accent:             #EBF5E6;
-  --color-accent-foreground:  #3A6E24;
-  --color-destructive:        #DC2626;
+  --color-secondary:          #E5F1E3;
+  --color-secondary-foreground: #255620;
+  --color-muted:              #F4F6F3;
+  --color-muted-foreground:   #5B6980;
+  --color-accent:             #E5F1E3;
+  --color-accent-foreground:  #255620;
+  --color-destructive:        #B42318;
   --color-destructive-foreground: #FFFFFF;
-  --color-border:             #E2E8F0;
-  --color-input:              #E2E8F0;
-  --color-ring:               #4B8B2E;
+  --color-border:             #DDE3EA;
+  --color-input:              #DDE3EA;
+  --color-ring:               #2F6B2A;
 
-  --radius: 0.5rem;
+  --radius: 0.875rem;
 
-  /* Tipografía — Inter */
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-mono: var(--font-plex), 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 * {
@@ -67,13 +64,12 @@ body {
 
 .sidebar-nav-item:hover {
   color: #FFFFFF;
-  background-color: #143556;
+  background-color: #16294A;
 }
 
 .sidebar-nav-item.active {
-  color: #FFFFFF;
-  background-color: #143556;
-  border-left: 3px solid #4B8B2E;
+  color: #0B1B33;
+  background-color: #FFFFFF;
 }
 
 /* Formularios de cocina — inputs grandes para dedos */

@@ -190,6 +190,7 @@ model Visita {
   tipo       String   // 'programada' | 'sorpresa'
   fecha      DateTime
   hallazgos  String?
+  evaluacion Json?
   created_at DateTime @default(now())
 
   no_conformidades NoConformidad[]
@@ -202,6 +203,7 @@ model NoConformidad {
   id                String    @id @default(uuid())
   visita_id         String
   descripcion       String
+  area              String?
   severidad         String    // 'menor' | 'mayor'
   estado            String    @default("abierta") // 'abierta' | 'en_proceso' | 'cerrada'
   fecha_limite      DateTime?

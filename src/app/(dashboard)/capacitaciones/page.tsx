@@ -1,6 +1,7 @@
 import { getCaller } from "@/lib/trpc/server";
 import { formatDate, getCurrentPeriodo } from "@/lib/utils";
-import { IconSchool, IconCircleCheck, IconClock, IconCalendar } from "@tabler/icons-react";
+import { IconSchool, IconCircleCheck, IconClock } from "@tabler/icons-react";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { NuevaCapacitacionButton } from "./NuevaCapacitacionButton";
 
 export default async function CapacitacionesPage() {
@@ -17,52 +18,48 @@ export default async function CapacitacionesPage() {
     const mes = fecha.toISOString().slice(0, 7);
     return mes === periodoActual;
   });
+  const asistentesMes = registrosMes.reduce((suma, registro) => {
+    const datos = registro.datos as { asistentes?: number | unknown[] } | null;
+    const valor = datos?.asistentes;
+    if (typeof valor === "number") return suma + valor;
+    if (Array.isArray(valor)) return suma + valor.length;
+    return suma;
+  }, 0);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545]">Capacitaciones</h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <h1 className="text-2xl font-bold text-[#0B1B33]">Capacitaciones</h1>
+          <p className="text-sm text-[#5B6980] mt-1">
             Registro de asistencia y capacitaciones BPM
           </p>
         </div>
         <NuevaCapacitacionButton />
       </div>
 
-      {/* Resumen del mes */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <IconCalendar size={16} className="text-[#4B8B2E]" />
-            <span className="text-xs text-[#64748B] font-medium">Este mes</span>
-          </div>
-          <p className="text-2xl font-bold text-[#0B2545]">{registrosMes.length}</p>
-          <p className="text-xs text-[#64748B]">capacitaciones</p>
-        </div>
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <IconSchool size={16} className="text-[#4B8B2E]" />
-            <span className="text-xs text-[#64748B] font-medium">Total</span>
-          </div>
-          <p className="text-2xl font-bold text-[#0B2545]">{registrosResult.length}</p>
-          <p className="text-xs text-[#64748B]">historial completo</p>
-        </div>
-      </div>
+      <ScoreCards
+        items={[
+          { label: "Este mes", value: registrosMes.length, hint: "Capacitaciones", tone: registrosMes.length > 0 ? "ok" : "alerta" },
+          { label: "Asistentes", value: asistentesMes, hint: "En el mes", tone: "neutral" },
+          { label: "Historial", value: registrosResult.length, hint: "Registradas", tone: "neutral" },
+          { label: "Cobertura", value: registrosMes.length > 0 ? "Al día" : "Falta", hint: "Del período", tone: registrosMes.length > 0 ? "ok" : "alerta" },
+        ]}
+      />
 
       {/* Lista */}
       {registrosResult.length === 0 ? (
-        <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#EBF5E6] flex items-center justify-center mx-auto mb-3">
-            <IconSchool size={24} className="text-[#4B8B2E]" />
+        <div className="bg-white rounded-xl border-2 border-dashed border-[#DDE3EA] p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#E5F1E3] flex items-center justify-center mx-auto mb-3">
+            <IconSchool size={24} className="text-[#2F6B2A]" />
           </div>
-          <p className="font-semibold text-[#0B2545]">Sin capacitaciones registradas</p>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="font-semibold text-[#0B1B33]">Sin capacitaciones registradas</p>
+          <p className="text-sm text-[#5B6980] mt-1">
             Registra la asistencia del equipo a cada capacitación.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm divide-y divide-[#E2E8F0]">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm divide-y divide-[#DDE3EA]">
           {registrosResult.map(
             (r: {
               id: string;
@@ -81,31 +78,31 @@ export default async function CapacitacionesPage() {
               const relator = datos.relator ?? datos.instructor;
               return (
                 <div key={r.id} className="flex items-center gap-4 p-4">
-                  <div className="w-9 h-9 rounded-lg bg-[#EBF5E6] flex items-center justify-center shrink-0">
-                    <IconSchool size={18} className="text-[#4B8B2E]" />
+                  <div className="w-9 h-9 rounded-lg bg-[#E5F1E3] flex items-center justify-center shrink-0">
+                    <IconSchool size={18} className="text-[#2F6B2A]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#0B2545] truncate">
+                    <p className="text-sm font-medium text-[#0B1B33] truncate">
                       {datos.tema ?? "Capacitación BPM"}
                     </p>
                     <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-xs text-[#64748B] flex items-center gap-1">
+                      <span className="text-xs text-[#5B6980] flex items-center gap-1">
                         <IconClock size={11} />
                         {formatDate(r.fecha)}
                       </span>
                       {cantidad ? (
-                        <span className="text-xs text-[#64748B]">
+                        <span className="text-xs text-[#5B6980]">
                           {cantidad} asistente{cantidad > 1 ? "s" : ""}
                         </span>
                       ) : null}
                       {relator && (
-                        <span className="text-xs text-[#64748B]">
+                        <span className="text-xs text-[#5B6980]">
                           {relator}
                         </span>
                       )}
                     </div>
                   </div>
-                  <IconCircleCheck size={18} className="text-[#16A34A] shrink-0" />
+                  <IconCircleCheck size={18} className="text-[#2F6B2A] shrink-0" />
                 </div>
               );
             }

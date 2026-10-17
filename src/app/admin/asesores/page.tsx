@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/prisma";
 import { IconUserCheck, IconBuildingStore, IconSearch } from "@tabler/icons-react";
 import { InvitarAsesorButton } from "./InvitarAsesorButton";
 import { AsesorAcciones } from "./AsesorAcciones";
+import { ScoreCards } from "@/components/dashboard/ScoreCards";
 
 const FILTROS = [
   { id: "activos", label: "Activos" },
@@ -116,13 +117,22 @@ export default async function AdminAsesoresPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545]">Asesores</h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <h1 className="text-2xl font-bold text-[#0B1B33]">Asesores</h1>
+          <p className="text-sm text-[#5B6980] mt-1">
             Cuentas de Nucleo 24H y los locales que cada una tiene a cargo.
           </p>
         </div>
         <InvitarAsesorButton />
       </div>
+
+      <ScoreCards
+        items={[
+          { label: "Activos", value: totalActivos, hint: "Pueden atender locales", tone: "ok" },
+          { label: "De baja", value: totalBaja, hint: "Sin acceso", tone: totalBaja > 0 ? "alerta" : "neutral" },
+          { label: "Sin locales", value: totalSinLocales, hint: "Activos sin asignación", tone: totalSinLocales > 0 ? "alerta" : "ok" },
+          { label: "Total", value: totalActivos + totalBaja, hint: "Cuentas de asesor", tone: "neutral" },
+        ]}
+      />
 
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
         <nav aria-label="Filtrar asesores" className="flex flex-wrap gap-2">
@@ -133,10 +143,10 @@ export default async function AdminAsesoresPage({ searchParams }: PageProps) {
                 key={item.id}
                 href={hrefFiltro(item.id, q)}
                 aria-current={seleccionado ? "page" : undefined}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4B8B2E] ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2F6B2A] ${
                   seleccionado
-                    ? "bg-[#0B2545] text-white"
-                    : "bg-white text-[#334155] border border-[#E2E8F0] hover:bg-[#F8FAFC]"
+                    ? "bg-[#0B1B33] text-white"
+                    : "bg-white text-[#334155] border border-[#DDE3EA] hover:bg-[#F8FAFC]"
                 }`}
               >
                 {item.label}
@@ -157,12 +167,12 @@ export default async function AdminAsesoresPage({ searchParams }: PageProps) {
               name="q"
               defaultValue={q}
               placeholder="Nombre o correo"
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#E2E8F0] text-sm text-[#0B2545] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]/30 focus:border-[#4B8B2E]"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#DDE3EA] text-sm text-[#0B1B33] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/30 focus:border-[#2F6B2A]"
             />
           </label>
           <button
             type="submit"
-            className="px-3 py-2 rounded-xl border border-[#E2E8F0] text-sm font-medium text-[#143556] hover:bg-[#F8FAFC]"
+            className="px-3 py-2 rounded-xl border border-[#DDE3EA] text-sm font-medium text-[#16294A] hover:bg-[#F8FAFC]"
           >
             Buscar
           </button>
@@ -170,40 +180,40 @@ export default async function AdminAsesoresPage({ searchParams }: PageProps) {
       </div>
 
       {asesores.length === 0 ? (
-        <div className="bg-white rounded-xl border-2 border-dashed border-[#E2E8F0] p-12 text-center">
-          <IconUserCheck size={32} className="mx-auto text-[#E2E8F0] mb-3" />
-          <p className="text-sm text-[#64748B]">{vacio}</p>
+        <div className="bg-white rounded-xl border-2 border-dashed border-[#DDE3EA] p-12 text-center">
+          <IconUserCheck size={32} className="mx-auto text-[#DDE3EA] mb-3" />
+          <p className="text-sm text-[#5B6980]">{vacio}</p>
           {q && (
-            <Link href={hrefFiltro(filtro, "")} className="inline-block mt-3 text-sm text-[#143556] underline">
+            <Link href={hrefFiltro(filtro, "")} className="inline-block mt-3 text-sm text-[#16294A] underline">
               Limpiar búsqueda
             </Link>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F8F9FA] border-b border-[#E2E8F0]">
+            <thead className="bg-[#F4F6F3] border-b border-[#DDE3EA]">
               <tr>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Asesor</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Asesor</th>
                 {filtro === "todos" && (
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B]">Estado</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Estado</th>
                 )}
-                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748B] hidden md:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">
                   Locales
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-[#64748B]">Acciones</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-[#5B6980]">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
+            <tbody className="divide-y divide-[#DDE3EA]">
               {asesores.map((asesor) => {
                 const locales = localesPorAsesor.get(asesor.id) ?? [];
                 const visibles = locales.slice(0, 3);
                 const resto = locales.length - visibles.length;
                 return (
-                  <tr key={asesor.id} className="hover:bg-[#F8F9FA] align-top">
+                  <tr key={asesor.id} className="hover:bg-[#F4F6F3] align-top">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-[#0B2545]">{asesor.nombre || asesor.email}</p>
-                      <p className="text-xs text-[#64748B]">{asesor.email}</p>
+                      <p className="font-medium text-[#0B1B33]">{asesor.nombre || asesor.email}</p>
+                      <p className="text-xs text-[#5B6980]">{asesor.email}</p>
                       <div className="mt-2 flex flex-wrap gap-1.5 md:hidden">
                         <Locales locales={visibles} resto={resto} />
                       </div>
@@ -214,7 +224,7 @@ export default async function AdminAsesoresPage({ searchParams }: PageProps) {
                           className={`text-[10px] font-medium uppercase tracking-wide rounded px-1.5 py-0.5 ${
                             asesor.activo
                               ? "bg-green-100 text-green-800"
-                              : "bg-[#F1F5F9] text-[#64748B]"
+                              : "bg-[#F1F5F9] text-[#5B6980]"
                           }`}
                         >
                           {asesor.activo ? "Activo" : "De baja"}
@@ -258,14 +268,14 @@ function Locales({
       {locales.map((local) => (
         <span
           key={local.id}
-          className="inline-flex items-center gap-1 text-xs bg-[#EBF5E6] text-[#3A6E24] rounded-full px-2.5 py-1"
+          className="inline-flex items-center gap-1 text-xs bg-[#E5F1E3] text-[#255620] rounded-full px-2.5 py-1"
         >
           <IconBuildingStore size={12} />
           {local.nombre}
         </span>
       ))}
       {resto > 0 && (
-        <span className="text-xs text-[#64748B] self-center">+{resto}</span>
+        <span className="text-xs text-[#5B6980] self-center">+{resto}</span>
       )}
     </div>
   );

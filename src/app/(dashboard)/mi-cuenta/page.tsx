@@ -17,43 +17,43 @@ export default async function MiCuentaPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-[#0B2545]">Mi Cuenta</h1>
-        <p className="text-sm text-[#64748B] mt-1">
+        <h1 className="text-2xl font-bold text-[#0B1B33]">Mi Cuenta</h1>
+        <p className="text-sm text-[#5B6980] mt-1">
           Tus datos personales y derechos bajo la Ley 21.719
         </p>
       </div>
 
       {/* Datos del usuario */}
       {datos?.user && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#EBF5E6] flex items-center justify-center">
-                <IconUser size={20} className="text-[#4B8B2E]" />
+              <div className="w-10 h-10 rounded-full bg-[#E5F1E3] flex items-center justify-center">
+                <IconUser size={20} className="text-[#2F6B2A]" />
               </div>
               <div>
-                <p className="font-semibold text-[#0B2545]">{datos.user.nombre}</p>
-                <p className="text-sm text-[#64748B]">{datos.user.email}</p>
+                <p className="font-semibold text-[#0B1B33]">{datos.user.nombre}</p>
+                <p className="text-sm text-[#5B6980]">{datos.user.email}</p>
               </div>
             </div>
             <EditarPerfilButton nombreActual={datos.user.nombre ?? ""} />
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="bg-[#F8F9FA] rounded-lg p-3">
-              <p className="text-xs text-[#64748B] mb-1">Rol</p>
-              <p className="font-medium text-[#0B2545] capitalize">{datos.user.rol.replace("_", " ")}</p>
+            <div className="bg-[#F4F6F3] rounded-lg p-3">
+              <p className="text-xs text-[#5B6980] mb-1">Rol</p>
+              <p className="font-medium text-[#0B1B33] capitalize">{datos.user.rol.replace("_", " ")}</p>
             </div>
-            <div className="bg-[#F8F9FA] rounded-lg p-3">
-              <p className="text-xs text-[#64748B] mb-1">Miembro desde</p>
-              <p className="font-medium text-[#0B2545]">{formatDate(datos.user.created_at)}</p>
+            <div className="bg-[#F4F6F3] rounded-lg p-3">
+              <p className="text-xs text-[#5B6980] mb-1">Miembro desde</p>
+              <p className="font-medium text-[#0B1B33]">{formatDate(datos.user.created_at)}</p>
             </div>
-            <div className="bg-[#F8F9FA] rounded-lg p-3">
-              <p className="text-xs text-[#64748B] mb-1">Registros BPM</p>
-              <p className="font-medium text-[#0B2545]">{datos.registros.length}</p>
+            <div className="bg-[#F4F6F3] rounded-lg p-3">
+              <p className="text-xs text-[#5B6980] mb-1">Registros BPM</p>
+              <p className="font-medium text-[#0B1B33]">{datos.registros.length}</p>
             </div>
-            <div className="bg-[#F8F9FA] rounded-lg p-3">
-              <p className="text-xs text-[#64748B] mb-1">Documentos</p>
-              <p className="font-medium text-[#0B2545]">{datos.documentos.length}</p>
+            <div className="bg-[#F4F6F3] rounded-lg p-3">
+              <p className="text-xs text-[#5B6980] mb-1">Documentos</p>
+              <p className="font-medium text-[#0B1B33]">{datos.documentos.length}</p>
             </div>
           </div>
         </div>
@@ -61,23 +61,23 @@ export default async function MiCuentaPage() {
 
       {/* Consentimientos */}
       {datos?.consentimientos && datos.consentimientos.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
-          <p className="text-sm font-semibold text-[#0B2545] mb-3">
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+          <p className="text-sm font-semibold text-[#0B1B33] mb-3">
             Historial de consentimientos
           </p>
           <div className="space-y-2">
             {datos.consentimientos.slice(0, 5).map((c) => (
               <div
                 key={c.id}
-                className="flex items-center gap-3 text-sm py-2 border-b border-[#E2E8F0] last:border-0"
+                className="flex items-center gap-3 text-sm py-2 border-b border-[#DDE3EA] last:border-0"
               >
-                <IconCircleCheck size={16} className="text-[#16A34A] shrink-0" />
+                <IconCircleCheck size={16} className="text-[#2F6B2A] shrink-0" />
                 <div className="flex-1">
-                  <span className="capitalize text-[#0B2545]">{c.tipo}</span>
-                  <span className="text-[#64748B] mx-2">·</span>
-                  <span className="text-[#64748B] text-xs">v{c.documento_version}</span>
+                  <span className="capitalize text-[#0B1B33]">{c.tipo}</span>
+                  <span className="text-[#5B6980] mx-2">·</span>
+                  <span className="text-[#5B6980] text-xs">v{c.documento_version}</span>
                 </div>
-                <span className="text-xs text-[#64748B]">
+                <span className="text-xs text-[#5B6980]">
                   {formatDate(c.timestamp_evento)}
                 </span>
               </div>
@@ -87,12 +87,12 @@ export default async function MiCuentaPage() {
       )}
 
       {/* Derechos ARSOPB — Ley 21.719 */}
-      <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-5">
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
         <div className="flex items-center gap-2 mb-1">
-          <IconShield size={18} className="text-[#4B8B2E]" />
-          <p className="text-sm font-semibold text-[#0B2545]">Tus derechos — Ley 21.719</p>
+          <IconShield size={18} className="text-[#2F6B2A]" />
+          <p className="text-sm font-semibold text-[#0B1B33]">Tus derechos — Ley 21.719</p>
         </div>
-        <p className="text-xs text-[#64748B] mb-4">
+        <p className="text-xs text-[#5B6980] mb-4">
           Puedes ejercer los siguientes derechos sobre tus datos personales. El plazo de respuesta es de 30 días corridos.
         </p>
 
@@ -116,18 +116,18 @@ export default async function MiCuentaPage() {
       </div>
 
       {/* Exportar datos */}
-      <div className="bg-[#EBF5E6] rounded-xl border border-green-200 p-5">
+      <div className="bg-[#E5F1E3] rounded-xl border border-green-200 p-5">
         <div className="flex items-start gap-3">
-          <IconDownload size={20} className="text-[#3A6E24] shrink-0 mt-0.5" />
+          <IconDownload size={20} className="text-[#255620] shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-[#3A6E24]">Exportar mis datos</p>
+            <p className="text-sm font-semibold text-[#255620]">Exportar mis datos</p>
             <p className="text-xs text-[#3D7A27] mt-1">
               Ejercicio del derecho de portabilidad (Art. 7, Ley 21.719). Descarga un archivo JSON con todos tus datos personales almacenados en el sistema.
             </p>
             <a
               href="/api/auth/exportar-datos"
               download
-              className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#3A6E24] bg-white/60 hover:bg-white border border-green-300 rounded-lg px-3 py-1.5 transition-colors"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#255620] bg-white/60 hover:bg-white border border-green-300 rounded-lg px-3 py-1.5 transition-colors"
             >
               <IconDownload size={13} />
               Descargar mis datos (JSON)
@@ -137,9 +137,9 @@ export default async function MiCuentaPage() {
       </div>
 
       {/* Link política */}
-      <p className="text-xs text-[#64748B]">
+      <p className="text-xs text-[#5B6980]">
         Consulta nuestra{" "}
-        <a href="/politica-de-privacidad" className="text-[#4B8B2E] underline">
+        <a href="/politica-de-privacidad" className="text-[#2F6B2A] underline">
           política de privacidad
         </a>{" "}
         para más información sobre el tratamiento de datos personales.

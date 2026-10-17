@@ -58,7 +58,7 @@ export function NuevaCapacitacionButton() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="bg-[#4B8B2E] hover:bg-[#3A6E24] text-white gap-2"
+        className="bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
         size="sm"
       >
         <IconPlus size={16} />
@@ -68,11 +68,11 @@ export function NuevaCapacitacionButton() {
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
-              <p className="font-semibold text-[#0B2545]">Nueva capacitación</p>
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
+              <p className="font-semibold text-[#0B1B33]">Nueva capacitación</p>
               <button
                 onClick={() => { setOpen(false); reset(); }}
-                className="text-[#64748B] hover:text-[#0B2545]"
+                className="text-[#5B6980] hover:text-[#0B1B33]"
               >
                 <IconX size={20} />
               </button>
@@ -87,7 +87,7 @@ export function NuevaCapacitacionButton() {
                   className="mt-1 min-h-12"
                   {...register("tema")}
                 />
-                {errors.tema && <p className="text-xs text-[#DC2626] mt-1">{errors.tema.message}</p>}
+                {errors.tema && <p className="text-xs text-[#B42318] mt-1">{errors.tema.message}</p>}
               </div>
 
               <div>
@@ -99,7 +99,7 @@ export function NuevaCapacitacionButton() {
                   defaultValue={new Date().toISOString().split("T")[0]}
                   {...register("fecha")}
                 />
-                {errors.fecha && <p className="text-xs text-[#DC2626] mt-1">{errors.fecha.message}</p>}
+                {errors.fecha && <p className="text-xs text-[#B42318] mt-1">{errors.fecha.message}</p>}
               </div>
 
               <div>
@@ -110,7 +110,7 @@ export function NuevaCapacitacionButton() {
                   className="mt-1 min-h-12"
                   {...register("relator")}
                 />
-                {errors.relator && <p className="text-xs text-[#DC2626] mt-1">{errors.relator.message}</p>}
+                {errors.relator && <p className="text-xs text-[#B42318] mt-1">{errors.relator.message}</p>}
               </div>
 
               <div>
@@ -121,7 +121,7 @@ export function NuevaCapacitacionButton() {
                   className="mt-1 min-h-12"
                   {...register("asistente")}
                 />
-                {errors.asistente && <p className="text-xs text-[#DC2626] mt-1">{errors.asistente.message}</p>}
+                {errors.asistente && <p className="text-xs text-[#B42318] mt-1">{errors.asistente.message}</p>}
               </div>
 
               <div>
@@ -132,13 +132,13 @@ export function NuevaCapacitacionButton() {
                   className="mt-1 min-h-12"
                   {...register("cargo")}
                 />
-                {errors.cargo && <p className="text-xs text-[#DC2626] mt-1">{errors.cargo.message}</p>}
+                {errors.cargo && <p className="text-xs text-[#B42318] mt-1">{errors.cargo.message}</p>}
               </div>
 
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
+                className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
               >
                 {isPending ? "Guardando..." : "✅ Guardar capacitación"}
               </Button>

@@ -10,10 +10,10 @@ const querySchema = z.object({
 });
 
 const NIVEL_COLOR: Record<string, string> = {
-  inicial: "#DC2626",
+  inicial: "#B42318",
   intermedio: "#D97706",
-  avanzado: "#16A34A",
-  premium: "#0B2545",
+  avanzado: "#2F6B2A",
+  premium: "#0B1B33",
 };
 
 export async function GET(req: NextRequest) {
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
     1
   ).toLocaleString("es-CL", { month: "long", year: "numeric" });
 
-  const nivelColor = NIVEL_COLOR[sello.nivel] ?? "#0B2545";
+  const nivelColor = NIVEL_COLOR[sello.nivel] ?? "#0B1B33";
   const planMejoras = (sello.plan_mejoras ?? []) as string[];
 
   // HTML del PDF
@@ -95,36 +95,36 @@ export async function GET(req: NextRequest) {
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background: #F8F9FA; color: #0B2545; }
+  body { font-family: 'Inter', sans-serif; background: #F4F6F3; color: #0B1B33; }
   .page { width: 794px; min-height: 1123px; margin: 0 auto; background: white; padding: 0; }
-  .header { background: #0B2545; color: white; padding: 36px 48px 32px; }
-  .header-badge { display: inline-block; background: #4B8B2E; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
+  .header { background: #0B1B33; color: white; padding: 36px 48px 32px; }
+  .header-badge { display: inline-block; background: #2F6B2A; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
   .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
   .header p { font-size: 14px; color: rgba(255,255,255,0.65); }
   .body { padding: 40px 48px; }
-  .score-section { display: flex; align-items: center; justify-content: space-between; background: #F8F9FA; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; }
+  .score-section { display: flex; align-items: center; justify-content: space-between; background: #F4F6F3; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; }
   .score-number { font-size: 72px; font-weight: 900; color: ${nivelColor}; line-height: 1; }
   .score-label { font-size: 20px; font-weight: 700; color: ${nivelColor}; text-transform: capitalize; margin-top: 4px; }
   .score-right { text-align: right; }
-  .score-right p { font-size: 13px; color: #64748B; margin-bottom: 4px; }
-  .section-title { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+  .score-right p { font-size: 13px; color: #5B6980; margin-bottom: 4px; }
+  .section-title { font-size: 11px; font-weight: 700; color: #5B6980; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
   .breakdown { margin-bottom: 28px; }
   .cat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
   .cat-label { font-size: 13px; color: #334155; width: 240px; flex-shrink: 0; }
-  .cat-bar { flex: 1; height: 8px; background: #E2E8F0; border-radius: 9999px; overflow: hidden; }
+  .cat-bar { flex: 1; height: 8px; background: #DDE3EA; border-radius: 9999px; overflow: hidden; }
   .cat-fill { height: 100%; border-radius: 9999px; }
   .cat-score { font-size: 13px; font-weight: 700; width: 48px; text-align: right; flex-shrink: 0; }
-  .divider { height: 1px; background: #E2E8F0; margin: 24px 0; }
+  .divider { height: 1px; background: #DDE3EA; margin: 24px 0; }
   .mejoras { margin-bottom: 28px; }
   .mejora-item { display: flex; gap: 12px; margin-bottom: 8px; }
-  .mejora-num { width: 22px; height: 22px; border-radius: 50%; background: #EBF5E6; color: #3A6E24; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mejora-num { width: 22px; height: 22px; border-radius: 50%; background: #E5F1E3; color: #255620; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .mejora-text { font-size: 13px; color: #334155; line-height: 1.5; }
-  .descargos-banner { background: #0B2545; color: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; }
+  .descargos-banner { background: #0B1B33; color: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; }
   .descargos-banner p:first-child { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
   .descargos-banner p:last-child { font-size: 12px; opacity: 0.7; }
-  .footer { margin-top: auto; border-top: 1px solid #E2E8F0; padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; }
+  .footer { margin-top: auto; border-top: 1px solid #DDE3EA; padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; }
   .footer p { font-size: 11px; color: #94A3B8; }
-  .green { color: #16A34A; } .amber { color: #D97706; } .red { color: #DC2626; }
+  .green { color: #2F6B2A; } .amber { color: #D97706; } .red { color: #B42318; }
 </style>
 </head>
 <body>
@@ -164,7 +164,7 @@ export async function GET(req: NextRequest) {
       <div class="cat-row">
         <span class="cat-label">${cat.label}</span>
         <div class="cat-bar">
-          <div class="cat-fill" style="width:${cat.score}%; background:${cat.score >= 80 ? "#16A34A" : cat.score >= 60 ? "#D97706" : "#DC2626"}"></div>
+          <div class="cat-fill" style="width:${cat.score}%; background:${cat.score >= 80 ? "#2F6B2A" : cat.score >= 60 ? "#D97706" : "#B42318"}"></div>
         </div>
         <span class="cat-score ${cat.score >= 80 ? "green" : cat.score >= 60 ? "amber" : "red"}">${cat.score.toFixed(0)}%</span>
       </div>`

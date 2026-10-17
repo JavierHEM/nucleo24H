@@ -25,21 +25,21 @@ const OPCIONES: Array<{
     value: "aprobado",
     label: "Aprobado",
     icon: IconCircleCheck,
-    className: "border-[#E2E8F0] text-[#64748B] hover:border-green-400 hover:text-green-700",
+    className: "border-[#DDE3EA] text-[#5B6980] hover:border-green-400 hover:text-green-700",
     activeClass: "border-green-400 bg-green-50 text-green-700",
   },
   {
     value: "observado",
     label: "Con observación",
     icon: IconAlertTriangle,
-    className: "border-[#E2E8F0] text-[#64748B] hover:border-orange-400 hover:text-orange-700",
+    className: "border-[#DDE3EA] text-[#5B6980] hover:border-orange-400 hover:text-orange-700",
     activeClass: "border-orange-400 bg-orange-50 text-orange-700",
   },
   {
     value: "rechazado",
     label: "Rechazado",
     icon: IconX,
-    className: "border-[#E2E8F0] text-[#64748B] hover:border-red-400 hover:text-red-700",
+    className: "border-[#DDE3EA] text-[#5B6980] hover:border-red-400 hover:text-red-700",
     activeClass: "border-red-400 bg-red-50 text-red-700",
   },
 ];
@@ -77,7 +77,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs text-[#143556] hover:text-[#4B8B2E] border border-[#E2E8F0] rounded-lg px-2.5 py-1.5 hover:bg-[#EBF5E6] transition-colors"
+        className="flex items-center gap-1 text-xs text-[#16294A] hover:text-[#2F6B2A] border border-[#DDE3EA] rounded-lg px-2.5 py-1.5 hover:bg-[#E5F1E3] transition-colors"
         title="Revisar documento"
       >
         <IconClipboardCheck size={13} />
@@ -88,21 +88,21 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
+            <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
               <div className="flex items-center gap-2">
-                <IconClipboardCheck size={20} className="text-[#4B8B2E]" />
-                <p className="font-semibold text-[#0B2545]">Revisar documento</p>
+                <IconClipboardCheck size={20} className="text-[#2F6B2A]" />
+                <p className="font-semibold text-[#0B1B33]">Revisar documento</p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B] hover:text-[#0B2545]">
+              <button onClick={() => setOpen(false)} className="text-[#5B6980] hover:text-[#0B1B33]">
                 <IconX size={20} />
               </button>
             </div>
 
             <div className="p-5 space-y-5">
               {/* Nombre del doc */}
-              <div className="bg-[#F8F9FA] rounded-xl px-4 py-3">
-                <p className="text-xs text-[#64748B] mb-0.5">Documento</p>
-                <p className="text-sm font-medium text-[#0B2545] truncate">{docNombre}</p>
+              <div className="bg-[#F4F6F3] rounded-xl px-4 py-3">
+                <p className="text-xs text-[#5B6980] mb-0.5">Documento</p>
+                <p className="text-sm font-medium text-[#0B1B33] truncate">{docNombre}</p>
                 <p className="text-xs text-[#94A3B8] mt-0.5 capitalize">
                   Estado actual: {estadoActual}
                 </p>
@@ -110,7 +110,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
 
               {/* Selector de estado */}
               <div>
-                <p className="text-xs font-medium text-[#64748B] mb-2">Resultado de la revisión</p>
+                <p className="text-xs font-medium text-[#5B6980] mb-2">Resultado de la revisión</p>
                 <div className="grid grid-cols-3 gap-2">
                   {OPCIONES.map((op) => {
                     const Icon = op.icon;
@@ -135,7 +135,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
 
               {/* Observación — requerida si observado/rechazado, opcional si aprobado */}
               <div>
-                <label className="text-xs font-medium text-[#64748B] block mb-1.5">
+                <label className="text-xs font-medium text-[#5B6980] block mb-1.5">
                   {needsObservacion ? (
                     <span>Motivo <span className="text-red-500">*</span></span>
                   ) : (
@@ -151,21 +151,21 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
                       ? "Explica qué debe corregirse..."
                       : "Comentario para el local..."
                   }
-                  className="w-full rounded-xl border border-[#E2E8F0] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
+                  className="w-full rounded-xl border border-[#DDE3EA] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                 />
                 {needsObservacion && observacion.trim().length < 5 && observacion.length > 0 && (
-                  <p className="text-xs text-[#DC2626] mt-1">Mínimo 5 caracteres.</p>
+                  <p className="text-xs text-[#B42318] mt-1">Mínimo 5 caracteres.</p>
                 )}
               </div>
 
               {revisar.error && (
-                <p className="text-xs text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#B42318] bg-red-50 rounded-lg px-3 py-2">
                   {revisar.error.message}
                 </p>
               )}
 
               {revisar.isSuccess && (
-                <p className="text-xs text-[#16A34A] bg-green-50 rounded-lg px-3 py-2 font-medium">
+                <p className="text-xs text-[#2F6B2A] bg-green-50 rounded-lg px-3 py-2 font-medium">
                   ✓ Revisión guardada correctamente.
                 </p>
               )}
@@ -188,7 +188,7 @@ export function RevisarDocumentoButton({ docId, docNombre, estadoActual }: Props
                       observacion: observacion.trim() || undefined,
                     })
                   }
-                  className="flex-1 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
+                  className="flex-1 bg-[#16294A] hover:bg-[#0B1B33] text-white gap-2"
                 >
                   {revisar.isPending ? (
                     <IconLoader2 size={15} className="animate-spin" />

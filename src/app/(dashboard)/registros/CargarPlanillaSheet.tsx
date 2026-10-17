@@ -128,7 +128,7 @@ export function CargarPlanillaSheet() {
       <Button
         onClick={() => setOpen(true)}
         variant="outline"
-        className="gap-2 border-[#E2E8F0] text-[#143556]"
+        className="gap-2 border-[#DDE3EA] text-[#16294A]"
         size="sm"
       >
         <IconUpload size={16} />
@@ -139,24 +139,24 @@ export function CargarPlanillaSheet() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={cerrar} />
           <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E2E8F0] sticky top-0 bg-white z-10">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
               <div className="flex items-center gap-3 min-w-0">
                 {(familia || planilla) && !aviso && (
                   <button
                     type="button"
                     onClick={volver}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F8F9FA] text-[#64748B]"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F4F6F3] text-[#5B6980]"
                     aria-label="Volver"
                   >
                     <IconChevronLeft size={18} />
                   </button>
                 )}
-                <p className="font-semibold text-[#0B2545] text-sm truncate">{titulo}</p>
+                <p className="font-semibold text-[#0B1B33] text-sm truncate">{titulo}</p>
               </div>
               <button
                 type="button"
                 onClick={cerrar}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F8F9FA] text-[#64748B]"
+                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F4F6F3] text-[#5B6980]"
                 aria-label="Cerrar"
               >
                 <IconX size={18} />
@@ -166,15 +166,15 @@ export function CargarPlanillaSheet() {
             <div className="p-5">
               {aviso ? (
                 <div className="text-center py-8">
-                  <IconCircleCheck size={28} className="mx-auto text-[#4B8B2E] mb-3" />
-                  <p className="text-sm text-[#0B2545]">{aviso}</p>
-                  <Button onClick={cerrar} className="mt-6 bg-[#143556] text-white">
+                  <IconCircleCheck size={28} className="mx-auto text-[#2F6B2A] mb-3" />
+                  <p className="text-sm text-[#0B1B33]">{aviso}</p>
+                  <Button onClick={cerrar} className="mt-6 bg-[#16294A] text-white">
                     Cerrar
                   </Button>
                 </div>
               ) : !familia ? (
                 <div className="space-y-4">
-                  <p className="text-sm text-[#64748B]">
+                  <p className="text-sm text-[#5B6980]">
                     Elige la planilla que imprimiste. El asesor del local recibirá el archivo para revisarlo.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -183,10 +183,10 @@ export function CargarPlanillaSheet() {
                         key={item.id}
                         type="button"
                         onClick={() => setFamilia(item.id)}
-                        className="text-left p-4 rounded-xl border-2 border-[#E2E8F0] hover:border-[#4B8B2E] hover:bg-[#EBF5E6]/40"
+                        className="text-left p-4 rounded-xl border-2 border-[#DDE3EA] hover:border-[#2F6B2A] hover:bg-[#E5F1E3]/40"
                       >
-                        <p className="font-mono text-[11px] text-[#64748B]">{item.procedimiento}</p>
-                        <p className="font-semibold text-sm text-[#0B2545] mt-1">{item.label}</p>
+                        <p className="font-mono text-[11px] text-[#5B6980]">{item.procedimiento}</p>
+                        <p className="font-semibold text-sm text-[#0B1B33] mt-1">{item.label}</p>
                       </button>
                     ))}
                   </div>
@@ -198,16 +198,16 @@ export function CargarPlanillaSheet() {
                       key={item.codigo}
                       type="button"
                       onClick={() => setPlanilla(item)}
-                      className="w-full text-left p-4 rounded-xl border border-[#E2E8F0] hover:border-[#4B8B2E]"
+                      className="w-full text-left p-4 rounded-xl border border-[#DDE3EA] hover:border-[#2F6B2A]"
                     >
-                      <p className="font-mono text-[11px] text-[#64748B]">{item.codigo}</p>
-                      <p className="font-medium text-sm text-[#0B2545] mt-0.5">{item.nombre}</p>
+                      <p className="font-mono text-[11px] text-[#5B6980]">{item.codigo}</p>
+                      <p className="font-medium text-sm text-[#0B1B33] mt-0.5">{item.nombre}</p>
                     </button>
                   ))}
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="font-mono text-xs text-[#64748B]">{planilla.codigo}</p>
+                  <p className="font-mono text-xs text-[#5B6980]">{planilla.codigo}</p>
                   <div>
                     <Label htmlFor="fecha-planilla">Fecha de la planilla</Label>
                     <Input
@@ -229,16 +229,16 @@ export function CargarPlanillaSheet() {
                       onChange={elegirArchivo}
                     />
                     {archivo.status === "uploading" && (
-                      <p className="text-xs text-[#64748B] mt-2 inline-flex items-center gap-1">
+                      <p className="text-xs text-[#5B6980] mt-2 inline-flex items-center gap-1">
                         <IconLoader2 size={14} className="animate-spin" />
                         Subiendo... {archivo.progress}%
                       </p>
                     )}
                     {archivo.status === "done" && (
-                      <p className="text-xs text-[#3A6E24] mt-2">{archivo.filename}</p>
+                      <p className="text-xs text-[#255620] mt-2">{archivo.filename}</p>
                     )}
                     {archivo.status === "error" && (
-                      <p className="text-xs text-[#DC2626] mt-2">{archivo.message}</p>
+                      <p className="text-xs text-[#B42318] mt-2">{archivo.message}</p>
                     )}
                   </div>
                   <div>
@@ -248,17 +248,17 @@ export function CargarPlanillaSheet() {
                       value={nota}
                       onChange={(event) => setNota(event.target.value)}
                       rows={2}
-                      className="mt-1 w-full rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm"
+                      className="mt-1 w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm"
                     />
                   </div>
                   {cargar.error && (
-                    <p className="text-sm text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">{cargar.error.message}</p>
+                    <p className="text-sm text-[#B42318] bg-red-50 rounded-lg px-3 py-2">{cargar.error.message}</p>
                   )}
                   <Button
                     type="button"
                     onClick={() => void guardar()}
                     disabled={archivo.status !== "done" || !fecha || cargar.isPending}
-                    className="w-full min-h-12 bg-[#4B8B2E] hover:bg-[#3A6E24] text-white"
+                    className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
                   >
                     {cargar.isPending ? "Guardando..." : "Enviar al asesor"}
                   </Button>

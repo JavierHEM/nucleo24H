@@ -1,262 +1,301 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, useFieldArray, type Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useRouter } from "next/navigation";
-import {
-  IconMapPin,
-  IconX,
-  IconPlus,
-  IconTrash,
-  IconLoader2,
-  IconAlertTriangle,
-} from "@tabler/icons-react";
+import { useState, type FormEvent } from "react";
+import { IconLoader2, IconPlus, IconX } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  ETIQUETA_RESULTADO,
+  GRUPOS_PAUTA,
+  PAUTA_VISITA,
+  puntosDe,
+  validarEvaluacion,
+  type ItemEvaluacion,
+  type ResultadoPauta,
+  type TipoVisita,
+} from "@/lib/bpm/visita";
 
-const ncSchema = z.object({
-  descripcion: z.string().min(5, "Describe la no conformidad"),
-  severidad: z.enum(["menor", "mayor"]),
-  fecha_limite: z.string().optional(),
-});
+const OPCIONES: ResultadoPauta[] = ["cumple", "observacion", "no_cumple"];
 
-const schema = z.object({
-  tipo: z.enum(["programada", "sorpresa"]),
-  fecha: z.string().min(1, "Selecciona la fecha de la visita"),
-  hallazgos: z.string().optional(),
-  no_conformidades: z.array(ncSchema).default([]),
-});
-
-type FormData = {
-  tipo: "programada" | "sorpresa";
-  fecha: string;
-  hallazgos?: string;
-  no_conformidades: z.infer<typeof ncSchema>[];
+type Fila = {
+  resultado: ResultadoPauta | "";
+  nota: string;
+  fecha_limite: string;
 };
 
-interface Props {
-  tenantId: string;
+function hoy() {
+  const fecha = new Date();
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  return `${fecha.getFullYear()}-${mes}-${dia}`;
 }
 
-export function NuevaVisitaButton({ tenantId }: Props) {
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
+function filasVacias(): Record<string, Fila> {
+  return Object.fromEntries(
+    PAUTA_VISITA.map((punto) => [punto.id, { resultado: "", nota: "", fecha_limite: "" }])
+  );
+}
+
+function aEvaluacion(filas: Record<string, Fila>): ItemEvaluacion[] {
+  return PAUTA_VISITA.map((punto) => {
+    const fila = filas[punto.id];
+    const resultado: ResultadoPauta = fila.resultado || "no_revisada";
+    const marcada = resultado === "observacion" || resultado === "no_cumple";
+    return {
+      area: punto.id,
+      resultado,
+      nota: marcada ? fila.nota.trim() : undefined,
+      fecha_limite: marcada && fila.fecha_limite ? fila.fecha_limite : undefined,
+    };
+  });
+}
+
+const ESTILO_OPCION: Record<ResultadoPauta, string> = {
+  cumple: "border-[#2F6B2A] bg-[#E5F1E3] text-[#255620]",
+  observacion: "border-[#D97706] bg-[#FEF3C7] text-[#92400E]",
+  no_cumple: "border-[#B42318] bg-red-50 text-[#991B1B]",
+  no_revisada: "border-[#DDE3EA] bg-white text-[#334155]",
+};
+
+export function NuevaVisitaButton({ tenantId }: { tenantId: string }) {
+  const [abierto, setAbierto] = useState(false);
+  const [tipo, setTipo] = useState<TipoVisita>("programada");
+  const [fecha, setFecha] = useState(hoy);
+  const [hallazgos, setHallazgos] = useState("");
+  const [filas, setFilas] = useState(filasVacias);
+  const [errorLocal, setErrorLocal] = useState<string | null>(null);
   const utils = trpc.useUtils();
 
   const registrar = trpc.visitas.registrar.useMutation({
-    onSuccess: () => {
-      utils.visitas.list.invalidate();
-      setOpen(false);
-      reset();
-      router.refresh();
+    onSuccess: async () => {
+      await utils.visitas.list.invalidate();
+      cerrar();
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<FormData>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(schema) as Resolver<FormData, any>,
-    defaultValues: {
-      tipo: "programada",
-      fecha: new Date().toISOString().slice(0, 10),
-      no_conformidades: [],
-    },
-  });
+  function cerrar() {
+    setAbierto(false);
+    setTipo("programada");
+    setFecha(hoy());
+    setHallazgos("");
+    setFilas(filasVacias());
+    setErrorLocal(null);
+    registrar.reset();
+  }
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "no_conformidades",
-  });
+  function marcar(id: string, resultado: ResultadoPauta) {
+    setFilas((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], resultado: prev[id].resultado === resultado ? "" : resultado },
+    }));
+  }
 
-  async function onSubmit(data: FormData) {
+  function editar(id: string, cambio: Partial<Fila>) {
+    setFilas((prev) => ({ ...prev, [id]: { ...prev[id], ...cambio } }));
+  }
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    const evaluacion = aEvaluacion(filas);
+    const error = validarEvaluacion(tipo, evaluacion);
+    if (error || !fecha) {
+      setErrorLocal(error ?? "Selecciona la fecha de la visita.");
+      return;
+    }
+    setErrorLocal(null);
     await registrar.mutateAsync({
       tenant_id: tenantId,
-      tipo: data.tipo,
-      fecha: new Date(data.fecha).toISOString(),
-      hallazgos: data.hallazgos,
-      no_conformidades: data.no_conformidades.map((nc) => ({
-        descripcion: nc.descripcion,
-        severidad: nc.severidad,
-        fecha_limite: nc.fecha_limite
-          ? new Date(nc.fecha_limite).toISOString()
-          : undefined,
-      })),
+      tipo,
+      fecha: new Date(`${fecha}T12:00:00`).toISOString(),
+      hallazgos: hallazgos.trim() || undefined,
+      evaluacion,
     });
   }
+
+  const pendientes = PAUTA_VISITA.filter((punto) => !filas[punto.id]?.resultado).length;
 
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
-        className="bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
+        onClick={() => setAbierto(true)}
+        className="bg-[#16294A] hover:bg-[#0B1B33] text-white gap-2"
         size="sm"
       >
         <IconPlus size={16} />
         Nueva visita
       </Button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[92vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] sticky top-0 bg-white rounded-t-2xl z-10">
-              <div className="flex items-center gap-2">
-                <IconMapPin size={18} className="text-[#4B8B2E]" />
-                <p className="font-semibold text-[#0B2545]">Registrar visita</p>
+      {abierto && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={cerrar} />
+          <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
+              <div>
+                <p className="font-semibold text-[#0B1B33]">Registrar visita</p>
+                <p className="text-xs text-[#5B6980] mt-0.5">
+                  {tipo === "programada"
+                    ? "Recorre toda la pauta. Cada punto queda en cumple, observación o no cumple."
+                    : "Marca solo lo que viste. Lo demás queda sin revisar y no abre una no conformidad."}
+                </p>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748B]">
-                <IconX size={20} />
+              <button
+                type="button"
+                onClick={cerrar}
+                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#F4F6F3] text-[#5B6980] shrink-0"
+                aria-label="Cerrar"
+              >
+                <IconX size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-5">
-              {/* Tipo y fecha */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="tipo-visita">Tipo de visita</Label>
-                  <select
-                    id="tipo-visita"
-                    {...register("tipo")}
-                    className="mt-1 flex min-h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
-                  >
-                    <option value="programada">Programada</option>
-                    <option value="sorpresa">Sorpresa</option>
-                  </select>
-                </div>
+            <form onSubmit={onSubmit} className="p-5 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <fieldset>
+                  <legend className="text-sm font-medium text-[#0B1B33]">Tipo de visita</legend>
+                  <div className="mt-1 grid grid-cols-2 gap-2">
+                    {(["programada", "sorpresa"] as const).map((opcion) => (
+                      <button
+                        key={opcion}
+                        type="button"
+                        aria-pressed={tipo === opcion}
+                        onClick={() => setTipo(opcion)}
+                        className={`min-h-11 rounded-xl border text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
+                          tipo === opcion
+                            ? "border-[#16294A] bg-[#16294A] text-white"
+                            : "border-[#DDE3EA] bg-white text-[#334155]"
+                        }`}
+                      >
+                        {opcion === "programada" ? "Programada" : "Sorpresa"}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
                 <div>
                   <Label htmlFor="fecha-visita">Fecha</Label>
                   <Input
                     id="fecha-visita"
                     type="date"
-                    className="mt-1 min-h-12"
-                    {...register("fecha")}
+                    value={fecha}
+                    onChange={(event) => setFecha(event.target.value)}
+                    className="mt-1 min-h-11"
+                    required
                   />
-                  {errors.fecha && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.fecha.message}</p>
-                  )}
                 </div>
               </div>
 
-              {/* Hallazgos */}
+              {GRUPOS_PAUTA.map((grupo) => (
+                <section key={grupo.id} className="space-y-2">
+                  <h2 className="font-mono text-[11px] tracking-wide text-[#5B6980]">{grupo.titulo}</h2>
+                  {puntosDe(grupo.id).map((punto) => {
+                    const fila = filas[punto.id];
+                    const exigeDetalle =
+                      fila.resultado === "observacion" || fila.resultado === "no_cumple";
+                    return (
+                      <div key={punto.id} className="rounded-xl border border-[#DDE3EA] p-3 space-y-2.5">
+                        <div>
+                          <p className="text-sm font-medium text-[#0B1B33]">{punto.nombre}</p>
+                          {punto.codigo && (
+                            <p className="font-mono text-[11px] text-[#5B6980]">{punto.codigo}</p>
+                          )}
+                          <p className="text-xs text-[#5B6980] mt-1">{punto.mirar}</p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {OPCIONES.map((opcion) => {
+                            const activo = fila.resultado === opcion;
+                            return (
+                              <button
+                                key={opcion}
+                                type="button"
+                                aria-pressed={activo}
+                                onClick={() => marcar(punto.id, opcion)}
+                                className={`min-h-10 rounded-lg border text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
+                                  activo ? ESTILO_OPCION[opcion] : "border-[#DDE3EA] bg-white text-[#334155]"
+                                }`}
+                              >
+                                {ETIQUETA_RESULTADO[opcion]}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {exigeDetalle && (
+                          <div className="space-y-2">
+                            <Label htmlFor={`nota-${punto.id}`} className="text-xs">
+                              {fila.resultado === "no_cumple"
+                                ? "Qué no cumple"
+                                : "Qué observaste"}
+                            </Label>
+                            <textarea
+                              id={`nota-${punto.id}`}
+                              rows={2}
+                              value={fila.nota}
+                              onChange={(event) => editar(punto.id, { nota: event.target.value })}
+                              className="flex w-full rounded-xl border border-[#DDE3EA] bg-white px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] resize-none"
+                            />
+                            <div>
+                              <Label htmlFor={`limite-${punto.id}`} className="text-xs">
+                                Fecha límite{fila.resultado === "observacion" ? " (opcional)" : ""}
+                              </Label>
+                              <Input
+                                id={`limite-${punto.id}`}
+                                type="date"
+                                value={fila.fecha_limite}
+                                onChange={(event) =>
+                                  editar(punto.id, { fecha_limite: event.target.value })
+                                }
+                                className="mt-1 min-h-10"
+                                required={fila.resultado === "no_cumple"}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </section>
+              ))}
+
               <div>
-                <Label htmlFor="hallazgos">Hallazgos generales (opcional)</Label>
+                <Label htmlFor="hallazgos">Nota de cierre (opcional)</Label>
                 <textarea
                   id="hallazgos"
-                  rows={3}
-                  placeholder="Resumen de lo observado durante la visita..."
-                  {...register("hallazgos")}
-                  className="mt-1 flex w-full rounded-xl border border-[#E2E8F0] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E] resize-none"
+                  rows={2}
+                  value={hallazgos}
+                  onChange={(event) => setHallazgos(event.target.value)}
+                  placeholder="Algo que no quedó en un punto de la pauta."
+                  className="mt-1 flex w-full rounded-xl border border-[#DDE3EA] bg-white px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] resize-none"
                 />
               </div>
 
-              {/* No conformidades */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label>No conformidades ({fields.length})</Label>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      append({ descripcion: "", severidad: "menor", fecha_limite: "" })
-                    }
-                    className="flex items-center gap-1 text-xs text-[#4B8B2E] font-medium hover:text-[#3A6E24]"
-                  >
-                    <IconPlus size={13} />
-                    Agregar NC
-                  </button>
-                </div>
-
-                {fields.length === 0 && (
-                  <p className="text-xs text-[#94A3B8] text-center py-4 border border-dashed border-[#E2E8F0] rounded-xl">
-                    Sin no conformidades. Haz clic en &ldquo;Agregar NC&rdquo; si corresponde.
-                  </p>
-                )}
-
-                <div className="space-y-3">
-                  {fields.map((field, idx) => (
-                    <div
-                      key={field.id}
-                      className="border border-[#E2E8F0] rounded-xl p-3 space-y-2.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <IconAlertTriangle size={14} className="text-[#D97706]" />
-                          <span className="text-xs font-semibold text-[#0B2545]">
-                            NC {idx + 1}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => remove(idx)}
-                          className="text-[#94A3B8] hover:text-[#DC2626]"
-                        >
-                          <IconTrash size={14} />
-                        </button>
-                      </div>
-
-                      <Input
-                        placeholder="Describe la no conformidad..."
-                        className="min-h-10 text-sm"
-                        {...register(`no_conformidades.${idx}.descripcion`)}
-                      />
-                      {errors.no_conformidades?.[idx]?.descripcion && (
-                        <p className="text-xs text-[#DC2626]">
-                          {errors.no_conformidades[idx]?.descripcion?.message}
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label className="text-xs">Severidad</Label>
-                          <select
-                            {...register(`no_conformidades.${idx}.severidad`)}
-                            className="mt-1 flex min-h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4B8B2E]"
-                          >
-                        <option value="menor">Menor</option>
-                          <option value="mayor">Mayor</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label className="text-xs">Fecha límite</Label>
-                          <Input
-                            type="date"
-                            className="mt-1 min-h-10 text-sm"
-                            {...register(`no_conformidades.${idx}.fecha_limite`)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {registrar.error && (
-                <p className="text-sm text-[#DC2626] bg-red-50 rounded-lg px-3 py-2">
-                  {registrar.error.message}
+              {(errorLocal || registrar.error) && (
+                <p className="text-sm text-[#B42318] bg-red-50 rounded-lg px-3 py-2">
+                  {errorLocal ?? registrar.error?.message}
                 </p>
               )}
 
-              <Button
-                type="submit"
-                disabled={registrar.isPending}
-                className="w-full min-h-12 bg-[#143556] hover:bg-[#0B2545] text-white gap-2"
-              >
-                {registrar.isPending ? (
-                  <>
-                    <IconLoader2 size={16} className="animate-spin" /> Guardando...
-                  </>
-                ) : (
-                  "Registrar visita"
-                )}
-              </Button>
+              <div className="sticky bottom-0 bg-white pt-2 pb-1">
+                <p className="text-xs text-[#5B6980] mb-2">
+                  {tipo === "programada"
+                    ? pendientes === 0
+                      ? "Pauta completa."
+                      : `Faltan ${pendientes} punto${pendientes === 1 ? "" : "s"}.`
+                    : "Los puntos sin marcar quedan fuera de esta visita."}
+                </p>
+                <Button
+                  type="submit"
+                  disabled={registrar.isPending}
+                  className="w-full min-h-12 bg-[#16294A] hover:bg-[#0B1B33] text-white gap-2"
+                >
+                  {registrar.isPending ? (
+                    <>
+                      <IconLoader2 size={16} className="animate-spin" /> Guardando...
+                    </>
+                  ) : (
+                    "Registrar visita"
+                  )}
+                </Button>
+              </div>
             </form>
           </div>
         </div>

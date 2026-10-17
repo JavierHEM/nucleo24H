@@ -32,11 +32,11 @@ export default async function TareasPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B2545] flex items-center gap-2">
-            <IconChecklist size={26} className="text-[#4B8B2E]" />
+          <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
+            <IconChecklist size={26} className="text-[#2F6B2A]" />
             Tareas del día
           </h1>
-          <p className="text-sm text-[#64748B] mt-1 capitalize">{today}</p>
+          <p className="text-sm text-[#5B6980] mt-1 capitalize">{today}</p>
         </div>
         {canManage && <NuevaTareaButton />}
       </div>
