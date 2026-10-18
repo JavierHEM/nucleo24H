@@ -1,563 +1,528 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { APP_NAME, APP_LEGAL_NAME, APP_TAGLINE } from "@/lib/branding";
-import { BrandLogo } from "@/components/BrandLogo";
+import { APP_LEGAL_NAME, APP_NAME, APP_TAGLINE } from "@/lib/branding";
+import { PLAN_PRECIOS_CLP } from "@/lib/payments/flow";
+import { formatCLP } from "@/lib/utils";
+import { DiagnosticoForm } from "./DiagnosticoForm";
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} — Cumplimiento normativo sin complicaciones`,
+  title: `${APP_NAME} — Cumplimiento sanitario para locales de Osorno`,
   description:
-    "Nucleo 24H centraliza los requisitos sanitarios, ambientales y laborales de tu pyme. Registros BPM, documentos, alertas y sellos de cumplimiento — empezando por el rubro alimenticio.",
+    "Implementamos buenas prácticas sanitarias, capacitamos al equipo y acompañamos cada mes con una visita presencial y una plataforma de registros, documentos y sello.",
 };
 
-function CheckIcon() {
+const EXIGEN = [
+  { t: "Temperaturas diarias", d: "El registro de cada cámara, de cada día." },
+  { t: "Limpieza y sanitización", d: "Qué se limpió, con qué y quién lo verificó." },
+  { t: "Control de plagas", d: "Certificados de fumigación vigentes." },
+  { t: "Capacitaciones", d: "Listas de asistencia del personal." },
+];
+
+const SERVICIOS = [
+  {
+    titulo: "Implementación BPM",
+    color: "#2F6B2A",
+    items: [
+      "Diagnóstico inicial de tu local",
+      "Implementación de Buenas Prácticas de Manufactura",
+      "Procedimientos y registros esenciales",
+      "Orden y control sanitario",
+    ],
+  },
+  {
+    titulo: "Capacitaciones",
+    color: "#0E6E7E",
+    items: [
+      "Capacitación inicial al equipo",
+      "Capacitaciones mensuales",
+      "Temas prácticos y aplicables",
+      "Material de apoyo y registro de asistencia",
+    ],
+  },
+  {
+    titulo: "Plataforma documental",
+    color: "#0B1B33",
+    items: [
+      "Respaldo digital de todos los documentos",
+      "Acceso fácil y seguro desde el celular",
+      "Carpetas organizadas por mes",
+      "Documentación lista para fiscalizaciones",
+    ],
+  },
+  {
+    titulo: "Seguimiento mensual",
+    color: "#8A5A00",
+    items: [
+      "Visita presencial en radio urbano",
+      "Revisión de registros y procesos",
+      "Informe mensual y plan de mejoras",
+      "Evaluación y entrega del sello",
+    ],
+  },
+];
+
+const PASOS = [
+  { n: "1", cuando: "Al inicio", titulo: "Diagnóstico y puesta en marcha", texto: "Visitamos tu local, revisamos cómo está hoy y dejamos configurados tus equipos, áreas y registros." },
+  { n: "2", cuando: "Cada día", titulo: "Tu equipo registra en el celular", texto: "Una guía del día muestra qué falta: temperaturas, limpieza, residuos. Todo en pocos toques." },
+  { n: "3", cuando: "Cada mes", titulo: "Visita y capacitación", texto: "Tu asesor revisa registros y documentos, capacita al equipo y deja un plan de mejoras con plazos." },
+  { n: "4", cuando: "Fin de mes", titulo: "Sello e informe", texto: "Calculamos tu sello, generamos el informe y te avisamos por correo. Empieza un nuevo ciclo." },
+];
+
+const SELLOS = [
+  { nivel: "Inicial", rango: "Menos de 60%", texto: "Cumplimiento bajo. Hay brechas importantes por mejorar.", bg: "#B42318", fg: "#FFFFFF" },
+  { nivel: "Intermedio", rango: "60% a 74%", texto: "Vas avanzando, pero aún hay aspectos por trabajar.", bg: "#E8B100", fg: "#0B1B33" },
+  { nivel: "Avanzado", rango: "75% a 89%", texto: "Buen cumplimiento. Tus procesos y registros están en orden.", bg: "#2F6B2A", fg: "#FFFFFF" },
+  { nivel: "Premium", rango: "90% o más", texto: "Cumplimiento sobresaliente. Tu local es un referente.", bg: "#0B1B33", fg: "#E3B341" },
+];
+
+const PLATAFORMA = [
+  { t: "Guía del día", d: "Cada turno ve en una pantalla qué falta registrar y por qué importa." },
+  { t: "Registros desde el celular", d: "Temperaturas, limpieza, plagas y recepción de mercadería, con acción correctiva cuando algo sale de rango." },
+  { t: "Documentos con vencimiento", d: "Permisos y certificados ordenados por mes, con revisión de tu asesor." },
+  { t: "Sello mensual en PDF", d: "Un certificado con enlace público para que clientes e inspectores lo verifiquen." },
+];
+
+const PLANES = [
+  {
+    nombre: "Plan Calidad",
+    etiqueta: "Para partir",
+    precio: PLAN_PRECIOS_CLP.calidad,
+    fondo: "#FFFFFF",
+    texto: "#0B1B33",
+    borde: "#DDE3EA",
+    chipBg: "#E5F1E3",
+    chipFg: "#255620",
+    linea: "#DDE3EA",
+    tick: "#2F6B2A",
+    btnBg: "#0B1B33",
+    btnFg: "#FFFFFF",
+    cta: "Quiero el Plan Calidad",
+    items: [
+      "1 visita presencial mensual en radio urbano",
+      "Revisión de registros y documentación",
+      "Capacitación mensual para el equipo",
+      "Plataforma documental actualizada",
+      "Informe mensual de cumplimiento",
+      "Plan de mejoras personalizado",
+      "Evaluación y entrega de sello mensual",
+      "Orientación técnica permanente",
+      "Apoyo ante fiscalizaciones",
+      "Descargos gratuitos con sello Premium",
+    ],
+  },
+  {
+    nombre: "Plan Integral",
+    etiqueta: "Calidad + medio ambiente",
+    precio: PLAN_PRECIOS_CLP.integral,
+    fondo: "#0B1B33",
+    texto: "#FFFFFF",
+    borde: "#0B1B33",
+    chipBg: "#E3B341",
+    chipFg: "#0B1B33",
+    linea: "#2A4068",
+    tick: "#E3B341",
+    btnBg: "#E3B341",
+    btnFg: "#0B1B33",
+    cta: "Quiero el Plan Integral",
+    items: [
+      "Todo lo del Plan Calidad",
+      "Apoyo en segregación de residuos: ordinarios, reciclables y peligrosos",
+      "Declaraciones en Ventanilla Única, hasta 12 al año",
+      "Charlas ambientales para el equipo",
+      "Asesoría en cumplimiento ambiental",
+      "Seguimiento y recordatorios de vencimientos",
+    ],
+  },
+];
+
+const ADICIONALES = [
+  "Resolución sanitaria e inicio de actividades",
+  "Elaboración de HACCP y manuales",
+  "Etiquetado y rotulado nutricional",
+  "Proyectos sanitarios y regularizaciones",
+  "Defensa en sumarios graves",
+];
+
+const FAQ = [
+  { p: "¿Qué zona cubren?", r: "La visita presencial mensual cubre el radio urbano de Osorno. Si tu local está fuera, escríbenos y vemos cómo atenderte." },
+  { p: "¿Cuánto dura el contrato?", r: "El servicio es anual: 12 meses, con pago mensual. Incluye todo el año de soporte, capacitación y seguimiento." },
+  { p: "¿Necesito saber de computación?", r: "No. La plataforma está pensada para usarse desde el celular, en la cocina, con pocos toques. Tu asesor te acompaña al comenzar." },
+  { p: "¿Qué pasa si el sello baja de nivel?", r: "Cada informe trae un plan de mejoras con lo que falta para subir. Si crees que hay un error en tu sello, puedes pedir una revisión." },
+  { p: "¿Qué servicios no están incluidos?", r: "La resolución sanitaria e inicio de actividades, la elaboración de HACCP y manuales, el etiquetado nutricional, los proyectos sanitarios y la defensa en sumarios graves se cotizan aparte." },
+  { p: "¿Cómo protegen los datos de mi local?", r: "Tratamos los datos personales conforme a la Ley 21.719. Puedes ejercer tus derechos de acceso, rectificación y supresión desde tu cuenta." },
+];
+
+function Escudo({ className = "w-9 h-9", dorado = false }: { className?: string; dorado?: boolean }) {
   return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" className="shrink-0 mt-0.5" aria-hidden>
-      <circle cx="7.5" cy="7.5" r="7" stroke="#2F6B2A" strokeWidth="1.2" />
-      <path
-        d="M4.5 7.5l2 2 4-4"
-        stroke="#2F6B2A"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <span className={`${className} rounded-[11px] flex items-center justify-center shrink-0 ${dorado ? "bg-[#E3B341] text-[#0B1B33]" : "bg-[#0B1B33] text-[#E3B341]"}`} aria-hidden>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z" />
+        <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+      </svg>
+    </span>
   );
 }
 
-const FEATURES = [
-  {
-    titulo: "Semáforo de cumplimiento",
-    desc: "Visualiza en tiempo real si tu negocio está en verde, amarillo o rojo. Saber tu estado normativo nunca fue tan claro.",
-    color: "navy" as const,
-    icon: (
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <circle cx="12" cy="12" r="9" stroke="#0B1B33" strokeWidth="1.8" />
-        <path d="M12 7v5.5l3.5 2" stroke="#0B1B33" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    titulo: "Gestión de documentos",
-    desc: "Sube, almacena y gestiona todos tus certificados y registros desde un solo lugar. Con fechas de vencimiento y recordatorios automáticos.",
-    color: "green" as const,
-    icon: (
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <path d="M5 12l4 4L19 8" stroke="#2F6B2A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    titulo: "Alertas inteligentes",
-    desc: "Recibe notificaciones antes de que venzan tus documentos clave. Sin sorpresas ni multas por descuido.",
-    color: "yellow" as const,
-    icon: (
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <path
-          d="M12 4a6 6 0 0 1 6 6c0 4.5 2 6 2 6H4s2-1.5 2-6a6 6 0 0 1 6-6z"
-          stroke="#F39C12"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        <path d="M10 18a2 2 0 0 0 4 0" stroke="#F39C12" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    titulo: "Registros y plantillas",
-    desc: "Checklists BPM, manuales HACCP, registros de temperatura y más — listos para usar y actualizados según tu rubro.",
-    color: "navy" as const,
-    icon: (
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <rect x="3" y="4" width="18" height="16" rx="2" stroke="#0B1B33" strokeWidth="1.8" />
-        <path d="M7 10h10M7 14h6" stroke="#0B1B33" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    titulo: "Red de asesores",
-    desc: "Conéctate con especialistas que revisan tu situación y te acompañan en el proceso de regularización.",
-    color: "green" as const,
-    icon: (
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <circle cx="9" cy="7" r="4" stroke="#2F6B2A" strokeWidth="1.8" />
-        <path d="M3 20c0-3.314 2.686-6 6-6" stroke="#2F6B2A" strokeWidth="1.8" strokeLinecap="round" />
-        <circle cx="17" cy="15" r="4" stroke="#2F6B2A" strokeWidth="1.8" />
-      </svg>
-    ),
-  },
-  {
-    titulo: "Sellos y auditoría lista",
-    desc: "Obtén un sello verificable y genera reportes en un clic para inspecciones de SEREMI o auditorías internas.",
-    color: "yellow" as const,
-    icon: (
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden>
-        <path
-          d="M12 3L3 8v4c0 5.25 3.9 10.14 9 11.35C17.1 22.14 21 17.25 21 12V8L12 3z"
-          stroke="#F39C12"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-];
-
-const ICON_BG = {
-  navy: "bg-[rgba(11,37,69,0.1)]",
-  green: "bg-[rgba(46,204,113,0.12)]",
-  yellow: "bg-[rgba(243,156,18,0.12)]",
-};
-
-const PLAN_CALIDAD = [
-  "BPM (Buenas Prácticas de Manufactura)",
-  "Gestión de documentos",
-  "Capacitaciones",
-  "Sellos de cumplimiento",
-];
-
-const PLAN_INTEGRAL = [
-  "Todo lo del Plan Calidad",
-  "Gestión ambiental",
-  "Ventanilla Única",
-  "Reportes de auditoría",
-];
+function Boton({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
+  const clases = `inline-flex items-center justify-center gap-2 min-h-[52px] px-6 rounded-xl font-extrabold border-2 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341] ${className}`;
+  if (href.startsWith("/")) {
+    return <Link href={href} className={clases}>{children}</Link>;
+  }
+  return <a href={href} className={clases}>{children}</a>;
+}
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-[#0B1B33] font-sans text-[15px] leading-relaxed">
-      {/* NAV */}
-      <header className="sticky top-0 z-50 h-16 px-4 sm:px-8 lg:px-12 flex items-center gap-6 sm:gap-10 bg-white/95 backdrop-blur border-b border-[#E1E8EF]">
-        <Link href="/" className="flex items-center gap-2.5 mr-auto no-underline">
-          <BrandLogo variant="mark" className="w-10 h-10" priority />
-          <span className="text-lg font-bold text-[#0B1B33] tracking-tight">{APP_NAME}</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-8 list-none">
-          <a href="#funciones" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B1B33] transition-colors">
-            Funciones
+    <div className="min-h-screen bg-white text-[#0B1B33] scroll-smooth">
+      <header className="sticky top-0 z-20 bg-white/95 border-b border-[#DDE3EA]">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 min-h-[72px] flex flex-wrap items-center gap-2 sm:gap-7">
+          <a href="#inicio" className="flex items-center gap-2.5 mr-auto text-[#0B1B33]">
+            <Escudo />
+            <span className="text-xl font-extrabold tracking-tight">{APP_NAME}</span>
           </a>
-          <a href="#como-funciona" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B1B33] transition-colors">
-            Cómo funciona
-          </a>
-          <a href="#precios" className="text-sm font-medium text-[#7F8C8D] hover:text-[#0B1B33] transition-colors">
-            Precios
-          </a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-[9px] text-sm font-semibold text-[#0B1B33] border-[1.5px] border-[#E1E8EF] hover:border-[#0B1B33] hover:bg-[rgba(11,37,69,0.04)] transition-all"
-          >
-            Iniciar sesión
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex items-center px-5 py-2.5 rounded-[9px] text-sm font-semibold text-white bg-[#0B1B33] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all"
-          >
-            Crear cuenta
-          </Link>
+          <nav aria-label="Secciones" className="hidden lg:flex flex-wrap gap-x-6">
+            {[
+              ["#servicios", "Servicios"],
+              ["#proceso", "Cómo funciona"],
+              ["#sellos", "Sellos"],
+              ["#planes", "Planes"],
+              ["#preguntas", "Preguntas"],
+            ].map(([href, label]) => (
+              <a key={href} href={href} className="py-3 text-[15px] font-bold text-[#41506A] hover:text-[#0B1B33]">{label}</a>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2.5">
+            <Link href="/login" className="inline-flex items-center min-h-11 px-4 rounded-[10px] text-sm font-extrabold border-2 border-[#C3CCD8] text-[#0B1B33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]">
+              Iniciar sesión
+            </Link>
+            <a href="#contacto" className="inline-flex items-center min-h-11 px-4 rounded-[10px] text-sm font-extrabold bg-[#2F6B2A] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341]">
+              Agenda tu diagnóstico
+            </a>
+          </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-[#0B1B33] px-4 sm:px-8 lg:px-12 pt-20 sm:pt-24 pb-28 sm:pb-32 text-center">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 50%, rgba(26,53,89,0.45) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(46,204,113,0.08) 0%, transparent 40%)",
-          }}
-        />
-        <div className="relative">
-          <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-white/85 text-[12.5px] font-semibold px-3.5 py-1.5 rounded-full mb-7 tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2F6B2A]" />
-            Plataforma regulatoria para pymes chilenas
-          </span>
-          <h1 className="text-[clamp(2.25rem,5vw,3.625rem)] font-extrabold text-white leading-[1.1] tracking-[-1.5px] max-w-[760px] mx-auto mb-5">
-            Cumplimiento normativo <em className="not-italic text-[#2F6B2A]">sin complicaciones</em>
-          </h1>
-          <p className="text-lg text-white/65 max-w-[540px] mx-auto mb-10 leading-relaxed">
-            {APP_NAME} centraliza los requisitos sanitarios, ambientales y laborales de tu pyme en un
-            solo lugar — desde alimentos hasta medio ambiente. Siempre al día con MINSAL, SMA, SEREMI
-            y más.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3.5">
-            <Link
-              href="/register"
-              className="inline-flex items-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold bg-white text-[#0B1B33] shadow-[0_2px_8px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all"
-            >
-              Crear cuenta
-            </Link>
-            <a
-              href="#como-funciona"
-              className="inline-flex items-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white border-[1.5px] border-white/40 hover:bg-white/10 hover:border-white/70 transition-all"
-            >
-              Ver cómo funciona
-            </a>
-          </div>
-          <div className="mt-14 flex items-center justify-center gap-2.5 text-[12.5px] font-medium tracking-wide text-white/40">
-            <span className="hidden sm:block w-[60px] h-px bg-white/15" />
-            Hoy enfocado en el rubro alimenticio · Módulos para cualquier industria regulada
-            <span className="hidden sm:block w-[60px] h-px bg-white/15" />
-          </div>
-        </div>
-      </section>
-
-      {/* APP PREVIEW */}
-      <div className="relative z-10 max-w-[1100px] mx-auto px-4 sm:px-8 -mt-12 sm:-mt-[50px] mb-16 sm:mb-20">
-        <div className="bg-[#F4F6F3] rounded-2xl border border-[#E1E8EF] shadow-[0_24px_80px_rgba(11,37,69,0.18),0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="bg-[#f0f2f5] border-b border-[#E1E8EF] px-4 py-2.5 flex items-center gap-2">
-            <span className="w-[11px] h-[11px] rounded-full bg-[#E74C3C]" />
-            <span className="w-[11px] h-[11px] rounded-full bg-[#F39C12]" />
-            <span className="w-[11px] h-[11px] rounded-full bg-[#2F6B2A]" />
-            <div className="flex-1 bg-white border border-[#E1E8EF] rounded-md px-3 py-1 text-[11.5px] text-[#7F8C8D] text-center font-mono">
-              app.nucleo24h.cl/dashboard
+      <section id="inicio" className="bg-[#0B1B33] text-white">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-16 sm:py-20 flex flex-wrap items-center gap-12">
+          <div className="flex-1 basis-[480px] flex flex-col gap-6">
+            <span className="self-start inline-flex items-center h-7 px-3 rounded-full text-[13px] font-bold bg-[#16294A] text-[#E3B341] border border-[#2A4068]">
+              Restaurantes, cafeterías y food trucks de Osorno
+            </span>
+            <h1 className="text-[clamp(2.4rem,5vw,3.5rem)] font-extrabold leading-[1.04] tracking-tight">
+              Tu local en regla,<br />todos los días del año.
+            </h1>
+            <p className="max-w-[560px] text-[19px] font-medium leading-relaxed text-[#C9D3E3]">
+              Implementamos las buenas prácticas sanitarias, capacitamos a tu equipo y te acompañamos cada mes con una visita presencial y una plataforma donde todo queda respaldado.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Boton href="#contacto" className="bg-[#E3B341] text-[#0B1B33]">Agenda tu diagnóstico</Boton>
+              <Boton href="#contacto" className="bg-transparent text-white border-[#8FA2C0]">Escríbenos por WhatsApp</Boton>
             </div>
-          </div>
-          <div className="flex h-[280px] sm:h-[360px]">
-            <aside className="hidden sm:block w-[180px] shrink-0 bg-[#0B1B33] py-4">
-              <div className="px-3.5 pb-3.5 border-b border-white/[0.08] mb-2">
-                <div className="flex items-center gap-2">
-                  <BrandLogo variant="mark" className="w-6 h-6 rounded-md" />
-                  <span className="text-[13px] font-bold text-white">{APP_NAME}</span>
-                </div>
-                <p className="text-[9px] text-white/40 mt-1 pl-8">{APP_TAGLINE}</p>
-              </div>
-              {[
-                { label: "Dashboard", active: true },
-                { label: "Mis Documentos", active: false },
-                { label: "Registros", active: false },
-                { label: "Alertas", active: false },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className={`flex items-center gap-2 px-3.5 py-2 text-[11px] font-medium border-l-2 ${
-                    item.active
-                      ? "bg-white/[0.08] text-white border-[#2F6B2A]"
-                      : "text-white/55 border-transparent"
-                  }`}
-                >
-                  <span
-                    className={`w-3 h-3 rounded-[3px] shrink-0 ${
-                      item.active ? "bg-white/60" : "bg-white/15"
-                    }`}
-                  />
-                  {item.label}
-                </div>
+            <ul className="flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#C9D3E3]">
+              {["Visita mensual presencial", "Documentos listos para fiscalización", "Sello mensual verificable"].map((item) => (
+                <li key={item} className="flex items-center gap-2"><span className="text-[#E3B341]">✓</span>{item}</li>
               ))}
-            </aside>
-            <div className="flex-1 overflow-hidden bg-[#F4F6F3] p-4 sm:p-5 flex flex-col gap-3">
-              <div className="bg-white rounded-lg border border-[#E1E8EF] h-[38px] flex items-center px-4 gap-3">
-                <span className="text-xs font-semibold text-[#0B1B33] flex-1">
-                  Mi Panel de Cumplimiento
-                </span>
-                <span className="w-[22px] h-[22px] bg-[#F4F6F3] rounded border border-[#E1E8EF]" />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            </ul>
+          </div>
+          <div className="flex-1 basis-[380px] flex justify-center">
+            <div className="w-full max-w-[440px] flex flex-col gap-4">
+              <div className="bg-white text-[#0B1B33] rounded-[18px] p-5 flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <p className="font-extrabold">Sello de ejemplo</p>
+                  <span className="inline-flex h-7 items-center px-3 rounded-full text-[13px] font-bold bg-[#E5F1E3] text-[#255620]">Ejemplo</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-24 h-24 rounded-full flex items-center justify-center shrink-0" style={{ background: "conic-gradient(#2F6B2A 0 80%, #E5F1E3 0)" }}>
+                    <div className="w-[74px] h-[74px] rounded-full bg-white flex flex-col items-center justify-center">
+                      <p className="font-mono text-[28px] font-semibold leading-none">80</p>
+                      <p className="text-[11px] font-semibold text-[#5B6980]">de 100</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="self-start inline-flex h-7 items-center px-3 rounded-full text-[13px] font-bold bg-[#2F6B2A] text-white">Nivel Avanzado</span>
+                    <p className="text-[13px] font-semibold leading-snug text-[#41506A]">Ilustración de cómo ve su resultado cada local. No es un local real.</p>
+                  </div>
+                </div>
                 {[
-                  { val: "13", lbl: "Total requeridos", color: "text-[#0B1B33]" },
-                  { val: "8", lbl: "Al día", color: "text-[#2F6B2A]" },
-                  { val: "4", lbl: "Por vencer", color: "text-[#F39C12]" },
-                  { val: "1", lbl: "Críticos", color: "text-[#E74C3C]" },
-                ].map((c) => (
-                  <div
-                    key={c.lbl}
-                    className="bg-white rounded-lg border border-[#E1E8EF] px-3 py-2.5"
-                  >
-                    <div className={`text-xl font-bold ${c.color}`}>{c.val}</div>
-                    <div className="text-[9px] text-[#7F8C8D] mt-0.5">{c.lbl}</div>
+                  ["Documentación", 90, "#2F6B2A"],
+                  ["Condiciones", 74, "#8A5A00"],
+                  ["Capacitaciones", 100, "#2F6B2A"],
+                ].map(([nombre, valor, color]) => (
+                  <div key={String(nombre)} className="flex items-center gap-2.5 text-[13px] font-bold">
+                    <span className="w-[130px] shrink-0">{nombre}</span>
+                    <span className="flex-1 h-2 rounded-full bg-[#E8ECF1] overflow-hidden">
+                      <span className="block h-full" style={{ width: `${valor}%`, background: String(color) }} />
+                    </span>
+                    <span className="font-mono w-9 text-right">{valor}%</span>
                   </div>
                 ))}
               </div>
-              <div className="bg-white rounded-lg border border-[#E1E8EF] p-3 sm:p-4 flex items-center gap-3.5 flex-1">
-                <div className="bg-[#1a1a1a] rounded-lg p-1.5 flex flex-col gap-1.5 shrink-0">
-                  <span className="w-[18px] h-[18px] rounded-full bg-[#3a1717]" />
-                  <span className="w-[18px] h-[18px] rounded-full bg-[#F39C12] shadow-[0_0_8px_rgba(243,156,18,0.5)]" />
-                  <span className="w-[18px] h-[18px] rounded-full bg-[#1e4d2a]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[9px] text-[#7F8C8D] uppercase tracking-wide">
-                    Nivel de cumplimiento
-                  </p>
-                  <div className="mt-1">
-                    <span className="inline-flex items-center gap-1 bg-[rgba(243,156,18,0.12)] text-[#d4890a] text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      AMARILLO — Con observaciones
-                    </span>
-                  </div>
-                  <div className="h-1 bg-[#F4F6F3] rounded-full mt-2.5 overflow-hidden">
-                    <div className="h-full w-[62%] bg-[#0B1B33] rounded-full" />
-                  </div>
-                </div>
+              <div className="bg-[#16294A] border border-[#2A4068] rounded-2xl px-5 py-4 flex flex-col gap-2.5">
+                <p className="text-sm font-extrabold text-[#E3B341]">Guía del día · ejemplo en el celular</p>
+                <p className="flex items-center gap-2.5 text-sm font-bold"><span className="w-6 h-6 rounded-full bg-[#2F6B2A] flex items-center justify-center text-xs">✓</span>Temperatura de cámaras</p>
+                <p className="flex items-center gap-2.5 text-sm font-bold"><span className="w-6 h-6 rounded-full bg-[#2F6B2A] flex items-center justify-center text-xs">✓</span>Agua potable</p>
+                <p className="flex items-center gap-2.5 text-sm font-bold text-[#C9D3E3]"><span className="w-6 h-6 rounded-full border-2 border-[#8FA2C0]" />Limpieza de áreas · pendiente</p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* LOGOS */}
-      <div className="px-4 sm:px-8 py-12 text-center border-b border-[#E1E8EF]">
-        <p className="text-xs font-semibold uppercase tracking-[1.5px] text-[#7F8C8D] mb-7">
-          Integrado con organismos regulatorios
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
-          {["MINSAL", "SMA", "SEREMI Salud", "SII", "INN"].map((org) => (
-            <div
-              key={org}
-              className="flex items-center gap-2 text-sm font-bold text-[#BDC3C7] tracking-wide"
-            >
-              <span className="w-5 h-5 bg-[#E8ECEF] rounded" />
-              {org}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* FEATURES */}
-      <section id="funciones" className="max-w-[1100px] mx-auto px-4 sm:px-8 py-16 sm:py-20">
-        <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B1B33] mb-3">
-          Funciones principales
-        </p>
-        <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight leading-[1.15] text-[#0B1B33] mb-4">
-          Todo lo que tu pyme necesita
-          <br className="hidden sm:block" /> para estar en regla
-        </h2>
-        <p className="text-[17px] text-[#7F8C8D] max-w-[520px] leading-relaxed">
-          Sea tu rubro alimentos, medio ambiente u otro — {APP_NAME} organiza, recuerda y facilita
-          cada paso normativo.
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-14">
-          {FEATURES.map((f) => (
-            <div
-              key={f.titulo}
-              className="bg-[#F4F6F3] rounded-2xl border border-[#E1E8EF] p-7 hover:shadow-[0_8px_32px_rgba(11,37,69,0.1)] hover:-translate-y-0.5 transition-all"
-            >
-              <div
-                className={`w-12 h-12 rounded-[13px] flex items-center justify-center mb-5 ${ICON_BG[f.color]}`}
-              >
-                {f.icon}
-              </div>
-              <h3 className="text-base font-bold text-[#0B1B33] mb-2.5 tracking-tight">
-                {f.titulo}
-              </h3>
-              <p className="text-sm text-[#7F8C8D] leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section
-        id="como-funciona"
-        className="bg-[#F4F6F3] border-y border-[#E1E8EF] px-4 sm:px-8 py-16 sm:py-20"
-      >
-        <div className="max-w-[1100px] mx-auto">
-          <div className="text-center">
-            <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B1B33] mb-3">
-              Proceso simple
-            </p>
-            <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight text-[#0B1B33] mb-4">
-              En 3 pasos, en regla
-            </h2>
-            <p className="text-[17px] text-[#7F8C8D] max-w-[520px] mx-auto">
-              Sin tecnicismos. Sin burocracia innecesaria.
-            </p>
+      <section className="bg-[#F4F6F3]">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-16 flex flex-wrap items-center gap-10">
+          <div className="flex-1 basis-[380px] flex flex-col gap-3.5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">El problema</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">El SEREMI puede llegar sin aviso.</h2>
+            <p className="text-lg font-medium leading-relaxed text-[#41506A]">Si el local no tiene los registros al día y a mano en ese momento, arriesga multas, clausura temporal o perder la resolución sanitaria.</p>
           </div>
-          <div className="relative grid sm:grid-cols-3 gap-8 mt-14">
-            <div
-              className="hidden sm:block absolute top-7 left-[calc(16.66%+16px)] right-[calc(16.66%+16px)] h-0.5 opacity-30"
-              style={{
-                background:
-                  "repeating-linear-gradient(90deg, #0B1B33 0, #0B1B33 8px, transparent 8px, transparent 16px)",
-              }}
-            />
-            {[
-              {
-                n: "1",
-                title: "Registra tu negocio",
-                desc: `Crea tu cuenta, indica tu rubro (alimentos, medio ambiente u otro) y tu región. ${APP_NAME} identifica automáticamente los requisitos que te aplican.`,
-              },
-              {
-                n: "2",
-                title: "Sube tus documentos",
-                desc: `Carga los certificados y permisos que ya tienes. ${APP_NAME} detecta los que faltan y te guía para obtenerlos, con plantillas y acompañamiento.`,
-              },
-              {
-                n: "3",
-                title: "Mantente al día",
-                desc: `Recibe alertas antes de cada vencimiento. Tu semáforo siempre en verde. Tú te enfocas en tu negocio — ${APP_NAME} vigila el cumplimiento.`,
-              },
-            ].map((s) => (
-              <div key={s.n} className="text-center px-4 relative z-[1]">
-                <div className="w-14 h-14 bg-[#0B1B33] text-white text-lg font-extrabold rounded-full flex items-center justify-center mx-auto mb-5">
-                  {s.n}
-                </div>
-                <h3 className="text-base font-bold text-[#0B1B33] mb-2.5">{s.title}</h3>
-                <p className="text-sm text-[#7F8C8D] leading-relaxed">{s.desc}</p>
+          <div className="flex-1 basis-[420px] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {EXIGEN.map((item) => (
+              <div key={item.t} className="bg-white border border-[#DDE3EA] rounded-2xl p-5 flex flex-col gap-2">
+                <span className="w-10 h-10 rounded-[10px] bg-[#FCE4E1] text-[#9A1C12] flex items-center justify-center font-extrabold">?</span>
+                <p className="font-extrabold leading-snug">{item.t}</p>
+                <p className="text-sm font-medium leading-snug text-[#41506A]">{item.d}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* PRICING */}
-      <section id="precios" className="max-w-[1100px] mx-auto px-4 sm:px-8 py-16 sm:py-20">
-        <div className="text-center">
-          <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#0B1B33] mb-3">Planes</p>
-          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-tight text-[#0B1B33] mb-4">
-            Elige tu plan
-          </h2>
-          <p className="text-[17px] text-[#7F8C8D] max-w-[520px] mx-auto">
-            Sin contratos. Sin letra chica. Cancela cuando quieras.
-          </p>
-        </div>
-        <div className="grid sm:grid-cols-2 max-w-[760px] mx-auto gap-6 mt-14 items-start">
-          <div className="bg-white rounded-[18px] border border-[#E1E8EF] p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(11,37,69,0.1)] transition-shadow">
-            <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#7F8C8D] mb-3">
-              Plan Calidad
-            </p>
-            <p className="text-[42px] font-extrabold text-[#0B1B33] tracking-[-2px] leading-none">
-              <sup className="text-lg font-semibold tracking-normal align-top">$</sup>
-              80.000
-            </p>
-            <p className="text-[13px] text-[#7F8C8D] mt-1 mb-6">CLP / mes</p>
-            <div className="h-px bg-[#E1E8EF] my-6" />
-            {PLAN_CALIDAD.map((f) => (
-              <div key={f} className="flex items-start gap-2.5 text-[13.5px] text-[#0B1B33] mb-3">
-                <CheckIcon />
-                {f}
-              </div>
-            ))}
-            <Link
-              href="/register"
-              className="mt-7 w-full inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-[#0B1B33] border-[1.5px] border-[#E1E8EF] hover:border-[#0B1B33] hover:bg-[rgba(11,37,69,0.04)] transition-all"
-            >
-              Elegir plan
-            </Link>
+      <section id="servicios">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-col gap-12">
+          <div className="max-w-[720px] flex flex-col gap-3.5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">Qué hacemos por tu local</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Un servicio anual completo: personas y plataforma.</h2>
+            <p className="text-lg font-medium leading-relaxed text-[#41506A]">Un asesor asignado te visita, y todo lo que hace tu equipo cada día queda ordenado en un solo lugar.</p>
           </div>
-
-          <div className="relative bg-white rounded-[18px] border border-[#0B1B33] p-8 shadow-[0_4px_24px_rgba(11,37,69,0.15)]">
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0B1B33] text-white text-[11px] font-bold px-3.5 py-1 rounded-full tracking-wide whitespace-nowrap">
-              Más completo
-            </span>
-            <p className="text-xs font-bold uppercase tracking-[1.5px] text-[#7F8C8D] mb-3">
-              Plan Integral
-            </p>
-            <p className="text-[42px] font-extrabold text-[#0B1B33] tracking-[-2px] leading-none">
-              <sup className="text-lg font-semibold tracking-normal align-top">$</sup>
-              150.000
-            </p>
-            <p className="text-[13px] text-[#7F8C8D] mt-1 mb-6">CLP / mes</p>
-            <div className="h-px bg-[#E1E8EF] my-6" />
-            {PLAN_INTEGRAL.map((f) => (
-              <div key={f} className="flex items-start gap-2.5 text-[13.5px] text-[#0B1B33] mb-3">
-                <CheckIcon />
-                {f}
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            {SERVICIOS.map((servicio) => (
+              <article key={servicio.titulo} className="bg-white border border-[#DDE3EA] rounded-2xl p-6 flex flex-col gap-4 border-t-[5px]" style={{ borderTopColor: servicio.color }}>
+                <h3 className="text-[22px] font-extrabold leading-tight">{servicio.titulo}</h3>
+                <ul className="flex flex-col gap-2.5">
+                  {servicio.items.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-[15px] font-semibold leading-snug">
+                      <span style={{ color: servicio.color }} className="font-extrabold">✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
             ))}
-            <Link
-              href="/register"
-              className="mt-7 w-full inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white bg-[#0B1B33] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all"
-            >
-              Comenzar ahora
-            </Link>
+          </div>
+          <div className="flex flex-wrap gap-5 items-center bg-[#E5F1E3] rounded-2xl px-7 py-6">
+            <div className="flex-1 basis-[360px]">
+              <p className="text-lg font-extrabold text-[#255620]">Gestión ambiental con el Plan Integral</p>
+              <p className="text-[15px] font-semibold leading-relaxed text-[#255620]">Segregación de residuos, declaraciones en Ventanilla Única, charlas ambientales y seguimiento de vencimientos.</p>
+            </div>
+            <a href="#planes" className="inline-flex items-center min-h-11 px-4 rounded-[10px] text-sm font-extrabold bg-[#255620] text-white">Ver planes</a>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-4 sm:px-8 py-16 sm:py-20 text-center">
-        <div className="max-w-[640px] mx-auto">
-          <h2 className="text-[clamp(1.75rem,3.5vw,2.375rem)] font-extrabold text-[#0B1B33] tracking-tight leading-[1.15] mb-4">
-            ¿Listo para estar siempre en regla?
-          </h2>
-          <p className="text-[17px] text-[#7F8C8D] leading-relaxed mb-9">
-            Gestiona el cumplimiento normativo de tu pyme con {APP_NAME}.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-2.5 max-w-[440px] mx-auto">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-white bg-[#0B1B33] shadow-[0_2px_8px_rgba(11,37,69,0.25)] hover:bg-[#081C33] transition-all flex-1"
-            >
-              Crear cuenta
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center px-7 py-3.5 rounded-[11px] text-[15px] font-semibold text-[#0B1B33] border-[1.5px] border-[#E1E8EF] hover:border-[#0B1B33] transition-all"
-            >
-              Iniciar sesión
-            </Link>
+      <section id="proceso" className="bg-[#0B1B33] text-white">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-col gap-12">
+          <div className="max-w-[720px] flex flex-col gap-3.5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#E3B341]">Cómo funciona</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Un ciclo mensual simple, sin papeleo suelto.</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            {PASOS.map((paso) => (
+              <article key={paso.n} className="bg-[#16294A] border border-[#2A4068] rounded-2xl p-6 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-full bg-[#E3B341] text-[#0B1B33] font-mono text-lg font-semibold flex items-center justify-center">{paso.n}</span>
+                  <span className="text-[13px] font-bold uppercase tracking-wide text-[#E3B341]">{paso.cuando}</span>
+                </div>
+                <h3 className="text-xl font-extrabold leading-snug">{paso.titulo}</h3>
+                <p className="text-[15px] font-medium leading-relaxed text-[#C9D3E3]">{paso.texto}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-[#0B1B33] text-white/60 px-4 sm:px-8 py-12">
-        <div className="max-w-[1100px] mx-auto grid sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 pb-10 border-b border-white/[0.08]">
-          <div>
-            <div className="flex items-center gap-3 text-base font-bold text-white mb-3">
-              <BrandLogo variant="mark" className="w-12 h-12 rounded-lg" />
-              <div>
-                <p>{APP_NAME}</p>
-                <p className="text-[11px] font-medium text-white/45 normal-case tracking-normal">
-                  {APP_TAGLINE}
+      <section id="sellos">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-col gap-12">
+          <div className="max-w-[720px] flex flex-col gap-3.5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">Sistema de sellos</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Cumplir tiene recompensa.</h2>
+            <p className="text-lg font-medium leading-relaxed text-[#41506A]">Cada mes evaluamos tus registros, documentos, capacitaciones y tareas. El resultado es un sello que puedes mostrar a clientes e inspectores.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            {SELLOS.map((sello) => (
+              <article key={sello.nivel} className="bg-white border border-[#DDE3EA] rounded-2xl p-6 flex flex-col items-start gap-3.5">
+                <span className="w-[72px] h-[72px] rounded-full flex items-center justify-center" style={{ background: sello.bg, color: sello.fg, boxShadow: `0 0 0 4px #fff, 0 0 0 6px ${sello.bg}` }}>
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                </span>
+                <h3 className="text-[22px] font-extrabold">{sello.nivel}</h3>
+                <p className="font-mono text-sm text-[#41506A]">{sello.rango}</p>
+                <p className="text-[15px] font-medium leading-relaxed text-[#41506A]">{sello.texto}</p>
+              </article>
+            ))}
+          </div>
+          <div className="bg-[#0B1B33] text-white rounded-2xl px-8 py-7 flex flex-col gap-2">
+            <p className="text-xl font-extrabold text-[#E3B341]">Beneficio exclusivo del nivel Premium</p>
+            <p className="text-base font-medium leading-relaxed text-[#C9D3E3]">Orientación, revisión técnica y elaboración de descargos administrativos ante la autoridad, sin costo adicional, por materias del servicio contratado.</p>
+            <p className="text-xs font-semibold text-[#9FB0CC]">Aplica según términos y condiciones del contrato.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#F4F6F3]">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-wrap items-center gap-14">
+          <div className="flex-1 basis-[420px] flex flex-col gap-5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">La plataforma</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Lo que hace tu equipo cada día, ordenado y respaldado.</h2>
+            <ul className="flex flex-col gap-4">
+              {PLATAFORMA.map((item) => (
+                <li key={item.t} className="flex gap-3.5">
+                  <span className="w-9 h-9 rounded-[10px] bg-[#E5F1E3] text-[#255620] flex items-center justify-center font-extrabold shrink-0">✓</span>
+                  <span>
+                    <span className="block text-[17px] font-extrabold">{item.t}</span>
+                    <span className="block text-[15px] font-medium leading-relaxed text-[#41506A]">{item.d}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex-1 basis-[420px] flex justify-center">
+            <div className="w-full max-w-[400px] bg-white border border-[#DDE3EA] rounded-[28px] p-4 flex flex-col gap-3 shadow-[0_24px_60px_rgba(11,27,51,0.14)]">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-extrabold">Temperaturas de hoy</p>
+                <span className="font-mono text-xs font-bold h-7 px-2.5 rounded-full bg-[#E0F1F4] text-[#0B5563] inline-flex items-center">Ejemplo</span>
+              </div>
+              <p className="text-xs font-semibold text-[#5B6980]">Pantalla de ejemplo. No corresponde a un local.</p>
+              <FilaTemp nombre="Cámara 1" valor="3,8 °C" />
+              <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[#FCE4E1] border-2 border-[#B42318] text-[#7C170F]">
+                <span className="w-6 h-6 rounded-full bg-[#B42318] text-white text-xs font-extrabold flex items-center justify-center">!</span>
+                <span className="flex-1"><span className="block text-[15px] font-extrabold">Cámara 2</span><span className="block text-xs font-semibold">Fuera de rango · anota qué hiciste</span></span>
+                <span className="font-mono text-xl font-semibold">7,4 °C</span>
+              </div>
+              <FilaTemp nombre="Congelador" valor="−19,2 °C" />
+              <div className="h-[52px] rounded-xl bg-[#2F6B2A] text-white flex items-center justify-center font-extrabold">Guardar</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="planes">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-col gap-12">
+          <div className="max-w-[720px] flex flex-col gap-3.5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">Planes</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Elige el plan de tu local.</h2>
+            <p className="text-lg font-medium leading-relaxed text-[#41506A]">Contrato anual de 12 meses. Valores mensuales en pesos chilenos. TODO: confirmar si incluyen IVA.</p>
+          </div>
+          <div className="flex flex-wrap gap-6 items-stretch">
+            {PLANES.map((plan) => (
+              <article key={plan.nombre} className="flex-1 basis-[440px] rounded-[20px] p-8 flex flex-col gap-5 border-2" style={{ background: plan.fondo, color: plan.texto, borderColor: plan.borde }}>
+                <div className="flex justify-between items-center gap-3">
+                  <h3 className="text-2xl font-extrabold">{plan.nombre}</h3>
+                  <span className="inline-flex h-7 items-center px-3 rounded-full text-[13px] font-bold" style={{ background: plan.chipBg, color: plan.chipFg }}>{plan.etiqueta}</span>
+                </div>
+                <p className="flex items-baseline gap-2">
+                  <span className="font-mono text-5xl font-semibold tracking-tight">{formatCLP(plan.precio)}</span>
+                  <span className="text-base font-bold opacity-80">/ mes</span>
                 </p>
-              </div>
+                <p className="text-sm font-bold opacity-85">Contrato anual · total {formatCLP(plan.precio * 12)}</p>
+                <ul className="flex flex-col gap-3 pt-5 border-t" style={{ borderColor: plan.linea }}>
+                  {plan.items.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-[15px] font-semibold leading-snug">
+                      <span className="font-extrabold" style={{ color: plan.tick }}>✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a href="#contacto" className="mt-auto inline-flex items-center justify-center min-h-[52px] px-6 rounded-xl font-extrabold" style={{ background: plan.btnBg, color: plan.btnFg }}>{plan.cta}</a>
+              </article>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3.5">
+            <p className="font-extrabold">Servicios adicionales, con cotización aparte</p>
+            <div className="flex flex-wrap gap-2.5">
+              {ADICIONALES.map((item) => (
+                <span key={item} className="inline-flex items-center min-h-11 px-4 rounded-full bg-[#F4F6F3] border border-[#DDE3EA] text-sm font-bold">{item}</span>
+              ))}
             </div>
-            <p className="text-[13px] leading-relaxed text-white/45 max-w-[220px] mt-1">
-              Cumplimiento normativo para pymes chilenas de todos los rubros — alimentos, medio
-              ambiente y más.
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-white/40 mb-4">Producto</p>
-            <a href="#funciones" className="block text-[13.5px] text-white/60 hover:text-white mb-2.5 transition-colors">
-              Funciones
-            </a>
-            <a href="#precios" className="block text-[13.5px] text-white/60 hover:text-white mb-2.5 transition-colors">
-              Precios
-            </a>
-            <Link href="/login" className="block text-[13.5px] text-white/60 hover:text-white mb-2.5 transition-colors">
-              Iniciar sesión
-            </Link>
-            <Link href="/register" className="block text-[13.5px] text-white/60 hover:text-white mb-2.5 transition-colors">
-              Crear cuenta
-            </Link>
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-white/40 mb-4">Empresa</p>
-            <a
-              href="mailto:contacto@nucleosur.cl"
-              className="block text-[13.5px] text-white/60 hover:text-white mb-2.5 transition-colors"
-            >
-              Contacto
-            </a>
-            <span className="block text-[13.5px] text-white/40 mb-2.5">Osorno, Chile</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-white/40 mb-4">Legal</p>
-            <Link
-              href="/politica-de-privacidad"
-              className="block text-[13.5px] text-white/60 hover:text-white mb-2.5 transition-colors"
-            >
-              Privacidad
-            </Link>
           </div>
         </div>
-        <div className="max-w-[1100px] mx-auto pt-7 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12.5px]">
-          <span>
-            © {new Date().getFullYear()} {APP_LEGAL_NAME} · Osorno, Chile · Todos los derechos
-            reservados
-          </span>
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/10 px-3 py-1 rounded-full text-[11.5px] text-white/50">
-              SSL seguro
-            </span>
-            <span className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/10 px-3 py-1 rounded-full text-[11.5px] text-white/50">
-              Ley 21.719
-            </span>
+      </section>
+
+      <section id="preguntas" className="bg-[#F4F6F3]">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-wrap gap-14">
+          <div className="flex-1 basis-[300px] self-start flex flex-col gap-3.5">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">Preguntas frecuentes</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Lo que más nos preguntan.</h2>
+            <p className="text-lg font-medium leading-relaxed text-[#41506A]">¿Tienes otra duda? Escríbenos y te respondemos.</p>
           </div>
+          <div className="flex-[2] basis-[520px] min-w-0">
+            {FAQ.map((item) => (
+              <details key={item.p} className="border-b border-[#DDE3EA] group">
+                <summary className="min-h-16 flex items-center text-lg font-extrabold cursor-pointer py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]">{item.p}</summary>
+                <p className="mb-5 text-base font-medium leading-relaxed text-[#41506A] max-w-[760px]">{item.r}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="contacto" className="bg-[#0B1B33] text-white">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-20 sm:py-24 flex flex-wrap gap-14 items-start">
+          <div className="flex-1 basis-[380px] flex flex-col gap-6">
+            <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#E3B341]">Contacto</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Agenda tu diagnóstico inicial.</h2>
+            <p className="text-lg font-medium leading-relaxed text-[#C9D3E3]">Cuéntanos de tu local y coordinamos una visita para revisar cómo está hoy y qué falta para cumplir. Te respondemos en el día hábil.</p>
+            <div className="flex flex-col gap-3">
+              <Contacto etiqueta="WhatsApp" valor="TODO: número de WhatsApp" />
+              <Contacto etiqueta="Correo" valor="TODO: correo de contacto" />
+              <Contacto etiqueta="Cobertura" valor="Radio urbano de Osorno · TODO: horario de atención" />
+            </div>
+          </div>
+          <DiagnosticoForm />
+        </div>
+      </section>
+
+      <footer className="bg-[#081426] text-[#C9D3E3]">
+        <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-10 flex flex-wrap gap-6 items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2.5 text-white">
+              <Escudo className="w-8 h-8" dorado />
+              <span className="text-lg font-extrabold">{APP_NAME}</span>
+            </div>
+            <p className="text-sm font-semibold mt-1.5">{APP_TAGLINE} · Osorno, Chile</p>
+          </div>
+          <nav aria-label="Pie" className="flex flex-wrap gap-x-7 text-sm font-bold">
+            <a href="#servicios" className="py-2.5">Servicios</a>
+            <a href="#planes" className="py-2.5">Planes</a>
+            <a href="#contacto" className="py-2.5">Contacto</a>
+            <Link href="/politica-de-privacidad" className="py-2.5">Política de privacidad</Link>
+            <Link href="/login" className="py-2.5">Iniciar sesión</Link>
+          </nav>
+          <p className="text-[13px] font-semibold text-[#9FB0CC]">© {new Date().getFullYear()} {APP_LEGAL_NAME}</p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function Contacto({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  return (
+    <div className="flex items-center gap-3.5 min-h-16 px-4 rounded-[14px] bg-[#16294A] border border-[#2A4068]">
+      <span className="w-10 h-10 rounded-[10px] bg-[#E3B341] shrink-0" aria-hidden />
+      <span>
+        <span className="block text-xs font-semibold text-[#9FB0CC]">{etiqueta}</span>
+        <span className="block text-[17px] font-bold">{valor}</span>
+      </span>
+    </div>
+  );
+}
+
+function FilaTemp({ nombre, valor }: { nombre: string; valor: string }) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-[14px] border border-[#DDE3EA]">
+      <span className="w-6 h-6 rounded-full bg-[#2F6B2A] text-white text-xs font-extrabold flex items-center justify-center">✓</span>
+      <span className="flex-1 text-[15px] font-bold">{nombre}</span>
+      <span className="font-mono text-xl font-semibold">{valor}</span>
     </div>
   );
 }
