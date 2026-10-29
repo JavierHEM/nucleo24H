@@ -7,20 +7,26 @@ import { requireRole } from "@/server/middleware/rbac";
 import { ajusteSchema, armarAgenda, programaResuelto } from "@/lib/bpm/programa";
 
 const protectedProcedure = publicProcedure.use(withTenant);
-const ajustaProcedure = protectedProcedure.use(
-  requireRole("jefe_local", "admin_local", "asesor", "admin_nucleo")
-);
+const ajustaProcedure = protectedProcedure.use(requireRole("asesor", "admin_nucleo"));
 
 const equipoSchema = z.object({ nombre: z.string() });
 
 export const programaRouter = router({
-  actual: protectedProcedure.query(async ({ ctx }) => {
-    const config = await ctx.prisma.configuracionBpm.findUnique({
-      where: { tenant_id: ctx.tenantActivo! },
-      select: { programa: true },
-    });
-    return programaResuelto(config?.programa ?? null);
-  }),
+  actual: protectedProcedure
+    .input(z.object({ tenantId: z.string().uuid() }).optional())
+    .query(async ({ ctx, input }) => {
+      if (input?.tenantId && input.tenantId !== ctx.tenantActivo) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El local cambió. Vuelve a abrir el programa.",
+        });
+      }
+      const config = await ctx.prisma.configuracionBpm.findUnique({
+        where: { tenant_id: ctx.tenantActivo! },
+        select: { programa: true },
+      });
+      return programaResuelto(config?.programa ?? null);
+    }),
 
   agenda: protectedProcedure.query(async ({ ctx }) => {
     const desde = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);

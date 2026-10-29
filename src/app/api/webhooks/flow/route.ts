@@ -40,6 +40,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Pago no encontrado" }, { status: 404 });
     }
 
+    if (estado === "pagado") {
+      const recibido = Number(status.amount);
+      if (!Number.isFinite(recibido) || Math.round(recibido) !== pago.monto_clp) {
+        console.error("[webhook/flow] Monto distinto al registrado", {
+          pagoId: pago.id,
+          esperado: pago.monto_clp,
+          recibido: status.amount,
+        });
+        return NextResponse.json({ error: "Monto no coincide" }, { status: 400 });
+      }
+    }
+
     // Idempotencia: si ya está en estado final, no reprocesar
     if (pago.estado === "pagado") {
       return NextResponse.json({ ok: true, estado: pago.estado });

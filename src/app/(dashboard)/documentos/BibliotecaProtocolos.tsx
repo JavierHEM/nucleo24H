@@ -1,6 +1,9 @@
+"use client";
+
 import { IconChevronDown, IconDownload } from "@tabler/icons-react";
-import { GRUPOS_PROTOCOLO, PROTOCOLOS, protocolosDe, urlOficial, type ArchivoOficial, type ProtocoloOficial } from "@/lib/bpm/biblioteca";
+import { GRUPOS_PROTOCOLO, protocolosDelPrograma, urlOficial, type ArchivoOficial, type ProtocoloOficial } from "@/lib/bpm/biblioteca";
 import { ScoreCards, type ScoreItem } from "@/components/dashboard/ScoreCards";
+import { trpc } from "@/lib/trpc/client";
 
 function Enlace({ archivo, etiqueta }: { archivo: ArchivoOficial; etiqueta: string }) {
   return (
@@ -62,6 +65,10 @@ function TarjetaProtocolo({ protocolo }: { protocolo: ProtocoloOficial }) {
 }
 
 export function BibliotecaProtocolos() {
+  const programa = trpc.programa.actual.useQuery();
+  const codigos = new Set((programa.data ?? []).filter((item) => item.activa).map((item) => item.codigo));
+  const protocolos = programa.data ? protocolosDelPrograma(codigos) : [];
+
   return (
     <section className="space-y-6">
       <div>
@@ -71,41 +78,54 @@ export function BibliotecaProtocolos() {
         </p>
       </div>
 
-      <ScoreCards
-        items={[
-          ...GRUPOS_PROTOCOLO.map(
-            (grupo): ScoreItem => ({
-              label: grupo.titulo,
-              value: protocolosDe(grupo.id).length,
-              hint: "Protocolos",
-              tone: "neutral",
-            })
-          ),
-          {
-            label: "Plantillas",
-            value: PROTOCOLOS.reduce((suma, protocolo) => suma + protocolo.plantillas.length, 0),
-            hint: "Para imprimir",
-            tone: "neutral",
-          },
-        ]}
-      />
+      {programa.isLoading && <p className="text-sm text-[#5B6980]">Cargando los protocolos de este local…</p>}
 
-      {GRUPOS_PROTOCOLO.map((grupo) => {
-        const protocolos = protocolosDe(grupo.id);
-        return (
-          <div key={grupo.id} className="space-y-3">
-            <div>
-              <h3 className="font-mono text-sm font-semibold text-[#0B1B33]">{grupo.titulo}</h3>
-              <p className="text-sm text-[#5B6980]">{grupo.bajada}</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {protocolos.map((protocolo) => (
-                <TarjetaProtocolo key={protocolo.codigo} protocolo={protocolo} />
-              ))}
-            </div>
-          </div>
-        );
-      })}
+      {programa.data && (
+        <>
+          <ScoreCards
+            items={[
+              ...GRUPOS_PROTOCOLO.map(
+                (grupo): ScoreItem => ({
+                  label: grupo.titulo,
+                  value: protocolos.filter((item) => item.grupo === grupo.id).length,
+                  hint: "Protocolos",
+                  tone: "neutral",
+                })
+              ),
+              {
+                label: "Plantillas",
+                value: protocolos.reduce((suma, protocolo) => suma + protocolo.plantillas.length, 0),
+                hint: "Para imprimir",
+                tone: "neutral",
+              },
+            ]}
+          />
+
+          {protocolos.length === 0 && (
+            <p className="text-sm text-[#5B6980] bg-white border border-[#DDE3EA] rounded-xl px-4 py-3">
+              Este local no tiene protocolos activos.
+            </p>
+          )}
+
+          {GRUPOS_PROTOCOLO.map((grupo) => {
+            const delGrupo = protocolos.filter((item) => item.grupo === grupo.id);
+            if (delGrupo.length === 0) return null;
+            return (
+              <div key={grupo.id} className="space-y-3">
+                <div>
+                  <h3 className="font-mono text-sm font-semibold text-[#0B1B33]">{grupo.titulo}</h3>
+                  <p className="text-sm text-[#5B6980]">{grupo.bajada}</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {delGrupo.map((protocolo) => (
+                    <TarjetaProtocolo key={protocolo.codigo} protocolo={protocolo} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
     </section>
   );
 }

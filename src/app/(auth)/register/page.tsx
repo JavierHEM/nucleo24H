@@ -14,29 +14,22 @@ import { registerSchema, type RegisterInput } from "@/lib/schemas/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, formatCLP } from "@/lib/utils";
+import { PLAN_IDS, PLANES, type PlanId } from "@/lib/planes";
 import { BrandLogo } from "@/components/BrandLogo";
 import { APP_NAME } from "@/lib/branding";
 
-const PLANES = [
-  {
-    value: "calidad" as const,
-    label: "Plan Calidad",
-    precio: "$80.000 CLP/mes",
-    descripcion: "BPM, documentos, capacitaciones y sellos",
-  },
-  {
-    value: "integral" as const,
-    label: "Plan Integral",
-    precio: "$150.000 CLP/mes",
-    descripcion: "Todo lo anterior + gestión ambiental y Ventanilla Única",
-  },
-];
+const OPCIONES_PLAN = PLAN_IDS.map((id) => ({
+  value: id,
+  label: PLANES[id].nombre,
+  precio: `${formatCLP(PLANES[id].precio)} CLP/mes`,
+  descripcion: PLANES[id].descripcion,
+}));
 
 export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<"calidad" | "integral">("calidad");
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>("calidad");
 
   const {
     register,
@@ -87,7 +80,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <BrandLogo className="w-36 h-auto" priority />
+          <BrandLogo className="w-52 h-auto" priority />
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#DDE3EA] overflow-hidden">
@@ -110,7 +103,7 @@ export default function RegisterPage() {
             <div>
               <Label className="block mb-2">Selecciona tu plan</Label>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {PLANES.map((plan) => (
+                {OPCIONES_PLAN.map((plan) => (
                   <button
                     key={plan.value}
                     type="button"

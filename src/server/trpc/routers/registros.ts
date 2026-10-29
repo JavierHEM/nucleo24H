@@ -4,7 +4,8 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { getPlanilla, schemaDePlanilla, textoAvisoPlanillaPapel } from "@/lib/bpm/planillas";
-import { puedeOperarLocal } from "@/lib/roles";
+import { programaResuelto } from "@/lib/bpm/programa";
+import { puedeCargarPlanilla } from "@/lib/roles";
 import { sendAvisoPlanillaPapel } from "@/lib/email/sendPlanillaPapel";
 import { crearUrlDeLectura } from "@/lib/storage/archivos";
 import { rutaPertenece } from "@/lib/storage/rutas";
@@ -25,6 +26,31 @@ const areaSchema = z.object({
   producto: z.string().optional(),
   frecuencia: z.string().optional(),
 });
+
+async function planillaActiva(
+  prisma: typeof import("@/server/db/prisma").prisma,
+  tenantId: string,
+  codigo: string
+) {
+  const planilla = getPlanilla(codigo);
+  if (!planilla) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Planilla no reconocida." });
+  }
+  const config = await prisma.configuracionBpm.findUnique({
+    where: { tenant_id: tenantId },
+    select: { programa: true },
+  });
+  const activa = programaResuelto(config?.programa ?? null).some(
+    (item) => item.codigo === codigo && item.activa
+  );
+  if (!activa) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Esta planilla no aplica a este local.",
+    });
+  }
+  return planilla;
+}
 
 function whereTipo(tipo?: string) {
   if (!tipo) return {};
@@ -83,10 +109,7 @@ export const registrosRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const planilla = getPlanilla(input.codigo);
-      if (!planilla) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Planilla no reconocida." });
-      }
+      const planilla = await planillaActiva(ctx.prisma, ctx.tenantActivo!, input.codigo);
 
       const parsed = schemaDePlanilla(planilla).safeParse(input.datos);
       if (!parsed.success) {
@@ -119,17 +142,14 @@ export const registrosRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!puedeOperarLocal(ctx.userRole)) {
+      if (!puedeCargarPlanilla(ctx.userRole)) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Solo el jefe o el admin del local pueden cargar una planilla impresa.",
+          message: "Solo el equipo del local puede cargar una planilla impresa.",
         });
       }
 
-      const planilla = getPlanilla(input.codigo);
-      if (!planilla) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Planilla no reconocida." });
-      }
+      const planilla = await planillaActiva(ctx.prisma, ctx.tenantActivo!, input.codigo);
       if (!rutaPertenece(input.adjunto_url, "registros", ctx.tenantActivo!)) {
         throw new TRPCError({
           code: "BAD_REQUEST",

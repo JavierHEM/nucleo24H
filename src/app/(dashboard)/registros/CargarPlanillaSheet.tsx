@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconUpload, IconChevronLeft, IconX, IconLoader2, IconCircleCheck } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc/client";
-import { FAMILIAS, planillasDe, type FamiliaId, type Planilla } from "@/lib/bpm/planillas";
+import { FAMILIAS, getPlanilla, planillasDe, type FamiliaId, type Planilla } from "@/lib/bpm/planillas";
 
 const TIPOS = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
@@ -16,10 +16,22 @@ type Archivo =
   | { status: "done"; url: string; filename: string }
   | { status: "error"; message: string };
 
-export function CargarPlanillaSheet() {
-  const [open, setOpen] = useState(false);
-  const [familia, setFamilia] = useState<FamiliaId | null>(null);
-  const [planilla, setPlanilla] = useState<Planilla | null>(null);
+export function CargarPlanillaSheet({
+  codigo,
+  abierto = false,
+  onCerrar,
+}: {
+  codigo?: string;
+  abierto?: boolean;
+  onCerrar?: () => void;
+} = {}) {
+  const controlado = onCerrar !== undefined;
+  const fija = Boolean(codigo);
+  const [openInterno, setOpenInterno] = useState(false);
+  const open = controlado ? abierto : openInterno;
+  const inicial = codigo ? (getPlanilla(codigo) ?? null) : null;
+  const [familia, setFamilia] = useState<FamiliaId | null>(inicial?.familia ?? null);
+  const [planilla, setPlanilla] = useState<Planilla | null>(inicial);
   const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10));
   const [nota, setNota] = useState("");
   const [archivo, setArchivo] = useState<Archivo>({ status: "idle" });
@@ -27,9 +39,23 @@ export function CargarPlanillaSheet() {
   const fileRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
 
+  useEffect(() => {
+    if (!codigo) return;
+    const encontrada = getPlanilla(codigo) ?? null;
+    setPlanilla(encontrada);
+    setFamilia(encontrada?.familia ?? null);
+    setNota("");
+    setArchivo({ status: "idle" });
+    setAviso(null);
+  }, [codigo]);
+  const programa = trpc.programa.actual.useQuery(undefined, { enabled: open });
+  const codigos = new Set((programa.data ?? []).filter((item) => item.activa).map((item) => item.codigo));
+  const familias = FAMILIAS.filter((item) => planillasDe(item.id).some((planilla) => codigos.has(planilla.codigo)));
+
   const cargar = trpc.registros.cargarPapel.useMutation({
     onSuccess: (resultado) => {
       utils.registros.list.invalidate();
+      utils.programa.agenda.invalidate();
       setAviso(
         resultado.asesoresNotificados > 0
           ? "Planilla cargada. Avisamos al asesor del local para que la revise."
@@ -39,12 +65,15 @@ export function CargarPlanillaSheet() {
   });
 
   function cerrar() {
-    setOpen(false);
-    setFamilia(null);
-    setPlanilla(null);
+    setOpenInterno(false);
+    if (!fija) {
+      setFamilia(null);
+      setPlanilla(null);
+    }
     setNota("");
     setArchivo({ status: "idle" });
     setAviso(null);
+    onCerrar?.();
   }
 
   function volver() {
@@ -125,15 +154,17 @@ export function CargarPlanillaSheet() {
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        variant="outline"
-        className="gap-2 border-[#DDE3EA] text-[#16294A]"
-        size="sm"
-      >
-        <IconUpload size={16} />
-        Cargar planilla
-      </Button>
+      {!controlado && (
+        <Button
+          onClick={() => setOpenInterno(true)}
+          variant="outline"
+          className="gap-2 border-[#DDE3EA] text-[#16294A]"
+          size="sm"
+        >
+          <IconUpload size={16} />
+          Cargar planilla
+        </Button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -141,7 +172,7 @@ export function CargarPlanillaSheet() {
           <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
               <div className="flex items-center gap-3 min-w-0">
-                {(familia || planilla) && !aviso && (
+                {(familia || planilla) && !aviso && !fija && (
                   <button
                     type="button"
                     onClick={volver}
@@ -178,7 +209,11 @@ export function CargarPlanillaSheet() {
                     Elige la planilla que imprimiste. El asesor del local recibirá el archivo para revisarlo.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {FAMILIAS.map((item) => (
+                    {programa.isLoading && <p className="text-sm text-[#5B6980]">Cargando planillas…</p>}
+                    {programa.data && familias.length === 0 && (
+                      <p className="text-sm text-[#5B6980]">Este local no tiene planillas activas.</p>
+                    )}
+                    {familias.map((item) => (
                       <button
                         key={item.id}
                         type="button"
@@ -193,7 +228,9 @@ export function CargarPlanillaSheet() {
                 </div>
               ) : !planilla ? (
                 <div className="space-y-2">
-                  {planillasDe(familia).map((item) => (
+                  {planillasDe(familia)
+                    .filter((item) => codigos.has(item.codigo))
+                    .map((item) => (
                     <button
                       key={item.codigo}
                       type="button"

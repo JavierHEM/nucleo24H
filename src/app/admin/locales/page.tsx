@@ -10,6 +10,8 @@ import { AgregarSucursalButton } from "./AgregarSucursalButton";
 import { VerLocalButton } from "./VerLocalButton";
 import { ReenviarAccesoButton } from "./ReenviarAccesoButton";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
+import { RubroSelect } from "./RubroSelect";
+import { PLANES, contratoPorVencer, diasParaFecha, normalizarPlan } from "@/lib/planes";
 
 export default async function AdminLocalesPage() {
   const caller = await getCaller();
@@ -84,6 +86,8 @@ export default async function AdminLocalesPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Local</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">RUT</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Plan</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden lg:table-cell">Rubro</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden lg:table-cell">Contrato</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Estado</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">Registros</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden lg:table-cell">Asesor</th>
@@ -97,7 +101,7 @@ export default async function AdminLocalesPage() {
                 return (
                   <Fragment key={claveRut(empresa.rut)}>
                     <tr className="bg-[#F1F5F9]">
-                      <td colSpan={7} className="px-4 py-2.5">
+                      <td colSpan={9} className="px-4 py-2.5">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="min-w-0">
                             <p className="text-xs font-semibold tracking-wide text-[#0B1B33]">
@@ -114,6 +118,7 @@ export default async function AdminLocalesPage() {
                             casaCentralNombre={empresa.casaCentral.nombre}
                             rut={empresa.casaCentral.rut}
                             planActual={empresa.casaCentral.plan}
+                            tipoLocalActual={empresa.casaCentral.tipo_local}
                           />
                         </div>
                       </td>
@@ -141,14 +146,33 @@ export default async function AdminLocalesPage() {
                           <td className="px-4 py-3 text-[#5B6980] hidden md:table-cell">{local.rut}</td>
                           <td className="px-4 py-3">
                             <span
-                              className={`text-xs rounded-full px-2 py-0.5 font-medium capitalize ${
+                              className={`text-xs rounded-full px-2 py-0.5 font-medium ${
                                 local.plan === "integral"
                                   ? "bg-[#16294A] text-white"
                                   : "bg-[#E5F1E3] text-[#255620]"
                               }`}
                             >
-                              {local.plan}
+                              {PLANES[normalizarPlan(local.plan)].nombre}
                             </span>
+                          </td>
+                          <td className="px-4 py-3 hidden lg:table-cell">
+                            <RubroSelect tenantId={local.id} tipoLocal={local.tipo_local} />
+                          </td>
+                          <td className="px-4 py-3 hidden lg:table-cell">
+                            {local.suscripcion?.hasta ? (
+                              <div>
+                                <p className="text-xs text-[#334155]">Hasta {formatDate(local.suscripcion.hasta)}</p>
+                                {contratoPorVencer(local.suscripcion.hasta) && (
+                                  <p className="text-[11px] font-medium text-[#B45309]">
+                                    {diasParaFecha(local.suscripcion.hasta) < 0
+                                      ? "Vencido"
+                                      : `Vence en ${diasParaFecha(local.suscripcion.hasta)} días`}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-[#94A3B8] italic">Sin definir</span>
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <span

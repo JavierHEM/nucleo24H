@@ -1,32 +1,16 @@
 /**
- * Tests de la lógica de enrutamiento del proxy (proxy.ts).
- *
- * Copiamos PUBLIC_PREFIXES exactamente del proxy para garantizar que los tests
- * reflejen el estado real del archivo. Si el proxy cambia, los tests fallarán.
+ * Tests de isPublicPath, la misma función que usa el proxy.
  */
 import { describe, it, expect } from "vitest";
-
-const PUBLIC_PREFIXES = [
-  "/login",
-  "/register",
-  "/onboarding",
-  "/cuenta/nueva-clave",
-  "/politica-de-privacidad",
-  "/api/auth",
-  "/api/trpc",
-  "/api/cron",
-  "/api/webhooks",
-  "/api/pagos/retorno",
-  "/api/local",
-  "/sello/",       // IMPORTANTE: con slash final para no matchear /sellos
-];
-
-function isPublic(pathname: string): boolean {
-  return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
-}
+import { isPublicPath as isPublic } from "@/lib/auth/rutasPublicas";
 
 describe("isPublic – rutas públicas (sin autenticación)", () => {
   it("/login es pública", () => expect(isPublic("/login")).toBe(true));
+  it("/login/recuperar es pública y /loginX no", () => {
+    expect(isPublic("/login/recuperar")).toBe(true);
+    expect(isPublic("/loginX")).toBe(false);
+  });
+  it("/inicio es pública", () => expect(isPublic("/inicio")).toBe(true));
   it("/register es pública", () => expect(isPublic("/register")).toBe(true));
   it("/politica-de-privacidad es pública", () =>
     expect(isPublic("/politica-de-privacidad")).toBe(true));

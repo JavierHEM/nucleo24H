@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
-import { APP_NAME, APP_FOOTER } from "@/lib/branding";
+import { APP_NAME, APP_FOOTER, LOGO_PATHS, absoluteAssetUrl } from "@/lib/branding";
 
 const querySchema = z.object({
   tenantId: z.string().uuid(),
@@ -54,9 +54,17 @@ export async function GET(req: NextRequest) {
     select: { rol: true },
   });
 
-  const isAsesorOrAdmin = dbUser?.rol === "asesor" || dbUser?.rol === "admin_nucleo";
+  const esAdminNucleo = dbUser?.rol === "admin_nucleo";
+  let asesorAsignado = false;
+  if (dbUser?.rol === "asesor") {
+    const asignacion = await prisma.asignacionAsesor.findFirst({
+      where: { asesor_id: user.id, tenant_id: tenantId, activo: true },
+      select: { id: true },
+    });
+    asesorAsignado = asignacion !== null;
+  }
 
-  if (!hasAccess && !isAsesorOrAdmin) {
+  if (!hasAccess && !esAdminNucleo && !asesorAsignado) {
     return NextResponse.json({ error: "Sin acceso a este tenant" }, { status: 403 });
   }
 
@@ -98,6 +106,7 @@ export async function GET(req: NextRequest) {
   body { font-family: 'Inter', sans-serif; background: #F4F6F3; color: #0B1B33; }
   .page { width: 794px; min-height: 1123px; margin: 0 auto; background: white; padding: 0; }
   .header { background: #0B1B33; color: white; padding: 36px 48px 32px; }
+  .header-logo { display: block; width: 190px; height: auto; margin-bottom: 18px; }
   .header-badge { display: inline-block; background: #2F6B2A; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
   .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
   .header p { font-size: 14px; color: rgba(255,255,255,0.65); }
@@ -130,7 +139,8 @@ export async function GET(req: NextRequest) {
 <body>
 <div class="page">
   <div class="header">
-    <div class="header-badge">${APP_NAME} · BPM</div>
+    <img class="header-logo" src="${absoluteAssetUrl(LOGO_PATHS.negativo)}" alt="${APP_NAME}" />
+    <div class="header-badge">BPM</div>
     <h1>${tenant?.nombre ?? "Local"}</h1>
     <p>${tenant?.direccion ?? ""} &nbsp;·&nbsp; Informe mensual ${periodoDisplay}</p>
   </div>

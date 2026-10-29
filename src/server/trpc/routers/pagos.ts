@@ -9,7 +9,13 @@ import {
   PLAN_PRECIOS_CLP,
   FlowNotConfiguredError,
 } from "@/lib/payments/flow";
-import { APP_NAME } from "@/lib/branding";
+import {
+  createMercadoPagoPreference,
+  isMercadoPagoConfigured,
+  MercadoPagoNotConfiguredError,
+} from "@/lib/payments/mercadopago";
+import { APP_NAME, getAppUrl } from "@/lib/branding";
+import { PLAN_IDS, finDeContrato } from "@/lib/planes";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const adminLocalProcedure = protectedProcedure.use(
@@ -135,7 +141,7 @@ export const pagosRouter = router({
         },
       });
 
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const appUrl = getAppUrl();
 
       try {
         const flowPayment = await createFlowPayment({
@@ -177,6 +183,79 @@ export const pagosRouter = router({
       }
     }),
 
+  /** Inicia un pago en línea vía Mercado Pago — retorna URL de checkout. Inactivo hasta tener credenciales. */
+  pagarMercadoPago: adminLocalProcedure
+    .input(z.object({ periodo: z.string().regex(PERIODO_REGEX) }))
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.tenantActivo!;
+
+      if (!isMercadoPagoConfigured()) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Los pagos con Mercado Pago aún no están disponibles.",
+        });
+      }
+
+      const yaPagado = await ctx.prisma.pago.findFirst({
+        where: { tenant_id: tenantId, periodo: input.periodo, estado: "pagado" },
+      });
+      if (yaPagado) {
+        throw new TRPCError({ code: "CONFLICT", message: `El período ${input.periodo} ya está pagado.` });
+      }
+
+      const [suscripcion, tenant, user] = await Promise.all([
+        ctx.prisma.suscripcion.findUnique({ where: { tenant_id: tenantId } }),
+        ctx.prisma.tenant.findUnique({ where: { id: tenantId }, select: { nombre: true, plan: true } }),
+        ctx.prisma.user.findUnique({ where: { id: ctx.userId! }, select: { email: true } }),
+      ]);
+      if (!tenant || !user?.email) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontró el local o tu email de contacto." });
+      }
+
+      const monto = suscripcion?.monto_clp ?? PLAN_PRECIOS_CLP[tenant.plan] ?? PLAN_PRECIOS_CLP.calidad;
+
+      await ctx.prisma.pago.updateMany({
+        where: { tenant_id: tenantId, periodo: input.periodo, metodo: "mercadopago", estado: "pendiente" },
+        data: { estado: "anulado" },
+      });
+
+      const pago = await ctx.prisma.pago.create({
+        data: {
+          tenant_id: tenantId,
+          suscripcion_id: suscripcion?.id ?? null,
+          periodo: input.periodo,
+          monto_clp: monto,
+          metodo: "mercadopago",
+          estado: "pendiente",
+        },
+      });
+
+      const appUrl = getAppUrl();
+      const modo = process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith("TEST-") ? "prueba" : "produccion";
+
+      try {
+        const preferencia = await createMercadoPagoPreference({
+          pagoId: pago.id,
+          titulo: `${APP_NAME} — ${tenant.nombre} — ${input.periodo}`,
+          monto,
+          email: user.email,
+          urlRetorno: `${appUrl}/api/pagos/retorno`,
+          urlNotificacion: `${appUrl}/api/webhooks/mercadopago/${modo}`,
+        });
+        return { redirectUrl: modo === "prueba" ? preferencia.sandboxInitPoint : preferencia.initPoint };
+      } catch (err) {
+        await ctx.prisma.pago.update({ where: { id: pago.id }, data: { estado: "anulado" } });
+        if (err instanceof MercadoPagoNotConfiguredError) {
+          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Los pagos con Mercado Pago aún no están disponibles." });
+        }
+        console.error("[pagos.pagarMercadoPago] Error creando preferencia:", err, { pagoId: pago.id, tenantId });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "No pudimos iniciar el pago. Intenta de nuevo en unos minutos.",
+        });
+      }
+    }),
+
   /** admin_nucleo: panorama de cobranza de todos los locales para un período */
   adminResumen: nucleoProcedure
     .input(z.object({ periodo: z.string().regex(PERIODO_REGEX) }))
@@ -196,6 +275,8 @@ export const pagosRouter = router({
               monto_clp: true,
               estado: true,
               dia_cobro: true,
+              desde: true,
+              hasta: true,
             },
           },
           pagos: {
@@ -232,7 +313,7 @@ export const pagosRouter = router({
     .input(
       z.object({
         tenant_id: z.string().uuid(),
-        plan: z.enum(["calidad", "integral"]),
+        plan: z.enum(PLAN_IDS),
         monto_clp: z.number().int().positive().optional(),
         dia_cobro: z.number().int().min(1).max(28).optional(),
         estado: z
@@ -242,22 +323,55 @@ export const pagosRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const monto = input.monto_clp ?? PLAN_PRECIOS_CLP[input.plan];
-
-      return ctx.prisma.suscripcion.upsert({
+      const existente = await ctx.prisma.suscripcion.findUnique({
         where: { tenant_id: input.tenant_id },
-        create: {
-          tenant_id: input.tenant_id,
-          plan: input.plan,
-          monto_clp: monto,
-          dia_cobro: input.dia_cobro ?? 5,
-          estado: input.estado ?? "activa",
-        },
-        update: {
-          plan: input.plan,
-          monto_clp: monto,
-          ...(input.dia_cobro && { dia_cobro: input.dia_cobro }),
-          ...(input.estado && { estado: input.estado }),
-        },
+        select: { hasta: true, desde: true },
+      });
+      const desde = existente?.desde ?? new Date();
+
+      const [suscripcion] = await ctx.prisma.$transaction([
+        ctx.prisma.suscripcion.upsert({
+          where: { tenant_id: input.tenant_id },
+          create: {
+            tenant_id: input.tenant_id,
+            plan: input.plan,
+            monto_clp: monto,
+            dia_cobro: input.dia_cobro ?? 5,
+            estado: input.estado ?? "activa",
+            desde,
+            hasta: finDeContrato(desde),
+          },
+          update: {
+            plan: input.plan,
+            monto_clp: monto,
+            ...(input.dia_cobro && { dia_cobro: input.dia_cobro }),
+            ...(input.estado && { estado: input.estado }),
+            ...(existente?.hasta ? {} : { hasta: finDeContrato(desde) }),
+          },
+        }),
+        ctx.prisma.tenant.update({ where: { id: input.tenant_id }, data: { plan: input.plan } }),
+      ]);
+      return suscripcion;
+    }),
+
+  /** admin_nucleo: extiende el contrato 12 meses desde su fin vigente (o desde hoy si ya venció) */
+  renovarContrato: nucleoProcedure
+    .input(z.object({ tenant_id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const suscripcion = await ctx.prisma.suscripcion.findUnique({
+        where: { tenant_id: input.tenant_id },
+      });
+      if (!suscripcion) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Este local no tiene suscripción. Configúrala antes de renovar el contrato.",
+        });
+      }
+      const ahora = new Date();
+      const base = suscripcion.hasta && suscripcion.hasta > ahora ? suscripcion.hasta : ahora;
+      return ctx.prisma.suscripcion.update({
+        where: { id: suscripcion.id },
+        data: { hasta: finDeContrato(base) },
       });
     }),
 

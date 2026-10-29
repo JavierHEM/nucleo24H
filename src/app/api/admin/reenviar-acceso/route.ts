@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
-import { APP_NAME } from "@/lib/branding";
+import { APP_NAME, getAppUrl } from "@/lib/branding";
 
 const bodySchema = z.object({
   tenantId: z.string().uuid(),
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
+  const appUrl = getAppUrl();
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email: dueño.email,

@@ -8,8 +8,10 @@ import { Sidebar, type PlanLocal } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { BannerMora } from "@/components/dashboard/BannerMora";
+import { BannerRenovacion } from "@/components/plan/BannerRenovacion";
 import type { UserRole } from "@/server/trpc/context";
 import { PLAN_PRECIOS_CLP } from "@/lib/payments/flow";
+import { planDeLocal } from "@/server/planes/planDeLocal";
 
 export default async function DashboardLayout({
   children,
@@ -64,6 +66,7 @@ export default async function DashboardLayout({
       ? tenantActivoCookie
       : locales[0]?.id ?? null;
 
+  const infoPlan = tenantActivo ? await planDeLocal(prisma, tenantActivo) : null;
   const localNombre = locales.find((local) => local.id === tenantActivo)?.nombre;
   let plan: PlanLocal | null = null;
   if (tenantActivo && userRole === "admin_local") {
@@ -86,33 +89,41 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F4F6F3]">
-      <Sidebar
-        userRole={userRole}
-        locales={locales}
-        tenantActivo={tenantActivo ?? undefined}
-        localNombre={localNombre}
-        plan={plan}
-      />
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <TopBar
-          userName={userName}
+    <div className="flex h-screen overflow-hidden bg-[#F4F6F3] print:block print:h-auto print:overflow-visible print:bg-white">
+      <div className="print:hidden contents">
+        <Sidebar
+          userRole={userRole}
           locales={locales}
           tenantActivo={tenantActivo ?? undefined}
-          userRole={userRole}
+          localNombre={localNombre}
+          plan={plan}
+          planId={infoPlan?.plan}
         />
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-6">
+      </div>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="print:hidden">
+          <TopBar
+            userName={userName}
+            locales={locales}
+            tenantActivo={tenantActivo ?? undefined}
+            userRole={userRole}
+          />
+        </div>
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-6 print:overflow-visible print:pb-0">
           {tenantActivo && userRole && (
-            <div className="px-4 md:px-6 pt-4 md:pt-6">
+            <div className="print:hidden px-4 md:px-6 pt-4 md:pt-6">
               <BannerMora tenantId={tenantActivo} userRole={userRole} />
+              <BannerRenovacion tenantId={tenantActivo} userRole={userRole} />
             </div>
           )}
-          <div className="p-4 md:p-6">
+          <div className="p-4 md:p-6 print:p-0">
             {children}
           </div>
         </main>
       </div>
-      <BottomNav userRole={userRole} />
+      <div className="print:hidden">
+        <BottomNav userRole={userRole} planId={infoPlan?.plan} />
+      </div>
     </div>
   );
 }

@@ -3,6 +3,9 @@ import { getCaller } from "@/lib/trpc/server";
 import { formatCLP, formatDate, formatPeriodo, getCurrentPeriodo, cn } from "@/lib/utils";
 import { RegistrarPagoButton } from "./RegistrarPagoButton";
 import { ConfigurarSuscripcionButton } from "./ConfigurarSuscripcionButton";
+import { RenovarContratoButton } from "./RenovarContratoButton";
+import { estadoContrato } from "@/lib/planes";
+import { ETIQUETA_METODO } from "@/lib/payments/metodos";
 
 export default async function AdminPagosPage() {
   const periodo = getCurrentPeriodo();
@@ -57,6 +60,7 @@ export default async function AdminPagosPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Local</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Plan</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">Mensualidad</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden lg:table-cell">Contrato</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Pago del mes</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#5B6980]">Acciones</th>
               </tr>
@@ -65,6 +69,7 @@ export default async function AdminPagosPage() {
               {locales.map((local) => {
                 const pago = local.pagoPeriodo;
                 const pagado = pago?.estado === "pagado";
+                const contrato = estadoContrato(local.suscripcion?.hasta);
                 return (
                   <tr key={local.id} className="hover:bg-[#F4F6F3] transition-colors">
                     <td className="px-4 py-3">
@@ -98,6 +103,27 @@ export default async function AdminPagosPage() {
                     <td className="px-4 py-3 text-right text-[#0B1B33] hidden md:table-cell">
                       {formatCLP(local.montoMensual)}
                     </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {contrato.estado === "sin_definir" ? (
+                        <span className="text-xs text-[#5B6980]">Sin definir</span>
+                      ) : (
+                        <div>
+                          <p className="text-xs text-[#0B1B33]">Hasta {formatDate(local.suscripcion!.hasta!)}</p>
+                          <p
+                            className={cn(
+                              "text-xs",
+                              contrato.estado === "vigente" ? "text-[#5B6980]" : "text-[#8A5A00] font-medium"
+                            )}
+                          >
+                            {contrato.estado === "vencido"
+                              ? "Vencido"
+                              : contrato.estado === "por_vencer"
+                                ? `Vence en ${contrato.dias} días`
+                                : "Vigente"}
+                          </p>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       {pagado ? (
                         <div>
@@ -105,7 +131,7 @@ export default async function AdminPagosPage() {
                             Pagado
                           </span>
                           <p className="text-xs text-[#5B6980] mt-1">
-                            {pago.metodo === "transferencia" ? "Transferencia" : "Flow"}
+                            {ETIQUETA_METODO[pago.metodo] ?? pago.metodo}
                             {pago.pagado_at && ` · ${formatDate(pago.pagado_at)}`}
                           </p>
                         </div>
@@ -124,6 +150,9 @@ export default async function AdminPagosPage() {
                             periodo={periodo}
                             montoSugerido={local.montoMensual}
                           />
+                        )}
+                        {local.suscripcion && (contrato.estado === "por_vencer" || contrato.estado === "vencido") && (
+                          <RenovarContratoButton tenantId={local.id} tenantNombre={local.nombre} />
                         )}
                         <ConfigurarSuscripcionButton
                           tenantId={local.id}

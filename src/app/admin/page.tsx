@@ -13,6 +13,8 @@ import {
   IconThermometer,
 } from "@tabler/icons-react";
 import { formatCLP, formatDate } from "@/lib/utils";
+import { cargarPanelOperativo } from "@/server/admin/panelOperativo";
+import { PanelOperativo } from "./PanelOperativo";
 
 export default async function AdminPage() {
   const hoy = new Date();
@@ -48,6 +50,7 @@ export default async function AdminPage() {
         include: { tenant: { select: { nombre: true } } },
       }),
       prisma.visita.findMany({
+        where: { estado: "realizada" },
         take: 5,
         orderBy: { fecha: "desc" },
         include: { tenant: { select: { nombre: true } } },
@@ -56,6 +59,7 @@ export default async function AdminPage() {
   ]);
 
   const [sellosRecientes, visitasRecientes] = actividadReciente;
+  const panelOperativo = await cargarPanelOperativo(prisma);
   const ingresosMes = pagosMes._sum.monto_clp ?? 0;
 
   const kpis = [
@@ -177,6 +181,8 @@ export default async function AdminPage() {
           )}
         </div>
       </div>
+
+      <PanelOperativo panel={panelOperativo} />
 
       {/* Actividad reciente */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/server/db/prisma";
 import QRCode from "qrcode";
 import { IconMedal, IconShieldCheck, IconMapPin, IconCalendar, IconCircleCheck } from "@tabler/icons-react";
+import { getAppUrl } from "@/lib/branding";
 
 const NIVEL_CONFIG = {
   inicial: {
@@ -54,7 +55,7 @@ export default async function CertificadoPage({ params }: PageProps) {
 
   if (!sello) notFound();
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nucleosur.cl";
+  const appUrl = getAppUrl();
   const certificadoUrl = `${appUrl}/sello/${id}`;
   const qrDataUrl = await QRCode.toDataURL(certificadoUrl, {
     width: 120,

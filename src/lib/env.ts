@@ -19,6 +19,10 @@ const envSchema = z.object({
   FLOW_WEBHOOK_SECRET: z.string().optional(),
   FLOW_BASE_URL: z.string().url().optional(), // sandbox: https://sandbox.flow.cl/api
 
+  // Mercado Pago — opcional hasta que el cliente cree la cuenta
+  MERCADOPAGO_ACCESS_TOKEN: z.string().optional(),
+  MERCADOPAGO_WEBHOOK_SECRET: z.string().optional(),
+
   // Browserless — opcional hasta Sprint 6
   BROWSERLESS_TOKEN: z.string().optional(),
 

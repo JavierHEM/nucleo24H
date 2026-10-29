@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { APP_NAME } from "@/lib/branding";
+import { BrandLogo } from "@/components/BrandLogo";
 import { formatCLP } from "@/lib/utils";
 import { LocalSelector } from "./LocalSelector";
 import {
@@ -24,8 +24,16 @@ import {
   IconChartBar,
   IconCreditCard,
   IconDots,
+  IconClipboardCheck,
+  IconCalendarEvent,
+  IconLeaf,
+  IconGavel,
+  IconLifebuoy,
+  IconBadge,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
+import { PlanBadge } from "@/components/plan/PlanBadge";
+import { planIncluye, type ModuloPlan, type PlanId } from "@/lib/planes";
 
 interface NavItem {
   href: string;
@@ -33,29 +41,37 @@ interface NavItem {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   roles: UserRole[];
   active?: string[];
+  modulo?: ModuloPlan;
 }
 
 const LOCAL_PRIMARIOS: NavItem[] = [
   { href: "/", label: "Hoy", icon: IconLayoutDashboard, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/documentos", label: "Documentos", icon: IconFileDescription, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sello y visitas", icon: IconMedal, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], active: ["/sellos", "/visitas"] },
   { href: "/equipo", label: "Equipo y cuenta", icon: IconUsers, roles: ["jefe_local", "admin_local", "admin_nucleo"], active: ["/equipo", "/mi-cuenta", "/suscripcion", "/comunicaciones"] },
   { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["trabajador_local"] },
 ];
 
 const LOCAL_MAS: NavItem[] = [
+  { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/ambiental", label: "Gestión ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], modulo: "ambiental" },
+  { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local", "admin_nucleo"] },
+  { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
   { href: "/admin", label: "Resumen", icon: IconLayoutDashboard, roles: ["admin_nucleo"] },
   { href: "/admin/locales", label: "Locales", icon: IconBuildingStore, roles: ["admin_nucleo"] },
+  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
   { href: "/admin/asesores", label: "Asesores", icon: IconUserCheck, roles: ["admin_nucleo"] },
   { href: "/admin/pagos", label: "Pagos", icon: IconCreditCard, roles: ["admin_nucleo"] },
   { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
@@ -65,6 +81,7 @@ const ADMIN_ITEMS: NavItem[] = [
 
 const ASESOR_ITEMS: NavItem[] = [
   { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
+  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sellos por revisar", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
   { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
@@ -94,17 +111,6 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   );
 }
 
-function Marca() {
-  return (
-    <div className="w-9 h-9 rounded-[10px] bg-[#E3B341] text-[#0B1B33] flex items-center justify-center shrink-0" aria-hidden>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z" />
-        <path d="M8.5 12.5l2.5 2.5 4.5-5" />
-      </svg>
-    </div>
-  );
-}
-
 export interface PlanLocal {
   nombre: string;
   estado: string;
@@ -124,6 +130,7 @@ interface SidebarProps {
   tenantActivo?: string;
   localNombre?: string;
   plan?: PlanLocal | null;
+  planId?: PlanId;
 }
 
 const ESTADO_PLAN: Record<string, { label: string; className: string }> = {
@@ -133,19 +140,21 @@ const ESTADO_PLAN: Record<string, { label: string; className: string }> = {
   cancelada: { label: "Cancelada", className: "bg-[#DDE3EA] text-[#41506A]" },
 };
 
-export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActivo, localNombre, plan }: SidebarProps) {
+export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActivo, localNombre, plan, planId }: SidebarProps) {
   const pathname = usePathname();
   const catalogo = mode === "admin" ? ADMIN_ITEMS : mode === "asesor" ? ASESOR_ITEMS : LOCAL_PRIMARIOS;
-  const visibles = (items: NavItem[]) => items.filter((item) => userRole && item.roles.includes(userRole));
+  const visibles = (items: NavItem[]) =>
+    items.filter(
+      (item) => userRole && item.roles.includes(userRole) && (!item.modulo || planIncluye(planId, item.modulo))
+    );
   const principales = visibles(catalogo);
   const mas = mode === "dashboard" ? visibles(LOCAL_MAS) : [];
 
   return (
     <aside className="hidden md:flex flex-col w-[272px] min-h-screen bg-[#0B1B33] text-white shrink-0 px-4 py-6 gap-6">
-      <div className="flex items-center gap-2.5 px-1.5">
-        <Marca />
-        <p className="font-extrabold text-lg leading-tight tracking-tight">{APP_NAME}</p>
-      </div>
+      <Link href="/" className="px-1.5 block" aria-label="Núcleo 24H, ir al inicio">
+        <BrandLogo variant="negativo" className="w-44" priority />
+      </Link>
 
       {mode === "dashboard" && (locales.length > 1 || localNombre) && (
         locales.length > 1 ? (
@@ -156,6 +165,12 @@ export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActi
             <span className="text-sm font-bold truncate">{localNombre}</span>
           </div>
         )
+      )}
+
+      {mode === "dashboard" && planId && (
+        <div className="px-1.5 -mt-3">
+          <PlanBadge plan={planId} tone="dark" />
+        </div>
       )}
 
       {mode === "asesor" && (

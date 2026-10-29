@@ -10,6 +10,7 @@ import { DescargarPdfButton } from "./DescargarPdfButton";
 import { RevisionesPanel } from "./RevisionesPanel";
 import { getCurrentPeriodo } from "@/lib/utils";
 import type { UserRole } from "@/server/trpc/context";
+import { getAppUrl } from "@/lib/branding";
 
 export default async function SellosPage() {
   const supabase = await createClient();
@@ -28,7 +29,7 @@ export default async function SellosPage() {
   const tenantActivo = cookieStore.get("tenant_activo")?.value ?? null;
 
   const canEmitir = userRole === "asesor" || userRole === "admin_nucleo";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nucleosur.cl";
+  const appUrl = getAppUrl();
 
   // Obtener el id del sello actual para el link de certificado público
   const periodo = getCurrentPeriodo();

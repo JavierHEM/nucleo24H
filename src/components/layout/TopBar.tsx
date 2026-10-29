@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { IconLogout, IconUser } from "@tabler/icons-react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { LocalSelector } from "./LocalSelector";
 import { NotificationBell } from "./NotificationBell";
 
@@ -47,7 +48,8 @@ export function TopBar({ userName, locales = [], tenantActivo, userRole }: TopBa
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between h-16 px-4 md:px-8 bg-[#F4F6F3]">
       {/* Saludo */}
-      <div>
+      <div className="flex items-center gap-3">
+        <BrandLogo variant="isotipo" className="w-8 h-8 md:hidden" />
         <p className="text-sm font-semibold text-[#0B1B33]">{saludo}</p>
       </div>
 

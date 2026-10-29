@@ -1,6 +1,7 @@
 import { render } from "@react-email/render";
 import { getResend, FROM_EMAIL } from "./resend";
 import { SelloEmitidoEmail } from "./templates/SelloEmitido";
+import { getAppUrl } from "@/lib/branding";
 
 interface SendSelloEmitidoParams {
   to: string;
@@ -31,7 +32,7 @@ export async function sendSelloEmitido(params: SendSelloEmitidoParams) {
     ...rest
   } = params;
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nucleosur.cl";
+  const appUrl = getAppUrl();
 
   const [year, month] = periodo.split("-");
   const periodoDisplay = new Date(

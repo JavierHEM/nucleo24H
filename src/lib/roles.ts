@@ -26,6 +26,10 @@ export function puedeOperarLocal(rol: string | null | undefined): boolean {
   return rol === "jefe_local" || rol === "admin_local" || rol === "admin_nucleo";
 }
 
+export function puedeCargarPlanilla(rol: string | null | undefined): boolean {
+  return rol === "trabajador_local" || puedeOperarLocal(rol);
+}
+
 export function puedeInvitarConRol(
   actor: string | null | undefined,
   objetivo: string

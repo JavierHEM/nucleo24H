@@ -15,12 +15,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PLAN_IDS, PLANES, TIPOS_LOCAL, TIPO_LOCAL_LABEL } from "@/lib/planes";
+import { formatCLP } from "@/lib/utils";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
   nombre: z.string().min(2, "Ingresa el nombre del local"),
   rut: z.string().min(8, "RUT inválido"),
-  plan: z.enum(["calidad", "integral"]),
+  plan: z.enum(PLAN_IDS),
+  tipo_local: z.enum(TIPOS_LOCAL),
   direccion: z.string().optional(),
 });
 
@@ -39,7 +42,7 @@ export function InvitarLocalButton() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { plan: "calidad" },
+    defaultValues: { plan: "calidad", tipo_local: "restaurante" },
   });
 
   async function onSubmit(data: FormData) {
@@ -177,10 +180,28 @@ export function InvitarLocalButton() {
                       {...register("plan")}
                       className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
                     >
-                      <option value="calidad">Calidad — $80.000/mes</option>
-                      <option value="integral">Integral — $150.000/mes</option>
+                      {PLAN_IDS.map((id) => (
+                        <option key={id} value={id}>
+                          {PLANES[id].nombre} — {formatCLP(PLANES[id].precio)}/mes
+                        </option>
+                      ))}
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="tipo-local">Tipo de local</Label>
+                  <select
+                    id="tipo-local"
+                    {...register("tipo_local")}
+                    className="mt-1 flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
+                  >
+                    {TIPOS_LOCAL.map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {TIPO_LOCAL_LABEL[tipo]}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Dirección */}

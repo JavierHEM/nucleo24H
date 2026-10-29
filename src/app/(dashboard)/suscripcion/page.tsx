@@ -12,6 +12,8 @@ import { getCaller } from "@/lib/trpc/server";
 import { formatCLP, formatDate, formatPeriodo, getCurrentPeriodo, cn } from "@/lib/utils";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { PagarButton } from "./PagarButton";
+import { estadoContrato } from "@/lib/planes";
+import { ETIQUETA_METODO } from "@/lib/payments/metodos";
 
 const PLAN_LABELS: Record<string, string> = {
   calidad: "Plan Calidad",
@@ -68,6 +70,8 @@ export default async function SuscripcionPage() {
   const estadoSus =
     ESTADO_SUSCRIPCION[data.suscripcion?.estado ?? "activa"] ??
     ESTADO_SUSCRIPCION.activa;
+
+  const contrato = estadoContrato(data.suscripcion?.hasta);
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -143,6 +147,31 @@ export default async function SuscripcionPage() {
         </div>
       </div>
 
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33]">Contrato anual</p>
+        {contrato.estado === "sin_definir" ? (
+          <p className="text-sm text-[#5B6980] mt-1">Casa central aún no define las fechas de tu contrato.</p>
+        ) : (
+          <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-xs text-[#5B6980]">Inicio</p>
+              <p className="font-medium text-[#0B1B33]">{formatDate(data.suscripcion!.desde)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-[#5B6980]">Término</p>
+              <p className="font-medium text-[#0B1B33]">{formatDate(data.suscripcion!.hasta!)}</p>
+            </div>
+          </div>
+        )}
+        {(contrato.estado === "por_vencer" || contrato.estado === "vencido") && (
+          <p className="mt-3 text-sm text-[#5B3B00] bg-[#FFF8E6] border border-[#E3B341] rounded-lg px-3 py-2">
+            {contrato.estado === "vencido"
+              ? "El contrato venció. Escribe a tu asesor para renovarlo."
+              : `El contrato vence en ${contrato.dias} días. Escribe a tu asesor para renovarlo.`}
+          </p>
+        )}
+      </div>
+
       {/* Aviso pago por transferencia mientras Flow no esté activo */}
       {!data.pagosEnLineaDisponibles && (
         <div className="bg-[#E5F1E3] rounded-xl border border-green-200 p-4 flex items-start gap-3">
@@ -182,7 +211,7 @@ export default async function SuscripcionPage() {
                       {formatPeriodo(pago.periodo)}
                     </p>
                     <p className="text-xs text-[#5B6980]">
-                      {pago.metodo === "transferencia" ? "Transferencia" : "Pago en línea"}
+                      {ETIQUETA_METODO[pago.metodo] ?? "Pago en línea"}
                       {pago.pagado_at && ` · ${formatDate(pago.pagado_at)}`}
                     </p>
                   </div>

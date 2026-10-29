@@ -59,10 +59,24 @@ const ESTILO_OPCION: Record<ResultadoPauta, string> = {
   no_revisada: "border-[#DDE3EA] bg-white text-[#334155]",
 };
 
-export function NuevaVisitaButton({ tenantId }: { tenantId: string }) {
+type NuevaVisitaButtonProps = {
+  tenantId: string;
+  agendadaId?: string;
+  tipoInicial?: TipoVisita;
+  fechaInicial?: string;
+  etiqueta?: string;
+};
+
+export function NuevaVisitaButton({
+  tenantId,
+  agendadaId,
+  tipoInicial = "programada",
+  fechaInicial,
+  etiqueta = "Nueva visita",
+}: NuevaVisitaButtonProps) {
   const [abierto, setAbierto] = useState(false);
-  const [tipo, setTipo] = useState<TipoVisita>("programada");
-  const [fecha, setFecha] = useState(hoy);
+  const [tipo, setTipo] = useState<TipoVisita>(tipoInicial);
+  const [fecha, setFecha] = useState(fechaInicial ?? hoy());
   const [hallazgos, setHallazgos] = useState("");
   const [filas, setFilas] = useState(filasVacias);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
@@ -70,15 +84,15 @@ export function NuevaVisitaButton({ tenantId }: { tenantId: string }) {
 
   const registrar = trpc.visitas.registrar.useMutation({
     onSuccess: async () => {
-      await utils.visitas.list.invalidate();
+      await Promise.all([utils.visitas.list.invalidate(), utils.calendario.eventos.invalidate(), utils.plan.resumen.invalidate()]);
       cerrar();
     },
   });
 
   function cerrar() {
     setAbierto(false);
-    setTipo("programada");
-    setFecha(hoy());
+    setTipo(tipoInicial);
+    setFecha(fechaInicial ?? hoy());
     setHallazgos("");
     setFilas(filasVacias());
     setErrorLocal(null);
@@ -107,6 +121,7 @@ export function NuevaVisitaButton({ tenantId }: { tenantId: string }) {
     setErrorLocal(null);
     await registrar.mutateAsync({
       tenant_id: tenantId,
+      agendada_id: agendadaId,
       tipo,
       fecha: new Date(`${fecha}T12:00:00`).toISOString(),
       hallazgos: hallazgos.trim() || undefined,
@@ -124,7 +139,7 @@ export function NuevaVisitaButton({ tenantId }: { tenantId: string }) {
         size="sm"
       >
         <IconPlus size={16} />
-        Nueva visita
+        {etiqueta}
       </Button>
 
       {abierto && (

@@ -15,10 +15,14 @@ model Tenant {
   direccion  String
   ciudad     String   @default("Osorno")
   plan       String   // 'calidad' | 'integral'
+  tipo_local String   @default("restaurante") // 'restaurante' | 'cafeteria' | 'cocineria' | 'food_truck'
   estado     String   @default("activo") // 'activo' | 'suspendido' | 'baja'
   created_at DateTime @default(now())
 
   user_tenants      UserTenant[]
+  gestion_ambiental GestionAmbiental[]
+  fiscalizaciones   Fiscalizacion[]
+  descargos         Descargo[]
   registros         Registro[]
   sellos            Sello[]
   documentos        Documento[]
@@ -188,6 +192,7 @@ model Visita {
   tenant_id  String
   asesor_id  String
   tipo       String   // 'programada' | 'sorpresa'
+  estado     String   @default("realizada") // 'agendada' | 'realizada' | 'cancelada'
   fecha      DateTime
   hallazgos  String?
   evaluacion Json?
@@ -323,10 +328,11 @@ model Pago {
   suscripcion_id String?
   periodo        String    // 'YYYY-MM'
   monto_clp      Int
-  metodo         String    @default("flow") // 'flow' | 'transferencia'
+  metodo         String    @default("flow") // 'flow' | 'transferencia' | 'mercadopago'
   estado         String    @default("pendiente") // 'pendiente' | 'pagado' | 'rechazado' | 'anulado'
   flow_token     String?   @unique
   flow_order     Int?
+  mp_payment_id  String?   @unique
   pagado_at      DateTime?
   registrado_por String?   // user_id de admin_nucleo cuando metodo='transferencia'
   observacion    String?
@@ -337,6 +343,67 @@ model Pago {
 
   @@index([tenant_id, periodo])
   @@index([estado])
+}
+
+// ── Plan Integral: gestión ambiental (la registra el asesor) ──────────
+
+model GestionAmbiental {
+  id          String    @id @default(uuid())
+  tenant_id   String
+  tipo        String    // 'segregacion' | 'ventanilla_unica' | 'charla' | 'vencimiento'
+  fecha       DateTime
+  detalle     String
+  folio       String?
+  vence       DateTime?
+  adjunto_url String?
+  created_by  String
+  created_at  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, tipo])
+  @@index([tenant_id, fecha])
+}
+
+// ── Fiscalizaciones y descargos (descargos solo con sello Premium) ────
+
+model Fiscalizacion {
+  id         String   @id @default(uuid())
+  tenant_id  String
+  fecha      DateTime
+  autoridad  String
+  resultado  String   // 'sin_observaciones' | 'con_observaciones' | 'sumario'
+  detalle    String?
+  acta_url   String?
+  created_by String
+  created_at DateTime @default(now())
+
+  descargos Descargo[]
+  tenant    Tenant     @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, fecha])
+}
+
+model Descargo {
+  id               String    @id @default(uuid())
+  tenant_id        String
+  fiscalizacion_id String?
+  titulo           String
+  descripcion      String
+  estado           String    @default("abierto") // 'abierto' | 'en_revision' | 'presentado' | 'cerrado'
+  adjuntos         String[]  @default([])
+  respuesta        String?
+  solicitado_por   String
+  atendido_por     String?
+  presentado_at    DateTime?
+  cerrado_at       DateTime?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  fiscalizacion Fiscalizacion? @relation(fields: [fiscalizacion_id], references: [id])
+  tenant        Tenant         @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, estado])
 }
 
 // Módulo de tareas — checklist diario para trabajador_local

@@ -4,6 +4,7 @@ import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireNucleo, requireAsesor, requireRole } from "@/server/middleware/rbac";
 import { puedeRemoverMiembro } from "@/lib/roles";
+import { PLAN_IDS, TIPOS_LOCAL } from "@/lib/planes";
 import { syncUserClaims } from "@/lib/supabase/claims";
 
 const nucleoProcedure = publicProcedure.use(requireNucleo);
@@ -15,7 +16,7 @@ export const localesRouter = router({
     .input(
       z.object({
         estado: z.enum(["activo", "suspendido", "baja"]).optional(),
-        plan: z.enum(["calidad", "integral"]).optional(),
+        plan: z.enum(PLAN_IDS).optional(),
         search: z.string().optional(),
         limit: z.number().min(1).max(100).default(20),
       })
@@ -38,6 +39,7 @@ export const localesRouter = router({
         take: input.limit,
         include: {
           _count: { select: { registros: true, sellos: true } },
+          suscripcion: { select: { plan: true, hasta: true, estado: true } },
         },
       });
     }),
@@ -65,14 +67,19 @@ export const localesRouter = router({
       z.object({
         id: z.string().uuid(),
         nombre: z.string().min(2).optional(),
-        plan: z.enum(["calidad", "integral"]).optional(),
+        plan: z.enum(PLAN_IDS).optional(),
+        tipo_local: z.enum(TIPOS_LOCAL).optional(),
         estado: z.enum(["activo", "suspendido", "baja"]).optional(),
         direccion: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      return ctx.prisma.tenant.update({ where: { id }, data });
+      const local = await ctx.prisma.tenant.update({ where: { id }, data });
+      if (data.plan) {
+        await ctx.prisma.suscripcion.updateMany({ where: { tenant_id: id }, data: { plan: data.plan } });
+      }
+      return local;
     }),
 
   /**
@@ -85,7 +92,8 @@ export const localesRouter = router({
         casa_central_id: z.string().uuid(),
         nombre: z.string().min(2, "Ingresa el nombre de la sucursal"),
         direccion: z.string().min(3, "Ingresa la dirección"),
-        plan: z.enum(["calidad", "integral"]).optional(),
+        plan: z.enum(PLAN_IDS).optional(),
+        tipo_local: z.enum(TIPOS_LOCAL).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -108,6 +116,7 @@ export const localesRouter = router({
           direccion: input.direccion,
           ciudad: casaCentral.ciudad,
           plan: input.plan ?? casaCentral.plan,
+          tipo_local: input.tipo_local ?? casaCentral.tipo_local,
           estado: "activo",
         },
       });

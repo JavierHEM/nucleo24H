@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { APP_LEGAL_NAME, APP_NAME, APP_TAGLINE } from "@/lib/branding";
-import { PLAN_PRECIOS_CLP } from "@/lib/payments/flow";
+import { PLANES as CATALOGO_PLANES, CONTRATO_MESES } from "@/lib/planes";
 import { formatCLP } from "@/lib/utils";
 import { DiagnosticoForm } from "./DiagnosticoForm";
 
@@ -84,9 +85,9 @@ const PLATAFORMA = [
 
 const PLANES = [
   {
-    nombre: "Plan Calidad",
-    etiqueta: "Para partir",
-    precio: PLAN_PRECIOS_CLP.calidad,
+    nombre: CATALOGO_PLANES.calidad.nombre,
+    etiqueta: CATALOGO_PLANES.calidad.etiqueta,
+    precio: CATALOGO_PLANES.calidad.precio,
     fondo: "#FFFFFF",
     texto: "#0B1B33",
     borde: "#DDE3EA",
@@ -97,23 +98,12 @@ const PLANES = [
     btnBg: "#0B1B33",
     btnFg: "#FFFFFF",
     cta: "Quiero el Plan Calidad",
-    items: [
-      "1 visita presencial mensual en radio urbano",
-      "Revisión de registros y documentación",
-      "Capacitación mensual para el equipo",
-      "Plataforma documental actualizada",
-      "Informe mensual de cumplimiento",
-      "Plan de mejoras personalizado",
-      "Evaluación y entrega de sello mensual",
-      "Orientación técnica permanente",
-      "Apoyo ante fiscalizaciones",
-      "Descargos gratuitos con sello Premium",
-    ],
+    items: CATALOGO_PLANES.calidad.resumen,
   },
   {
-    nombre: "Plan Integral",
-    etiqueta: "Calidad + medio ambiente",
-    precio: PLAN_PRECIOS_CLP.integral,
+    nombre: CATALOGO_PLANES.integral.nombre,
+    etiqueta: CATALOGO_PLANES.integral.etiqueta,
+    precio: CATALOGO_PLANES.integral.precio,
     fondo: "#0B1B33",
     texto: "#FFFFFF",
     borde: "#0B1B33",
@@ -124,14 +114,7 @@ const PLANES = [
     btnBg: "#E3B341",
     btnFg: "#0B1B33",
     cta: "Quiero el Plan Integral",
-    items: [
-      "Todo lo del Plan Calidad",
-      "Apoyo en segregación de residuos: ordinarios, reciclables y peligrosos",
-      "Declaraciones en Ventanilla Única, hasta 12 al año",
-      "Charlas ambientales para el equipo",
-      "Asesoría en cumplimiento ambiental",
-      "Seguimiento y recordatorios de vencimientos",
-    ],
+    items: CATALOGO_PLANES.integral.resumen,
   },
 ];
 
@@ -152,17 +135,6 @@ const FAQ = [
   { p: "¿Cómo protegen los datos de mi local?", r: "Tratamos los datos personales conforme a la Ley 21.719. Puedes ejercer tus derechos de acceso, rectificación y supresión desde tu cuenta." },
 ];
 
-function Escudo({ className = "w-9 h-9", dorado = false }: { className?: string; dorado?: boolean }) {
-  return (
-    <span className={`${className} rounded-[11px] flex items-center justify-center shrink-0 ${dorado ? "bg-[#E3B341] text-[#0B1B33]" : "bg-[#0B1B33] text-[#E3B341]"}`} aria-hidden>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z" />
-        <path d="M8.5 12.5l2.5 2.5 4.5-5" />
-      </svg>
-    </span>
-  );
-}
-
 function Boton({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
   const clases = `inline-flex items-center justify-center gap-2 min-h-[52px] px-6 rounded-xl font-extrabold border-2 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341] ${className}`;
   if (href.startsWith("/")) {
@@ -177,8 +149,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-20 bg-white/95 border-b border-[#DDE3EA]">
         <div className="max-w-[1160px] mx-auto px-6 sm:px-8 min-h-[72px] flex flex-wrap items-center gap-2 sm:gap-7">
           <a href="#inicio" className="flex items-center gap-2.5 mr-auto text-[#0B1B33]">
-            <Escudo />
-            <span className="text-xl font-extrabold tracking-tight">{APP_NAME}</span>
+            <BrandLogo className="w-32 sm:w-36" priority />
           </a>
           <nav aria-label="Secciones" className="hidden lg:flex flex-wrap gap-x-6">
             {[
@@ -424,7 +395,7 @@ export default function LandingPage() {
                   <span className="font-mono text-5xl font-semibold tracking-tight">{formatCLP(plan.precio)}</span>
                   <span className="text-base font-bold opacity-80">/ mes</span>
                 </p>
-                <p className="text-sm font-bold opacity-85">Contrato anual · total {formatCLP(plan.precio * 12)}</p>
+                <p className="text-sm font-bold opacity-85">Contrato anual · total {formatCLP(plan.precio * CONTRATO_MESES)}</p>
                 <ul className="flex flex-col gap-3 pt-5 border-t" style={{ borderColor: plan.linea }}>
                   {plan.items.map((item) => (
                     <li key={item} className="flex gap-2.5 text-[15px] font-semibold leading-snug">
@@ -485,10 +456,7 @@ export default function LandingPage() {
       <footer className="bg-[#081426] text-[#C9D3E3]">
         <div className="max-w-[1160px] mx-auto px-6 sm:px-8 py-10 flex flex-wrap gap-6 items-center justify-between">
           <div>
-            <div className="flex items-center gap-2.5 text-white">
-              <Escudo className="w-8 h-8" dorado />
-              <span className="text-lg font-extrabold">{APP_NAME}</span>
-            </div>
+            <BrandLogo variant="negativo" className="w-44" />
             <p className="text-sm font-semibold mt-1.5">{APP_TAGLINE} · Osorno, Chile</p>
           </div>
           <nav aria-label="Pie" className="flex flex-wrap gap-x-7 text-sm font-bold">

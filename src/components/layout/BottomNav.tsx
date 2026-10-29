@@ -22,14 +22,22 @@ import {
   IconMessage2,
   IconCreditCard,
   IconX,
+  IconClipboardCheck,
+  IconCalendarEvent,
+  IconLeaf,
+  IconGavel,
+  IconLifebuoy,
+  IconBadge,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
+import { planIncluye, type ModuloPlan, type PlanId } from "@/lib/planes";
 
 interface BottomNavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   roles: UserRole[];
+  modulo?: ModuloPlan;
 }
 
 const TRABAJADOR_ITEMS: BottomNavItem[] = [
@@ -47,6 +55,11 @@ const DUENO_ITEMS: BottomNavItem[] = [
 ];
 
 const MAS_LOCAL: BottomNavItem[] = [
+  { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/ambiental", label: "Ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], modulo: "ambiental" },
+  { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["jefe_local", "admin_local"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local"] },
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["jefe_local", "admin_local"] },
@@ -60,6 +73,7 @@ const BOTTOM_ITEMS: BottomNavItem[] = [
   ...TRABAJADOR_ITEMS,
   ...DUENO_ITEMS,
   { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
+  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
   { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
@@ -76,6 +90,12 @@ const ADMIN_BOTTOM_ITEMS: BottomNavItem[] = [
     href: "/admin/locales",
     label: "Locales",
     icon: IconBuildingStore,
+    roles: ["admin_nucleo"],
+  },
+  {
+    href: "/programa",
+    label: "Programa",
+    icon: IconClipboardCheck,
     roles: ["admin_nucleo"],
   },
   {
@@ -106,6 +126,7 @@ const ADMIN_BOTTOM_ITEMS: BottomNavItem[] = [
 
 const ASESOR_BOTTOM_ITEMS: BottomNavItem[] = [
   { href: "/", label: "Dashboard", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
+  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
   { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["asesor", "admin_nucleo"] },
@@ -114,6 +135,7 @@ const ASESOR_BOTTOM_ITEMS: BottomNavItem[] = [
 interface BottomNavProps {
   userRole: UserRole | null;
   mode?: "dashboard" | "admin" | "asesor";
+  planId?: PlanId;
 }
 
 function Tab({ item, pathname }: { item: BottomNavItem; pathname: string }) {
@@ -133,14 +155,19 @@ function Tab({ item, pathname }: { item: BottomNavItem; pathname: string }) {
   );
 }
 
-export function BottomNav({ userRole, mode = "dashboard" }: BottomNavProps) {
+export function BottomNav({ userRole, mode = "dashboard", planId }: BottomNavProps) {
   const pathname = usePathname();
   const [masAbierto, setMasAbierto] = useState(false);
 
   const sourceItems =
     mode === "admin" ? ADMIN_BOTTOM_ITEMS : mode === "asesor" ? ASESOR_BOTTOM_ITEMS : BOTTOM_ITEMS;
   const visibleItems = sourceItems.filter((item) => userRole && item.roles.includes(userRole));
-  const mas = mode === "dashboard" ? MAS_LOCAL.filter((item) => userRole && item.roles.includes(userRole)) : [];
+  const mas =
+    mode === "dashboard"
+      ? MAS_LOCAL.filter(
+          (item) => userRole && item.roles.includes(userRole) && (!item.modulo || planIncluye(planId, item.modulo))
+        )
+      : [];
 
   return (
     <>

@@ -2,11 +2,9 @@ import { TRPCError } from "@trpc/server";
 import { t } from "@/server/trpc/trpc";
 
 /**
- * Inyecta app.current_tenant en la sesión PostgreSQL.
- * Debe ejecutarse ANTES de cualquier query que use RLS.
- *
- * Para admin_nucleo no hay restricción de tenant — puede ver todo.
- * Para asesor se usa el tenantActivo del contexto (el local que está visitando).
+ * Exige sesión y un local activo, y comprueba que el usuario pertenezca a ese local.
+ * Los routers filtran por tenant en cada query. No se usa SET app.current_tenant:
+ * Prisma entra como postgres y el pooler en modo transacción no conserva ese valor.
  */
 export const withTenant = t.middleware(async ({ ctx, next }) => {
   if (!ctx.userId) {
@@ -33,10 +31,6 @@ export const withTenant = t.middleware(async ({ ctx, next }) => {
       message: "No tienes acceso a este local.",
     });
   }
-
-  await ctx.prisma.$executeRawUnsafe(
-    `SET app.current_tenant = '${ctx.tenantActivo}'`
-  );
 
   return next({ ctx });
 });

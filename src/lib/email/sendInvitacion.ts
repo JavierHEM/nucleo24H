@@ -2,6 +2,7 @@ import { render } from "@react-email/render";
 import { getResend, FROM_EMAIL } from "./resend";
 import { InvitacionAsesorEmail } from "./templates/InvitacionAsesor";
 import { InvitacionLocalEmail } from "./templates/InvitacionLocal";
+import { InvitacionNucleoEmail } from "./templates/InvitacionNucleo";
 import { APP_NAME } from "@/lib/branding";
 
 export async function sendInvitacionAsesor(params: {
@@ -79,6 +80,41 @@ export async function sendInvitacionLocal(params: {
 
   if (error) {
     console.error("[sendInvitacionLocal] Error Resend:", error);
+    throw new Error(`Error al enviar email: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function sendInvitacionNucleo(params: {
+  to: string;
+  nombre: string;
+  invitadoPor: string;
+  linkAcceso: string;
+}) {
+  const resend = getResend();
+  if (!resend) {
+    console.info("[sendInvitacionNucleo] RESEND no configurado. Email omitido.");
+    return null;
+  }
+
+  const html = await render(
+    InvitacionNucleoEmail({
+      nombre: params.nombre,
+      invitadoPor: params.invitadoPor,
+      linkAcceso: params.linkAcceso,
+    })
+  );
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: params.to,
+    subject: `Invitación a casa central de ${APP_NAME}`,
+    html,
+  });
+
+  if (error) {
+    console.error("[sendInvitacionNucleo] Error Resend:", error);
     throw new Error(`Error al enviar email: ${error.message}`);
   }
 

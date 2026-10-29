@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
-import { puedeOperarLocal } from "@/lib/roles";
+import { puedeCargarPlanilla, puedeOperarLocal } from "@/lib/roles";
 import { crearUrlDeCarga } from "@/lib/storage/archivos";
 import { construirRuta, type BucketArchivo } from "@/lib/storage/rutas";
 
@@ -31,12 +31,19 @@ export async function POST(req: NextRequest) {
     select: { rol: true, activo: true },
   });
 
-  if (!dbUser?.activo || !puedeOperarLocal(dbUser.rol)) {
+  const body = await req.json().catch(() => null);
+  const parsed = bodySchema.safeParse(body);
+  if (!dbUser?.activo) {
     return NextResponse.json({ error: "Sin permisos para subir archivos" }, { status: 403 });
   }
 
-  const body = await req.json().catch(() => null);
-  const parsed = bodySchema.safeParse(body);
+  const bucketPedido = parsed.success ? parsed.data.bucket : null;
+  const puedeSubir =
+    puedeOperarLocal(dbUser.rol) || (bucketPedido === "registros" && puedeCargarPlanilla(dbUser.rol));
+  if (!puedeSubir) {
+    return NextResponse.json({ error: "Sin permisos para subir archivos" }, { status: 403 });
+  }
+
   if (!parsed.success) {
     return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
   }

@@ -20,7 +20,10 @@ export function PlanillaSheet({
   const [familia, setFamilia] = useState<FamiliaId | null>(null);
   const [planilla, setPlanilla] = useState<Planilla | null>(null);
   const contexto = trpc.registros.contexto.useQuery(undefined, { enabled: abierto });
+  const programa = trpc.programa.actual.useQuery(undefined, { enabled: abierto });
   const fija = Boolean(codigo);
+  const codigos = new Set((programa.data ?? []).filter((item) => item.activa).map((item) => item.codigo));
+  const familias = FAMILIAS.filter((item) => planillasDe(item.id).some((planilla) => codigos.has(planilla.codigo)));
 
   useEffect(() => {
     if (!abierto) {
@@ -89,7 +92,11 @@ export function PlanillaSheet({
         <div className="p-5">
           {!familia && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {FAMILIAS.map((item) => (
+              {programa.isLoading && <p className="text-sm text-[#5B6980]">Cargando planillas…</p>}
+              {programa.data && familias.length === 0 && (
+                <p className="text-sm text-[#5B6980]">Este local no tiene planillas activas.</p>
+              )}
+              {familias.map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -105,7 +112,9 @@ export function PlanillaSheet({
 
           {familia && !planilla && (
             <div className="space-y-2">
-              {planillasDe(familia).map((item) => (
+              {planillasDe(familia)
+                .filter((item) => codigos.has(item.codigo))
+                .map((item) => (
                 <button
                   key={item.codigo}
                   type="button"

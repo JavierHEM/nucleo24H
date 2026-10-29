@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <title>Núcleo 24H — isotipo</title>
+  <rect width="320" height="320" rx="28" fill="#FFFFFF" fill-opacity="0"/>
+  <g transform="translate(42,24)">
+    <path d="M 0,0 H 52 L 164,112 V 0 H 214 V 240 H 168 L 50,121 V 240 H 0 Z" fill="#123047"/>
+    <path d="M 164,190 L 214,190 V 240 H 164 Z" fill="#527A3C"/>
+    <path d="M 150,183 L 171,204 L 207,164" fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="square" stroke-linejoin="miter"/>
+  </g>
+</svg>

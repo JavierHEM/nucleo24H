@@ -6,13 +6,15 @@ import { IconExternalLink, IconLoader2 } from "@tabler/icons-react";
 
 interface Props {
   tenantId: string;
+  destino?: string;
+  etiqueta?: string;
 }
 
 /**
  * Cambia el tenant_activo cookie al local indicado y navega al dashboard.
  * Permite a admin_nucleo supervisar cualquier local en contexto real.
  */
-export function VerLocalButton({ tenantId }: Props) {
+export function VerLocalButton({ tenantId, destino = "/", etiqueta = "Ver" }: Props) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -23,7 +25,7 @@ export function VerLocalButton({ tenantId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tenantId }),
       });
-      router.push("/");
+      router.push(destino);
       router.refresh();
     });
   }
@@ -40,7 +42,7 @@ export function VerLocalButton({ tenantId }: Props) {
       ) : (
         <IconExternalLink size={13} />
       )}
-      Ver
+      {etiqueta}
     </button>
   );
 }

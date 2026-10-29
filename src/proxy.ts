@@ -1,25 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-
-const PUBLIC_PREFIXES = [
-  "/inicio",
-  "/login",
-  "/register",
-  "/onboarding",
-  "/cuenta/nueva-clave",
-  "/politica-de-privacidad",
-  "/api/auth",
-  "/api/trpc",
-  "/api/cron",     // protegidas por CRON_SECRET
-  "/api/webhooks", // Flow llama server-to-server sin sesión; verifica firma
-  "/api/pagos/retorno", // POST de retorno desde Flow
-  "/api/local",    // rutas de gestión de local (auth propia por cookies)
-  "/sello/",       // certificados públicos de sello (verificación externa)
-];
-
-function isPublic(pathname: string): boolean {
-  return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
-}
+import { isPublicPath } from "@/lib/auth/rutasPublicas";
 
 export async function proxy(req: NextRequest) {
   const res = NextResponse.next();
@@ -52,7 +33,7 @@ export async function proxy(req: NextRequest) {
     return NextResponse.rewrite(new URL("/inicio", req.url));
   }
 
-  if (!user && !isPublic(pathname)) {
+  if (!user && !isPublicPath(pathname)) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);

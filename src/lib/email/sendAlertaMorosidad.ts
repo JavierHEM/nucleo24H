@@ -1,6 +1,7 @@
 import { render } from "@react-email/render";
 import { getResend, FROM_EMAIL } from "./resend";
 import { AlertaMorosidadEmail } from "./templates/AlertaMorosidad";
+import { getAppUrl } from "@/lib/branding";
 
 export async function sendAlertaMorosidad(params: {
   to: string;
@@ -14,7 +15,7 @@ export async function sendAlertaMorosidad(params: {
     return null;
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
+  const appUrl = getAppUrl();
 
   const html = await render(
     AlertaMorosidadEmail({

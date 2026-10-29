@@ -1,4 +1,5 @@
 import { createHmac } from "crypto";
+import { PLAN_PRECIOS_CLP as PRECIOS_PLANES } from "@/lib/planes";
 
 /**
  * Cliente Flow.cl — API REST con firma HMAC-SHA256.
@@ -11,10 +12,7 @@ import { createHmac } from "crypto";
 
 const FLOW_DEFAULT_BASE_URL = "https://www.flow.cl/api";
 
-export const PLAN_PRECIOS_CLP: Record<string, number> = {
-  calidad: 80_000,
-  integral: 150_000,
-};
+export const PLAN_PRECIOS_CLP: Record<string, number> = PRECIOS_PLANES;
 
 export type FlowEstadoPago = "pendiente" | "pagado" | "rechazado" | "anulado";
 

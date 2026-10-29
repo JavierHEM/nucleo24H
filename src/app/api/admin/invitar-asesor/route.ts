@@ -4,8 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { sendInvitacionAsesor } from "@/lib/email/sendInvitacion";
-import { APP_NAME } from "@/lib/branding";
+import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { syncUserClaims } from "@/lib/supabase/claims";
 
 const bodySchema = z.object({
   nombre: z.string().min(2),
@@ -37,20 +38,31 @@ export async function POST(req: NextRequest) {
   }
 
   const { nombre, email } = parsed.data;
+  const emailNormalizado = email.toLowerCase();
   const adminSupabase = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
+  const appUrl = getAppUrl();
 
-  // Generar link de invitación sin que Supabase envíe su propio email
+  const existing = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT id::text AS id FROM auth.users WHERE lower(email) = ${emailNormalizado} LIMIT 1
+  `;
+  if (existing[0]) {
+    const cuenta = await prisma.user.findUnique({
+      where: { id: existing[0].id },
+      select: { rol: true },
+    });
+    if (cuenta?.rol === "asesor") {
+      return NextResponse.json({ error: "Esa cuenta ya es de asesor." }, { status: 409 });
+    }
+    return NextResponse.json(
+      { error: "Ese correo ya tiene una cuenta. Usa un correo nuevo." },
+      { status: 409 }
+    );
+  }
+
   const { data: linkData, error: linkError } = await adminSupabase.auth.admin.generateLink({
     type: "invite",
-    email,
-    options: {
-      data: {
-        nombre,
-        rol: "asesor",
-        is_asesor_invite: true,
-      },
-    },
+    email: emailNormalizado,
+    options: { data: { nombre } },
   });
 
   if (linkError || !linkData.user) {
@@ -61,21 +73,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Crear o actualizar el User en la BD con rol asesor
   await prisma.user.upsert({
     where: { id: linkData.user.id },
-    create: { id: linkData.user.id, email, nombre, rol: "asesor" },
+    create: { id: linkData.user.id, email: emailNormalizado, nombre, rol: "asesor" },
     update: { nombre, rol: "asesor" },
   });
+  await prisma.userTenant.deleteMany({ where: { user_id: linkData.user.id } });
+  await syncUserClaims(linkData.user.id);
 
-  // Enviar email brandedizado via Resend
   const invitadoPor = dbUser.nombre ?? dbUser.email ?? APP_NAME;
   const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/onboarding");
   if (!linkAcceso) {
     return NextResponse.json({ error: "No se pudo armar el enlace de invitación." }, { status: 500 });
   }
 
-  void sendInvitacionAsesor({ to: email, nombre, invitadoPor, linkAcceso }).catch((err) =>
+  void sendInvitacionAsesor({ to: emailNormalizado, nombre, invitadoPor, linkAcceso }).catch((err) =>
     console.error("[invitar-asesor] Error Resend:", err)
   );
 

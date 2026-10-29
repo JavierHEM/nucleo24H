@@ -6,8 +6,9 @@ import { EvolucionChart } from "@/components/dashboard/EvolucionChart";
 import { formatPeriodo } from "@/lib/utils";
 import { SelloBadge, type NivelSello } from "@/components/sellos/SelloBadge";
 import { IconMedal, IconExternalLink } from "@tabler/icons-react";
+import { getAppUrl } from "@/lib/branding";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.nucleosur.cl";
+const APP_URL = getAppUrl();
 
 export function HistorialSellos() {
   const { data: historial, isLoading } = trpc.sellos.getHistorial.useQuery({ limit: 12 });

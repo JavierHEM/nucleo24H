@@ -201,7 +201,7 @@ export const informesRouter = router({
           take: 12,
         }),
         ctx.prisma.visita.findMany({
-          where: { tenant_id: input.tenant_id },
+          where: { tenant_id: input.tenant_id, estado: "realizada" },
           include: {
             no_conformidades: {
               select: { id: true, descripcion: true, severidad: true, cerrada_at: true },

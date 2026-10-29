@@ -69,4 +69,13 @@ describe("agenda del día", () => {
     expect(agenda.hoy.find((item) => item.codigo === "R-BPM-08-02")?.cuando).toBe("Durante el turno");
     expect(agenda.eventos.some((item) => item.codigo === "R-BPM-08-02")).toBe(false);
   });
+
+  it("deja fuera de la agenda una planilla apagada", () => {
+    const ajustado = programaResuelto([
+      { codigo: "R-BPM-07-02", activa: false, modo: "turno", momento: "inicio", cadencia: "dia" },
+    ]);
+    const agenda = armarAgenda({ programa: ajustado, registros: [], equipos: [], ahora: AHORA });
+    expect(agenda.hoy.some((item) => item.codigo === "R-BPM-07-02")).toBe(false);
+    expect(agenda.eventos.some((item) => item.codigo === "R-BPM-07-02")).toBe(false);
+  });
 });

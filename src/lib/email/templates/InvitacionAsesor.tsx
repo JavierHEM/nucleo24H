@@ -5,11 +5,12 @@ import {
   Container,
   Section,
   Text,
+  Img,
   Heading,
   Hr,
   Button,
 } from "@react-email/components";
-import { APP_NAME, APP_NAME_UPPER, APP_FOOTER } from "@/lib/branding";
+import { APP_NAME, APP_FOOTER, LOGO_PATHS, absoluteAssetUrl } from "@/lib/branding";
 
 interface Props {
   nombre: string;
@@ -31,9 +32,7 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
               padding: "28px 32px",
             }}
           >
-            <Text style={{ color: "#2F6B2A", fontWeight: 700, fontSize: 13, margin: 0 }}>
-              {APP_NAME_UPPER}
-            </Text>
+            <Img src={absoluteAssetUrl(LOGO_PATHS.negativo)} width={176} alt={APP_NAME} style={{ display: "block", height: "auto" }} />
             <Heading
               style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, margin: "8px 0 0 0" }}
             >

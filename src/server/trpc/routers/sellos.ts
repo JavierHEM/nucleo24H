@@ -121,6 +121,14 @@ export const sellosRouter = router({
   getRevisiones: asesorProcedure
     .input(z.object({ sello_id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
+      const sello = await ctx.prisma.sello.findUnique({
+        where: { id: input.sello_id },
+        select: { tenant_id: true },
+      });
+      if (!sello) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Sello no encontrado." });
+      }
+      await asegurarLocal(ctx, sello.tenant_id);
       return ctx.prisma.revisionSello.findMany({
         where: { sello_id: input.sello_id },
         include: {

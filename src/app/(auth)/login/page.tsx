@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandLogo } from "@/components/BrandLogo";
-import { APP_NAME, APP_TAGLINE, APP_LEGAL_NAME } from "@/lib/branding";
+import { APP_NAME, APP_LEGAL_NAME } from "@/lib/branding";
 
 const FEATURES = [
   {
@@ -95,11 +95,7 @@ function LoginForm() {
         />
 
         <Link href="/" className="relative z-10 flex items-center gap-3 no-underline">
-          <BrandLogo variant="mark" className="w-11 h-11 rounded-xl" priority />
-          <div>
-            <p className="text-white font-bold text-lg leading-tight">{APP_NAME}</p>
-            <p className="text-white/45 text-[11px]">{APP_TAGLINE}</p>
-          </div>
+          <BrandLogo variant="negativo" className="w-52" priority />
         </Link>
 
         <div className="relative z-10 flex-1 flex flex-col justify-center py-12">
@@ -153,7 +149,7 @@ function LoginForm() {
 
           {/* Logo móvil */}
           <div className="lg:hidden flex flex-col items-center mb-8">
-            <BrandLogo className="w-32 h-auto" priority />
+            <BrandLogo className="w-52 h-auto" priority />
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E1E8EF] shadow-[0_8px_40px_rgba(11,37,69,0.08)] overflow-hidden">

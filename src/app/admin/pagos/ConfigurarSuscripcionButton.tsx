@@ -13,11 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatCLP } from "@/lib/utils";
+import { PLAN_IDS, PLANES, PLAN_PRECIOS_CLP, normalizarPlan, type PlanId } from "@/lib/planes";
 
-const PRECIOS_PLAN: Record<"calidad" | "integral", number> = {
-  calidad: 80_000,
-  integral: 150_000,
-};
 
 const ESTADOS = ["activa", "morosa", "suspendida", "cancelada"] as const;
 
@@ -43,11 +40,9 @@ export function ConfigurarSuscripcionButton({
   planTenant,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [plan, setPlan] = useState<"calidad" | "integral">(
-    (suscripcion?.plan ?? planTenant) === "integral" ? "integral" : "calidad"
-  );
+  const [plan, setPlan] = useState<PlanId>(normalizarPlan(suscripcion?.plan ?? planTenant));
   const [monto, setMonto] = useState(
-    String(suscripcion?.monto_clp ?? PRECIOS_PLAN[planTenant === "integral" ? "integral" : "calidad"])
+    String(suscripcion?.monto_clp ?? PLAN_PRECIOS_CLP[normalizarPlan(planTenant)])
   );
   const [diaCobro, setDiaCobro] = useState(String(suscripcion?.dia_cobro ?? 5));
   const [estado, setEstado] = useState<(typeof ESTADOS)[number]>(
@@ -69,9 +64,9 @@ export function ConfigurarSuscripcionButton({
   const valido =
     Number.isInteger(montoNum) && montoNum > 0 && diaNum >= 1 && diaNum <= 28;
 
-  function selectPlan(nuevo: "calidad" | "integral") {
+  function selectPlan(nuevo: PlanId) {
     setPlan(nuevo);
-    setMonto(String(PRECIOS_PLAN[nuevo]));
+    setMonto(String(PLAN_PRECIOS_CLP[nuevo]));
   }
 
   function handleSubmit() {
@@ -119,7 +114,7 @@ export function ConfigurarSuscripcionButton({
               <div>
                 <Label className="block mb-2">Plan</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["calidad", "integral"] as const).map((p) => (
+                  {PLAN_IDS.map((p) => (
                     <button
                       key={p}
                       type="button"
@@ -130,9 +125,9 @@ export function ConfigurarSuscripcionButton({
                           : "border-[#DDE3EA] hover:border-[#2F6B2A]/50"
                       }`}
                     >
-                      <p className="font-medium text-sm text-[#0B1B33] capitalize">{p}</p>
+                      <p className="font-medium text-sm text-[#0B1B33]">{PLANES[p].nombre}</p>
                       <p className="text-xs text-[#5B6980]">
-                        {formatCLP(PRECIOS_PLAN[p])}/mes
+                        {formatCLP(PLAN_PRECIOS_CLP[p])}/mes
                       </p>
                     </button>
                   ))}

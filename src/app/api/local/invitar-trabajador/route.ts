@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
-import { APP_NAME } from "@/lib/branding";
+import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
 import { debePromoverRol, puedeGestionarEquipo, puedeInvitarConRol } from "@/lib/roles";
 
@@ -73,6 +73,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: { nombre: true },
+  });
+  if (!tenant) {
+    return NextResponse.json({ error: "Local no encontrado" }, { status: 404 });
+  }
+
+  const respuesta = {
+    success: true,
+    message: `Listo. ${email} queda en el equipo de "${tenant.nombre}".`,
+  };
+
   // ¿El email ya tiene cuenta en auth.users?
   const existing = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM auth.users WHERE email = ${email.toLowerCase()} LIMIT 1
@@ -98,7 +111,10 @@ export async function POST(req: NextRequest) {
       where: { id: existingUserId },
       select: { rol: true },
     });
-    if (cuenta && debePromoverRol(cuenta.rol, rol)) {
+    const otrosLocales = await prisma.userTenant.count({
+      where: { user_id: existingUserId },
+    });
+    if (cuenta && otrosLocales === 0 && debePromoverRol(cuenta.rol, rol)) {
       await prisma.user.update({
         where: { id: existingUserId },
         data: { rol },
@@ -111,25 +127,12 @@ export async function POST(req: NextRequest) {
 
     await syncUserClaims(existingUserId);
 
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: tenantId },
-      select: { nombre: true },
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: `Cuenta existente vinculada al local "${tenant?.nombre}".`,
-    });
+    return NextResponse.json(respuesta);
   }
 
   // Caso 2: nuevo usuario → generar link y enviar email brandedizado
   const supabaseAdmin = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
-
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: tenantId },
-    select: { nombre: true },
-  });
+  const appUrl = getAppUrl();
 
   const { data: linkData, error: linkError } =
     await supabaseAdmin.auth.admin.generateLink({
@@ -137,8 +140,6 @@ export async function POST(req: NextRequest) {
       email,
       options: {
         data: {
-          tenant_id: tenantId,
-          rol,
           ...(nombre ? { nombre } : {}),
         },
       },
@@ -152,6 +153,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  await prisma.user.upsert({
+    where: { id: linkData.user.id },
+    create: {
+      id: linkData.user.id,
+      email,
+      nombre: nombre ?? email.split("@")[0] ?? email,
+      rol,
+    },
+    update: {},
+  });
+  await prisma.userTenant.upsert({
+    where: {
+      user_id_tenant_id: { user_id: linkData.user.id, tenant_id: tenantId },
+    },
+    create: { user_id: linkData.user.id, tenant_id: tenantId },
+    update: {},
+  });
   await syncUserClaims(linkData.user.id);
 
   // Obtener datos del invitador para el email
@@ -174,8 +192,5 @@ export async function POST(req: NextRequest) {
     linkAcceso,
   }).catch((err) => console.error("[invitar-trabajador] Error Resend:", err));
 
-  return NextResponse.json({
-    success: true,
-    message: `Invitación enviada a ${email} para unirse a "${tenant?.nombre}".`,
-  });
+  return NextResponse.json(respuesta);
 }

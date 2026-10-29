@@ -1,5 +1,6 @@
 "use client";
 
+import { BrandLogo } from "@/components/BrandLogo";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -74,11 +75,8 @@ function OnboardingForm() {
     <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3] px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#0B1B33] flex items-center justify-center">
-            <IconShieldCheck size={22} className="text-[#2F6B2A]" />
-          </div>
-          <span className="text-xl font-bold text-[#0B1B33]">Nucleo 24H</span>
+        <div className="flex justify-center mb-8">
+          <BrandLogo className="w-52" priority />
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#DDE3EA] overflow-hidden">

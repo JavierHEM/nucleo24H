@@ -6,13 +6,15 @@ import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
-import { APP_NAME } from "@/lib/branding";
+import { APP_NAME, getAppUrl } from "@/lib/branding";
+import { PLAN_IDS, TIPOS_LOCAL } from "@/lib/planes";
 
 const bodySchema = z.object({
   email: z.string().email("Email inválido"),
   nombre: z.string().min(2, "Ingresa el nombre del local"),
   rut: z.string().min(8, "RUT inválido").max(12),
-  plan: z.enum(["calidad", "integral"]).default("calidad"),
+  plan: z.enum(PLAN_IDS).default("calidad"),
+  tipo_local: z.enum(TIPOS_LOCAL).default("restaurante"),
   direccion: z.string().optional(),
 });
 
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { email, nombre, rut, plan, direccion } = parsed.data;
+  const { email, nombre, rut, plan, tipo_local, direccion } = parsed.data;
 
   // El RUT identifica a la empresa: si ya existe, el local nuevo es una
   // sucursal y debe crearse desde "Agregar sucursal" en el local existente.
@@ -73,6 +75,7 @@ export async function POST(req: NextRequest) {
       nombre,
       rut,
       plan,
+      tipo_local,
       estado: "activo",
       direccion: direccion ?? "",
     },
@@ -100,16 +103,13 @@ export async function POST(req: NextRequest) {
   // Caso 2: usuario nuevo. El correo lo manda la app: el enlace de Supabase
   // deja la sesión en el fragmento y el dueño cae en el login.
   const supabaseAdmin = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nucleo-mu.vercel.app";
+  const appUrl = getAppUrl();
 
   const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: "invite",
     email,
     options: {
-      data: {
-        tenant_id: tenant.id,
-        rol: "admin_local",
-      },
+      data: { nombre: email.split("@")[0] ?? email },
     },
   });
 
@@ -123,6 +123,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  await prisma.user.upsert({
+    where: { id: linkData.user.id },
+    create: {
+      id: linkData.user.id,
+      email,
+      nombre: email.split("@")[0] ?? email,
+      rol: "admin_local",
+    },
+    update: {},
+  });
+  await prisma.userTenant.upsert({
+    where: {
+      user_id_tenant_id: { user_id: linkData.user.id, tenant_id: tenant.id },
+    },
+    create: { user_id: linkData.user.id, tenant_id: tenant.id },
+    update: {},
+  });
   await syncUserClaims(linkData.user.id);
 
   const invitador = await prisma.user.findUnique({

@@ -1,3 +1,5 @@
+import { FAMILIAS, planillasDe } from "@/lib/bpm/planillas";
+
 export const GRUPOS_PROTOCOLO = [
   {
     id: "poes",
@@ -149,6 +151,29 @@ export const PROTOCOLOS: ProtocoloOficial[] = [
 
 export function protocolosDe(grupo: GrupoProtocolo) {
   return PROTOCOLOS.filter((item) => item.grupo === grupo);
+}
+
+export function protocolosDelPrograma(codigos: ReadonlySet<string>): ProtocoloOficial[] {
+  const procedimientos = new Set<string>(
+    FAMILIAS.filter((familia) => planillasDe(familia.id).some((planilla) => codigos.has(planilla.codigo))).map(
+      (familia) => familia.procedimiento
+    )
+  );
+  const conocidos = new Set<string>(FAMILIAS.map((familia) => familia.procedimiento));
+  return PROTOCOLOS.filter(
+    (protocolo) => procedimientos.has(protocolo.codigo) || !conocidos.has(protocolo.codigo)
+  ).map((protocolo) => ({
+    ...protocolo,
+    plantillas: protocolo.plantillas.filter((plantilla) => !plantilla.codigo || codigos.has(plantilla.codigo)),
+  }));
+}
+
+export function plantillaPorCodigo(codigo: string): ArchivoOficial | null {
+  for (const protocolo of PROTOCOLOS) {
+    const plantilla = protocolo.plantillas.find((item) => item.codigo === codigo);
+    if (plantilla) return plantilla;
+  }
+  return null;
 }
 
 export function urlOficial(path: string, base = process.env.NEXT_PUBLIC_SUPABASE_URL) {

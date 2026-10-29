@@ -5,11 +5,12 @@ import {
   Container,
   Section,
   Text,
+  Img,
   Heading,
   Hr,
   Button,
 } from "@react-email/components";
-import { APP_NAME_UPPER, APP_FOOTER } from "@/lib/branding";
+import { APP_NAME, APP_FOOTER, LOGO_PATHS, absoluteAssetUrl } from "@/lib/branding";
 
 interface Props {
   nombreLocal: string;
@@ -44,8 +45,9 @@ export function AlertaMorosidadEmail({
               padding: "28px 32px",
             }}
           >
-            <Text style={{ color: "#FCA5A5", fontWeight: 700, fontSize: 13, margin: 0 }}>
-              {APP_NAME_UPPER} · AVISO IMPORTANTE
+            <Img src={absoluteAssetUrl(LOGO_PATHS.negativo)} width={176} alt={APP_NAME} style={{ display: "block", height: "auto" }} />
+            <Text style={{ color: "#FCA5A5", fontWeight: 700, fontSize: 12, letterSpacing: "0.08em", margin: "14px 0 0 0" }}>
+              AVISO IMPORTANTE
             </Text>
             <Heading
               style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, margin: "8px 0 0 0" }}

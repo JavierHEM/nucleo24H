@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { getPlanilla, tieneDesviacion } from "@/lib/bpm/planillas";
+import type { TipoLocal } from "@/lib/planes";
 
 export const MOMENTOS = ["inicio", "durante", "cierre"] as const;
 export const CADENCIAS = ["dia", "semana"] as const;
@@ -147,6 +148,20 @@ const DEFINICIONES: Definicion[] = [
     activa: true,
   },
 ];
+
+// TODO(Núcleo): definir qué controles aplican por rubro. Mientras sea null, el botón
+// "Aplicar base del rubro" no ofrece una base y cada local conserva su programa.
+const BASE_POR_RUBRO: Record<TipoLocal, readonly string[] | null> = {
+  restaurante: null,
+  cafeteria: null,
+  cocineria: null,
+  food_truck: null,
+};
+
+export function baseDelRubro(tipo: TipoLocal): ReadonlySet<string> | null {
+  const codigos = BASE_POR_RUBRO[tipo];
+  return codigos ? new Set<string>(codigos) : null;
+}
 
 export const ajusteSchema = z.object({
   codigo: z.string(),

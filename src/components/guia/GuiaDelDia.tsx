@@ -5,8 +5,10 @@ import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
+import { IconPrinter, IconUpload } from "@tabler/icons-react";
 import { PlanillaSheet } from "@/components/registros/PlanillaSheet";
-import { AjustarProgramaSheet } from "@/components/guia/AjustarProgramaSheet";
+import { CargarPlanillaSheet } from "@/app/(dashboard)/registros/CargarPlanillaSheet";
+import { plantillaPorCodigo, urlOficial } from "@/lib/bpm/biblioteca";
 import type { ItemAgenda, Momento } from "@/lib/bpm/programa";
 
 const MOMENTO_LABEL: Record<Momento, string> = {
@@ -21,11 +23,18 @@ const ESTADO_LABEL = {
   observacion: "Observación",
 } as const;
 
-export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
+function enlaceImpresion(codigo: string) {
+  const plantilla = plantillaPorCodigo(codigo);
+  const oficial = plantilla ? urlOficial(plantilla.path) : "#";
+  if (plantilla && oficial !== "#") return { href: oficial, externo: true };
+  return { href: `/registros/imprimir/${codigo}`, externo: false };
+}
+
+export function GuiaDelDia({ puedeCargar = false }: { puedeCargar?: boolean }) {
   const utils = trpc.useUtils();
   const agenda = trpc.programa.agenda.useQuery();
   const [codigo, setCodigo] = useState<string | null>(null);
-  const [ajustando, setAjustando] = useState(false);
+  const [papel, setPapel] = useState<string | null>(null);
 
   const hoy = agenda.data?.hoy ?? [];
   const eventos = agenda.data?.eventos ?? [];
@@ -40,22 +49,15 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
         <div>
           <h2 className="text-lg font-bold text-[#0B1B33]">Hoy en el local</h2>
           <p className="text-sm text-[#5B6980] mt-0.5">
-            {hoy.length === 0
-              ? "Lo que corresponde en este turno."
-              : siguiente
-                ? `${listos} de ${hoy.length} listos. Sigue con ${siguiente.nombre}.`
-                : "El turno de hoy está al día."}
+            {agenda.isLoading
+              ? "Cargando la guía…"
+              : hoy.length === 0
+                ? "Tu asesor todavía no dejó controles de turno para este local."
+                : siguiente
+                  ? `${listos} de ${hoy.length} listos. Sigue con ${siguiente.nombre}.`
+                  : "El turno de hoy está al día."}
           </p>
         </div>
-        {puedeAjustar && (
-          <button
-            type="button"
-            onClick={() => setAjustando(true)}
-            className="text-sm font-medium text-[#16294A] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded"
-          >
-            Ajustar programa
-          </button>
-        )}
       </div>
 
       {agenda.isLoading && <p className="text-sm text-[#5B6980]">Cargando la guía…</p>}
@@ -97,6 +99,8 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
                     item={item}
                     destacada={item.codigo === siguiente?.codigo}
                     onRegistrar={() => setCodigo(item.codigo)}
+                    onPapel={() => setPapel(item.codigo)}
+                    puedeCargar={puedeCargar}
                   />
                 </li>
               ))}
@@ -107,7 +111,7 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
 
       {!agenda.isLoading && hoy.length === 0 && (
         <p className="text-sm text-[#5B6980] bg-white border border-[#DDE3EA] rounded-xl px-4 py-3">
-          No hay controles para hoy.
+          Tu asesor todavía no dejó controles de turno para este local.
         </p>
       )}
 
@@ -120,7 +124,13 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 px-3 pb-3">
             {eventos.map((item) => (
               <li key={item.codigo}>
-                <Tarjeta item={item} onRegistrar={() => setCodigo(item.codigo)} evento />
+                <Tarjeta
+                  item={item}
+                  onRegistrar={() => setCodigo(item.codigo)}
+                  onPapel={() => setPapel(item.codigo)}
+                  puedeCargar={puedeCargar}
+                  evento
+                />
               </li>
             ))}
           </ul>
@@ -135,7 +145,7 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
         onCerrar={() => setCodigo(null)}
         onSuccess={() => utils.programa.agenda.invalidate()}
       />
-      <AjustarProgramaSheet abierto={ajustando} onCerrar={() => setAjustando(false)} />
+      <CargarPlanillaSheet codigo={papel ?? undefined} abierto={Boolean(papel)} onCerrar={() => setPapel(null)} />
     </section>
   );
 }
@@ -143,15 +153,20 @@ export function GuiaDelDia({ puedeAjustar }: { puedeAjustar: boolean }) {
 function Tarjeta({
   item,
   onRegistrar,
+  onPapel,
+  puedeCargar,
   destacada = false,
   evento = false,
 }: {
   item: ItemAgenda;
   onRegistrar: () => void;
+  onPapel: () => void;
+  puedeCargar: boolean;
   destacada?: boolean;
   evento?: boolean;
 }) {
   const listo = item.estado === "hecho";
+  const impresion = enlaceImpresion(item.codigo);
   return (
     <article
       className={`h-full rounded-xl border bg-white p-3 flex flex-col gap-2 ${
@@ -172,19 +187,43 @@ function Tarjeta({
       <p className="text-xs text-[#5B6980]">{evento ? item.cuando : ESTADO_LABEL[item.estado]}</p>
       {destacada && <p className="text-xs text-[#334155] line-clamp-2">{item.porque}</p>}
       {item.detalle && <p className="text-xs text-[#B45309]">{item.detalle}</p>}
-      {!listo && (
-        <button
-          type="button"
-          onClick={onRegistrar}
-          className={`mt-auto min-h-9 rounded-lg text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
-            destacada
-              ? "bg-[#16294A] text-white hover:bg-[#0B1B33]"
-              : "border border-[#DDE3EA] text-[#16294A] hover:bg-[#F4F6F3]"
-          }`}
-        >
-          {destacada ? "Registrar ahora" : "Registrar"}
-        </button>
-      )}
+      <div className="mt-auto flex flex-col gap-1.5">
+        {!listo && (
+          <button
+            type="button"
+            onClick={onRegistrar}
+            className={`min-h-9 rounded-lg text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
+              destacada
+                ? "bg-[#16294A] text-white hover:bg-[#0B1B33]"
+                : "border border-[#DDE3EA] text-[#16294A] hover:bg-[#F4F6F3]"
+            }`}
+          >
+            {destacada ? "Registrar ahora" : "Registrar"}
+          </button>
+        )}
+        <div className="grid grid-cols-2 gap-1.5">
+          {puedeCargar && (
+            <button
+              type="button"
+              onClick={onPapel}
+              className="min-h-9 inline-flex items-center justify-center gap-1 rounded-lg border border-[#DDE3EA] text-xs font-medium text-[#16294A] hover:bg-[#F4F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
+            >
+              <IconUpload size={14} />
+              Cargar Planilla
+            </button>
+          )}
+          <a
+            href={impresion.href}
+            {...(impresion.externo ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            className={`min-h-9 inline-flex items-center justify-center gap-1 rounded-lg border border-[#DDE3EA] text-xs font-medium text-[#16294A] hover:bg-[#F4F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
+              puedeCargar ? "" : "col-span-2"
+            }`}
+          >
+            <IconPrinter size={14} />
+            Imprimir
+          </a>
+        </div>
+      </div>
     </article>
   );
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/server/db/prisma";
 import { ConfiguracionSellosForm } from "./ConfiguracionSellosForm";
+import { InvitarNucleoButton } from "./InvitarNucleoButton";
 
 export default async function ConfiguracionPage() {
   const config = await prisma.configuracionSellos.findFirst({
@@ -25,6 +26,16 @@ export default async function ConfiguracionPage() {
           La suma de todos los pesos debe ser igual a 1.00
         </p>
       </div>
+
+      <section className="bg-white rounded-2xl border border-[#DDE3EA] p-5 space-y-3">
+        <div>
+          <h2 className="font-bold text-[#0B1B33]">Equipo de Núcleo</h2>
+          <p className="text-sm text-[#5B6980] mt-1">
+            Invita a otra persona de casa central. El registro público no puede crear este rol.
+          </p>
+        </div>
+        <InvitarNucleoButton />
+      </section>
 
       <ConfiguracionSellosForm
         configActual={

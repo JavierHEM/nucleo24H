@@ -12,12 +12,14 @@ import { trpc } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PLAN_IDS, PLANES, TIPOS_LOCAL, TIPO_LOCAL_LABEL, normalizarPlan, normalizarTipoLocal, type PlanId, type TipoLocal } from "@/lib/planes";
 
 interface Props {
   casaCentralId: string;
   casaCentralNombre: string;
   rut: string;
   planActual: string;
+  tipoLocalActual: string;
 }
 
 export function AgregarSucursalButton({
@@ -25,13 +27,13 @@ export function AgregarSucursalButton({
   casaCentralNombre,
   rut,
   planActual,
+  tipoLocalActual,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [plan, setPlan] = useState<"calidad" | "integral">(
-    planActual === "integral" ? "integral" : "calidad"
-  );
+  const [plan, setPlan] = useState<PlanId>(normalizarPlan(planActual));
+  const [tipoLocal, setTipoLocal] = useState<TipoLocal>(normalizarTipoLocal(tipoLocalActual));
   const router = useRouter();
   const utils = trpc.useUtils();
 
@@ -52,6 +54,7 @@ export function AgregarSucursalButton({
       nombre: nombre.trim(),
       direccion: direccion.trim(),
       plan,
+      tipo_local: tipoLocal,
     });
   }
 
@@ -113,7 +116,7 @@ export function AgregarSucursalButton({
               <div>
                 <Label className="block mb-1.5">Plan</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["calidad", "integral"] as const).map((p) => (
+                  {PLAN_IDS.map((p) => (
                     <button
                       key={p}
                       type="button"
@@ -124,10 +127,28 @@ export function AgregarSucursalButton({
                           : "border-[#DDE3EA] text-[#5B6980] hover:border-[#2F6B2A]/50"
                       }`}
                     >
-                      {p}
+                      {PLANES[p].nombre}
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="tipo-local-sucursal" className="block mb-1.5">
+                  Tipo de local
+                </Label>
+                <select
+                  id="tipo-local-sucursal"
+                  value={tipoLocal}
+                  onChange={(e) => setTipoLocal(normalizarTipoLocal(e.target.value))}
+                  className="flex min-h-12 w-full rounded-xl border border-[#DDE3EA] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]"
+                >
+                  {TIPOS_LOCAL.map((tipo) => (
+                    <option key={tipo} value={tipo}>
+                      {TIPO_LOCAL_LABEL[tipo]}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {crear.error && (

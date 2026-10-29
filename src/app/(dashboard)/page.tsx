@@ -5,6 +5,13 @@ import { prisma } from "@/server/db/prisma";
 import { getCaller } from "@/lib/trpc/server";
 import { SelloWidget } from "@/components/dashboard/SelloWidget";
 import { AlertasPanel } from "@/components/dashboard/AlertasPanel";
+import { AccesosRapidos } from "@/components/dashboard/AccesosRapidos";
+import { ProximaVisitaCard } from "@/components/dashboard/ProximaVisitaCard";
+import { ResumenDelMes } from "@/components/dashboard/ResumenDelMes";
+import { HistorialSello } from "@/components/dashboard/HistorialSello";
+import { PlanBadge } from "@/components/plan/PlanBadge";
+import { cargarAlertasLocal } from "@/server/dashboard/alertasLocal";
+import { DECLARACIONES_VU_ANUALES } from "@/lib/planes";
 import { getCurrentPeriodo, formatDate } from "@/lib/utils";
 import { DashboardChart } from "./DashboardChart";
 import {
@@ -15,8 +22,8 @@ import {
   IconArrowRight,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
-import { puedeOperarLocal } from "@/lib/roles";
 import { GuiaDelDia } from "@/components/guia/GuiaDelDia";
+import { puedeCargarPlanilla } from "@/lib/roles";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -73,33 +80,34 @@ export default async function DashboardPage() {
       completadas: tareasRaw.filter((t: { completaciones: Array<unknown> }) => t.completaciones.length > 0).length,
       total: tareasRaw.length,
     };
-    return <TrabajadorDashboard tenantNombre={tenantNombre} userName={dbUser?.nombre} tareas={tareaResumen} />;
+    return (
+      <TrabajadorDashboard
+        tenantNombre={tenantNombre}
+        userName={dbUser?.nombre}
+        tareas={tareaResumen}
+        puedeCargar
+      />
+    );
   }
 
   // asesor: dashboard con acceso rápido a informes + KPIs del local activo
   const caller = await getCaller();
 
-  const [selloActual, historial, registros, documentos] = await Promise.allSettled([
+  const [selloActual, historial, registros, resumenPlan, alertasLocal] = await Promise.allSettled([
     caller.sellos.getActual({}),
     caller.sellos.getHistorial({ limit: 6 }),
     caller.registros.list({ limit: 100 }),
-    caller.documentos.list({}),
+    caller.plan.resumen(),
+    tenantActivo
+      ? cargarAlertasLocal(prisma, tenantActivo, userRole === "admin_local" || userRole === "admin_nucleo")
+      : Promise.resolve([]),
   ]);
 
   const sello = selloActual.status === "fulfilled" ? selloActual.value : null;
   const historialData = historial.status === "fulfilled" ? historial.value : [];
   const registrosData = registros.status === "fulfilled" ? registros.value : [];
-  const documentosData = documentos.status === "fulfilled" ? documentos.value : [];
-
-  const hoy = new Date();
-
-  const docsObservados = documentosData.filter(
-    (d: { estado: string }) => d.estado === "observado"
-  ).length;
-  const docsVencidos = documentosData.filter((d: { estado: string; vencimiento?: Date | null }) => {
-    if (!d.vencimiento) return false;
-    return new Date(d.vencimiento) < hoy;
-  }).length;
+  const resumen = resumenPlan.status === "fulfilled" ? resumenPlan.value : null;
+  const alertas = alertasLocal.status === "fulfilled" ? alertasLocal.value : [];
 
   const periodoActual = getCurrentPeriodo();
   const hoyTexto = new Date().toLocaleDateString("es-CL", {
@@ -116,20 +124,47 @@ export default async function DashboardPage() {
       nivel: s.nivel,
     }));
 
-  const alertas = [
-    ...(docsVencidos > 0
-      ? [{ id: "docs-vencidos", tipo: "vencido" as const, mensaje: `${docsVencidos} documento${docsVencidos > 1 ? "s" : ""} vencido${docsVencidos > 1 ? "s" : ""}`, href: "/documentos" }]
-      : []),
-    ...(docsObservados > 0
-      ? [{ id: "docs-obs", tipo: "proximo" as const, mensaje: `${docsObservados} documento${docsObservados > 1 ? "s" : ""} con observaciones`, href: "/documentos" }]
-      : []),
-  ];
+  const servicio = resumen?.servicioDelMes ?? null;
+  const itemsResumen = servicio
+    ? [
+        {
+          texto: "Visita presencial",
+          hecho: Boolean(servicio.visita.fecha),
+          detalle: servicio.visita.fecha ? `Realizada el ${formatDate(servicio.visita.fecha)}` : "Aún sin visita este mes",
+        },
+        {
+          texto: "Capacitación mensual",
+          hecho: Boolean(servicio.capacitacion.fecha),
+          detalle: servicio.capacitacion.fecha ? `Registrada el ${formatDate(servicio.capacitacion.fecha)}` : "Sin registro este mes",
+        },
+        {
+          texto: "Revisión de documentos",
+          hecho: servicio.documentos.total > 0 && servicio.documentos.revisados === servicio.documentos.total,
+          detalle:
+            servicio.documentos.total === 0
+              ? "Sin documentos cargados este mes"
+              : `${servicio.documentos.revisados} de ${servicio.documentos.total} revisados`,
+        },
+        ...(resumen?.ambiental
+          ? [
+              {
+                texto: "Declaraciones en Ventanilla Única",
+                hecho: resumen.ambiental.declaraciones > 0,
+                detalle: `${resumen.ambiental.declaraciones} de ${DECLARACIONES_VU_ANUALES} en este año de contrato`,
+              },
+            ]
+          : []),
+      ]
+    : [];
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[13px] font-semibold text-[#5B6980] capitalize">{hoyTexto} · {tenantNombre}</p>
+          <p className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-[#5B6980]">
+            <span className="capitalize">{hoyTexto} · {tenantNombre}</span>
+            {resumen && <PlanBadge plan={resumen.plan} />}
+          </p>
           <h1 className="text-[34px] font-extrabold leading-none tracking-tight text-[#0B1B33] mt-1">
             Buen día, {dbUser?.nombre?.split(" ")[0] ?? "equipo"}
           </h1>
@@ -145,6 +180,8 @@ export default async function DashboardPage() {
           </Link>
         )}
       </div>
+
+      <AccesosRapidos rol={userRole ?? "jefe_local"} plan={resumen?.plan} />
 
       {sello ? (
         <Link href="/sellos" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded-[14px]">
@@ -176,7 +213,21 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <GuiaDelDia puedeAjustar={puedeOperarLocal(userRole) || userRole === "asesor"} />
+      {resumen && tenantActivo && (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <ProximaVisitaCard proxima={servicio?.visita.proxima ?? null} ultima={servicio?.visita.fecha ?? null} />
+          <div className="lg:col-span-2">
+            <ResumenDelMes
+              periodo={periodoActual}
+              tenantId={tenantActivo}
+              items={itemsResumen}
+              hayInforme={Boolean(servicio?.sello)}
+            />
+          </div>
+        </div>
+      )}
+
+      <GuiaDelDia puedeCargar={puedeCargarPlanilla(userRole)} />
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {chartData.length >= 2 && (
@@ -188,6 +239,14 @@ export default async function DashboardPage() {
           <AlertasPanel alertas={alertas} />
         </div>
       </div>
+
+      <HistorialSello
+        sellos={historialData.map((item: { periodo: string; nivel: string; score_general: number }) => ({
+          periodo: item.periodo,
+          nivel: item.nivel,
+          score: item.score_general,
+        }))}
+      />
 
       {registrosData.length > 0 && (
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
@@ -228,10 +287,12 @@ function TrabajadorDashboard({
   tenantNombre,
   userName,
   tareas,
+  puedeCargar,
 }: {
   tenantNombre: string;
   userName?: string;
   tareas: TareaResumen;
+  puedeCargar: boolean;
 }) {
   const pct = tareas.total > 0 ? Math.round((tareas.completadas / tareas.total) * 100) : 0;
   const hoy = new Date().toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" });
@@ -245,7 +306,7 @@ function TrabajadorDashboard({
         <p className="text-sm text-[#5B6980] mt-1 capitalize">{hoy} · {tenantNombre}</p>
       </div>
 
-      <GuiaDelDia puedeAjustar={false} />
+      <GuiaDelDia puedeCargar={puedeCargar} />
 
       {tareas.total > 0 && (
         <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5">
