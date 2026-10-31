@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IconLoader2 } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -36,19 +36,17 @@ export function ProgramaEditor({
     onSuccess: async () => {
       await utils.programa.agenda.invalidate();
       await utils.programa.actual.invalidate();
+      setEdiciones(null);
       setGuardado(true);
     },
   });
-  const [ajustes, setAjustes] = useState<AjustePrograma[]>([]);
+  const [ediciones, setEdiciones] = useState<AjustePrograma[] | null>(null);
   const [guardado, setGuardado] = useState(false);
-
-  useEffect(() => {
-    if (actual.data) setAjustes(actual.data.map(aAjuste));
-  }, [actual.data]);
+  const ajustes = ediciones ?? actual.data?.map(aAjuste) ?? [];
 
   function actualizar(codigo: string, cambio: Partial<AjustePrograma>) {
     setGuardado(false);
-    setAjustes((prev) => prev.map((item) => (item.codigo === codigo ? { ...item, ...cambio } : item)));
+    setEdiciones(ajustes.map((item) => (item.codigo === codigo ? { ...item, ...cambio } : item)));
   }
 
   const sinLocal = actual.error?.data?.code === "BAD_REQUEST";
@@ -56,7 +54,7 @@ export function ProgramaEditor({
   function aplicarBase() {
     if (!base) return;
     setGuardado(false);
-    setAjustes((prev) => prev.map((item) => ({ ...item, activa: base.has(item.codigo) })));
+    setEdiciones(ajustes.map((item) => ({ ...item, activa: base.has(item.codigo) })));
   }
 
   return (

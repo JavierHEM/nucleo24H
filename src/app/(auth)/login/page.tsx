@@ -50,7 +50,7 @@ function LoginForm() {
     invitacionRota
       ? "Ese enlace no activó la cuenta. Pide que te reenvíen la invitación. No crees una cuenta nueva: la empresa ya está registrada."
       : errorParam === "cuenta_baja"
-        ? "Esta cuenta está dada de baja. Contacta a Nucleo 24H."
+        ? "Esta cuenta está dada de baja. Contacta a Núcleo 24H."
         : null
   );
 
@@ -72,7 +72,7 @@ function LoginForm() {
       const baja = error.message.toLowerCase().includes("ban");
       setServerError(
         baja
-          ? "Esta cuenta está dada de baja. Contacta a Nucleo 24H."
+          ? "Esta cuenta está dada de baja. Contacta a Núcleo 24H."
           : "Credenciales incorrectas. Verifica tu email y contraseña."
       );
       return;

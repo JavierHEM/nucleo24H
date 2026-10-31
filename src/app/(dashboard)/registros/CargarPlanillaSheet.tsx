@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { IconUpload, IconChevronLeft, IconX, IconLoader2, IconCircleCheck } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,15 +39,18 @@ export function CargarPlanillaSheet({
   const fileRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
 
-  useEffect(() => {
-    if (!codigo) return;
-    const encontrada = getPlanilla(codigo) ?? null;
-    setPlanilla(encontrada);
-    setFamilia(encontrada?.familia ?? null);
-    setNota("");
-    setArchivo({ status: "idle" });
-    setAviso(null);
-  }, [codigo]);
+  const [codigoPrevio, setCodigoPrevio] = useState(codigo);
+  if (codigo !== codigoPrevio) {
+    setCodigoPrevio(codigo);
+    if (codigo) {
+      const encontrada = getPlanilla(codigo) ?? null;
+      setPlanilla(encontrada);
+      setFamilia(encontrada?.familia ?? null);
+      setNota("");
+      setArchivo({ status: "idle" });
+      setAviso(null);
+    }
+  }
   const programa = trpc.programa.actual.useQuery(undefined, { enabled: open });
   const codigos = new Set((programa.data ?? []).filter((item) => item.activa).map((item) => item.codigo));
   const familias = FAMILIAS.filter((item) => planillasDe(item.id).some((planilla) => codigos.has(planilla.codigo)));

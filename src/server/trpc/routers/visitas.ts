@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireAsesor, requireAdmin } from "@/server/middleware/rbac";
+import { exigirAsesorAsignado } from "@/server/middleware/asesor";
 import {
   itemEvaluacionSchema,
   noConformidadesDe,
@@ -62,6 +63,8 @@ export const visitasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      await exigirAsesorAsignado(ctx, input.tenant_id);
+
       const error = validarEvaluacion(input.tipo, input.evaluacion);
       if (error) {
         throw new TRPCError({ code: "BAD_REQUEST", message: error });
@@ -124,6 +127,8 @@ export const visitasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      await exigirAsesorAsignado(ctx, input.tenant_id);
+
       const fecha = new Date(input.fecha);
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);

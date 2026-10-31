@@ -105,7 +105,7 @@ export default async function AdminPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33]">Panel Administración</h1>
-        <p className="text-sm text-[#5B6980] mt-1">Gestión global de Nucleo 24H</p>
+        <p className="text-sm text-[#5B6980] mt-1">Gestión global de Núcleo 24H</p>
       </div>
 
       {/* KPI cards principales */}

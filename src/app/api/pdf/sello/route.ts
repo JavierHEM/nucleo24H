@@ -2,19 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
-import { APP_NAME, APP_FOOTER, LOGO_PATHS, absoluteAssetUrl } from "@/lib/branding";
+import QRCode from "qrcode";
+import { getAppUrl } from "@/lib/branding";
+import { construirHtmlSello } from "@/server/pdf/selloHtml";
+import { logoNegativoParaPdf } from "@/server/pdf/logoNegativo";
 
 const querySchema = z.object({
   tenantId: z.string().uuid(),
   periodo: z.string().regex(/^\d{4}-\d{2}$/),
 });
-
-const NIVEL_COLOR: Record<string, string> = {
-  inicial: "#B42318",
-  intermedio: "#D97706",
-  avanzado: "#2F6B2A",
-  premium: "#0B1B33",
-};
 
 export async function GET(req: NextRequest) {
   const browserlessToken = process.env.BROWSERLESS_TOKEN;
@@ -90,126 +86,37 @@ export async function GET(req: NextRequest) {
     1
   ).toLocaleString("es-CL", { month: "long", year: "numeric" });
 
-  const nivelColor = NIVEL_COLOR[sello.nivel] ?? "#0B1B33";
-  const planMejoras = (sello.plan_mejoras ?? []) as string[];
+  const verificacionUrl = `${getAppUrl()}/sello/${sello.id}`;
+  const [qrDataUrl, logoSrc] = await Promise.all([
+    QRCode.toString(verificacionUrl, {
+      type: "svg",
+      margin: 1,
+      width: 208,
+      color: { dark: "#0B1B33", light: "#FFFFFF" },
+    }),
+    logoNegativoParaPdf(),
+  ]);
 
-  // HTML del PDF
-  const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sello ${periodoDisplay} — ${tenant?.nombre ?? ""}</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background: #F4F6F3; color: #0B1B33; }
-  .page { width: 794px; min-height: 1123px; margin: 0 auto; background: white; padding: 0; }
-  .header { background: #0B1B33; color: white; padding: 36px 48px 32px; }
-  .header-logo { display: block; width: 190px; height: auto; margin-bottom: 18px; }
-  .header-badge { display: inline-block; background: #2F6B2A; color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
-  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
-  .header p { font-size: 14px; color: rgba(255,255,255,0.65); }
-  .body { padding: 40px 48px; }
-  .score-section { display: flex; align-items: center; justify-content: space-between; background: #F4F6F3; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; }
-  .score-number { font-size: 72px; font-weight: 900; color: ${nivelColor}; line-height: 1; }
-  .score-label { font-size: 20px; font-weight: 700; color: ${nivelColor}; text-transform: capitalize; margin-top: 4px; }
-  .score-right { text-align: right; }
-  .score-right p { font-size: 13px; color: #5B6980; margin-bottom: 4px; }
-  .section-title { font-size: 11px; font-weight: 700; color: #5B6980; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
-  .breakdown { margin-bottom: 28px; }
-  .cat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .cat-label { font-size: 13px; color: #334155; width: 240px; flex-shrink: 0; }
-  .cat-bar { flex: 1; height: 8px; background: #DDE3EA; border-radius: 9999px; overflow: hidden; }
-  .cat-fill { height: 100%; border-radius: 9999px; }
-  .cat-score { font-size: 13px; font-weight: 700; width: 48px; text-align: right; flex-shrink: 0; }
-  .divider { height: 1px; background: #DDE3EA; margin: 24px 0; }
-  .mejoras { margin-bottom: 28px; }
-  .mejora-item { display: flex; gap: 12px; margin-bottom: 8px; }
-  .mejora-num { width: 22px; height: 22px; border-radius: 50%; background: #E5F1E3; color: #255620; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .mejora-text { font-size: 13px; color: #334155; line-height: 1.5; }
-  .descargos-banner { background: #0B1B33; color: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; }
-  .descargos-banner p:first-child { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-  .descargos-banner p:last-child { font-size: 12px; opacity: 0.7; }
-  .footer { margin-top: auto; border-top: 1px solid #DDE3EA; padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; }
-  .footer p { font-size: 11px; color: #94A3B8; }
-  .green { color: #2F6B2A; } .amber { color: #D97706; } .red { color: #B42318; }
-</style>
-</head>
-<body>
-<div class="page">
-  <div class="header">
-    <img class="header-logo" src="${absoluteAssetUrl(LOGO_PATHS.negativo)}" alt="${APP_NAME}" />
-    <div class="header-badge">BPM</div>
-    <h1>${tenant?.nombre ?? "Local"}</h1>
-    <p>${tenant?.direccion ?? ""} &nbsp;·&nbsp; Informe mensual ${periodoDisplay}</p>
-  </div>
-
-  <div class="body">
-    <!-- Score principal -->
-    <div class="score-section">
-      <div>
-        <div class="score-number">${sello.score_general.toFixed(1)}%</div>
-        <div class="score-label">${sello.nivel}</div>
-      </div>
-      <div class="score-right">
-        <p>Período</p>
-        <strong>${periodoDisplay}</strong>
-        <p style="margin-top:10px">Emitido</p>
-        <strong>${new Date(sello.emitido_at).toLocaleDateString("es-CL")}</strong>
-      </div>
-    </div>
-
-    <!-- Desglose -->
-    <div class="breakdown">
-      <p class="section-title">Desglose por dimensión</p>
-      ${[
-        { label: "Documentación y registros (30%)", score: sello.score_documentacion },
-        { label: "Condiciones sanitarias (25%)", score: sello.score_condiciones },
-        { label: "Capacitaciones (25%)", score: sello.score_capacitaciones },
-        { label: "Tareas completadas (20%)", score: sello.score_tareas },
-      ]
-        .map(
-          (cat) => `
-      <div class="cat-row">
-        <span class="cat-label">${cat.label}</span>
-        <div class="cat-bar">
-          <div class="cat-fill" style="width:${cat.score}%; background:${cat.score >= 80 ? "#2F6B2A" : cat.score >= 60 ? "#D97706" : "#B42318"}"></div>
-        </div>
-        <span class="cat-score ${cat.score >= 80 ? "green" : cat.score >= 60 ? "amber" : "red"}">${cat.score.toFixed(0)}%</span>
-      </div>`
-        )
-        .join("")}
-    </div>
-
-    ${
-      planMejoras.length > 0
-        ? `<div class="divider"></div>
-    <div class="mejoras">
-      <p class="section-title">Plan de mejoras</p>
-      ${planMejoras.map((m, i) => `<div class="mejora-item"><div class="mejora-num">${i + 1}</div><p class="mejora-text">${m}</p></div>`).join("")}
-    </div>`
-        : ""
-    }
-
-    ${
-      sello.descargos_habilitados
-        ? `<div class="divider"></div>
-    <div class="descargos-banner">
-      <p>⭐ Descargos administrativos habilitados</p>
-      <p>Como local Premium, dispones de descargos gratuitos ante la autoridad sanitaria. Contacta a tu asesor para utilizarlos.</p>
-    </div>`
-        : ""
-    }
-  </div>
-
-  <div class="footer">
-    <p>${APP_FOOTER}</p>
-    <p>Generado el ${new Date().toLocaleDateString("es-CL")}</p>
-  </div>
-</div>
-</body>
-</html>`;
+  const html = construirHtmlSello({
+    local: tenant?.nombre ?? "Local",
+    direccion: tenant?.direccion ?? "",
+    periodoDisplay,
+    nivel: sello.nivel,
+    scoreGeneral: sello.score_general,
+    scores: {
+      score_documentacion: sello.score_documentacion,
+      score_condiciones: sello.score_condiciones,
+      score_capacitaciones: sello.score_capacitaciones,
+      score_tareas: sello.score_tareas,
+    },
+    emitidoAt: sello.emitido_at,
+    planMejoras: (sello.plan_mejoras ?? []) as string[],
+    descargosHabilitados: sello.descargos_habilitados,
+    selloId: sello.id,
+    verificacionUrl,
+    qrDataUrl,
+    logoSrc,
+  });
 
   try {
     // Browserless v2 REST API

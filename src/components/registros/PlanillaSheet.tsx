@@ -1,41 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IconChevronLeft, IconX } from "@tabler/icons-react";
 import { FormPlanilla } from "@/components/registros/FormPlanilla";
 import { trpc } from "@/lib/trpc/client";
 import { FAMILIAS, getPlanilla, planillasDe, type FamiliaId, type Planilla } from "@/lib/bpm/planillas";
 
-export function PlanillaSheet({
-  abierto,
-  onCerrar,
-  codigo,
-  onSuccess,
-}: {
+type PlanillaSheetProps = {
   abierto: boolean;
   onCerrar: () => void;
   codigo?: string | null;
   onSuccess?: () => void;
-}) {
-  const [familia, setFamilia] = useState<FamiliaId | null>(null);
-  const [planilla, setPlanilla] = useState<Planilla | null>(null);
+};
+
+export function PlanillaSheet(props: PlanillaSheetProps) {
+  if (!props.abierto) return null;
+  return <PlanillaSheetAbierta key={props.codigo ?? "nueva"} {...props} />;
+}
+
+function PlanillaSheetAbierta({ abierto, onCerrar, codigo, onSuccess }: PlanillaSheetProps) {
+  const inicial = codigo ? (getPlanilla(codigo) ?? null) : null;
+  const [familia, setFamilia] = useState<FamiliaId | null>(inicial?.familia ?? null);
+  const [planilla, setPlanilla] = useState<Planilla | null>(inicial);
   const contexto = trpc.registros.contexto.useQuery(undefined, { enabled: abierto });
   const programa = trpc.programa.actual.useQuery(undefined, { enabled: abierto });
   const fija = Boolean(codigo);
   const codigos = new Set((programa.data ?? []).filter((item) => item.activa).map((item) => item.codigo));
   const familias = FAMILIAS.filter((item) => planillasDe(item.id).some((planilla) => codigos.has(planilla.codigo)));
-
-  useEffect(() => {
-    if (!abierto) {
-      setFamilia(null);
-      setPlanilla(null);
-      return;
-    }
-    if (!codigo) return;
-    const encontrada = getPlanilla(codigo) ?? null;
-    setPlanilla(encontrada);
-    setFamilia(encontrada?.familia ?? null);
-  }, [abierto, codigo]);
 
   function cerrar() {
     onCerrar();
@@ -58,8 +49,6 @@ export function PlanillaSheet({
     : familia
       ? FAMILIAS.find((item) => item.id === familia)?.label
       : "Nueva planilla";
-
-  if (!abierto) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">

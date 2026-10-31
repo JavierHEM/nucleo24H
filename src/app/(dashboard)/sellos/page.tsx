@@ -78,10 +78,10 @@ export default async function SellosPage() {
       {canEmitir && <RevisionesPanel />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-2">
           <SelloActual userRole={userRole} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-1">
           <HistorialSellos />
         </div>
       </div>

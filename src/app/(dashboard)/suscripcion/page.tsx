@@ -180,7 +180,7 @@ export default async function SuscripcionPage() {
             <p className="font-semibold">Pago por transferencia bancaria</p>
             <p className="text-xs mt-1 text-[#2F6B2A]">
               El pago en línea estará disponible próximamente. Por ahora, realiza tu
-              pago por transferencia y el equipo de Nucleo 24H lo registrará aquí.
+              pago por transferencia y el equipo de Núcleo 24H lo registrará aquí.
             </p>
           </div>
         </div>

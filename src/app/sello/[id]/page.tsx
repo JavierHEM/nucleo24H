@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/server/db/prisma";
 import QRCode from "qrcode";
-import { IconMedal, IconShieldCheck, IconMapPin, IconCalendar, IconCircleCheck } from "@tabler/icons-react";
+import { IconMedal, IconMapPin, IconCalendar, IconCircleCheck } from "@tabler/icons-react";
 import { getAppUrl } from "@/lib/branding";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const NIVEL_CONFIG = {
   inicial: {
@@ -82,11 +83,8 @@ export default async function CertificadoPage({ params }: PageProps) {
     <div className="min-h-screen bg-[#F4F6F3] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header marca */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-9 h-9 rounded-lg bg-[#0B1B33] flex items-center justify-center">
-            <IconShieldCheck size={20} className="text-[#2F6B2A]" />
-          </div>
-          <span className="text-lg font-bold text-[#0B1B33]">Nucleo 24H</span>
+        <div className="flex justify-center mb-6">
+          <BrandLogo className="w-44" priority />
         </div>
 
         {/* Certificado */}

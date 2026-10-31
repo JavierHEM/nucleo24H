@@ -436,3 +436,19 @@ model TareaCompletacion {
   @@index([tarea_id, fecha])
   @@index([user_id])
 }
+
+// Solicitudes de diagnóstico enviadas desde el landing público
+model Lead {
+  id         String   @id @default(uuid())
+  nombre     String
+  local      String
+  telefono   String
+  tipo_local String
+  mensaje    String?
+  origen     String   @default("landing")
+  atendido   Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+  @@index([telefono, created_at])
+}

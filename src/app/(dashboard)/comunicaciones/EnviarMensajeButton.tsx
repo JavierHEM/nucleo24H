@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconPencil, IconX, IconSend, IconUser } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
@@ -17,12 +17,7 @@ export function EnviarMensajeButton() {
   const { data: contactos, isLoading: cargandoContactos } =
     trpc.comunicaciones.getContactos.useQuery(undefined, { enabled: open });
 
-  // Preseleccionar el único contacto si solo hay uno
-  useEffect(() => {
-    if (contactos?.length === 1 && !paraId) {
-      setParaId(contactos[0].id);
-    }
-  }, [contactos, paraId]);
+  const destinatarioId = paraId ?? (contactos?.length === 1 ? contactos[0].id : null);
 
   const { mutateAsync, isPending } = trpc.comunicaciones.enviar.useMutation({
     onSuccess: () => {
@@ -41,7 +36,7 @@ export function EnviarMensajeButton() {
   }
 
   async function handleEnviar() {
-    if (!paraId) {
+    if (!destinatarioId) {
       setError("Selecciona un destinatario.");
       return;
     }
@@ -50,7 +45,7 @@ export function EnviarMensajeButton() {
       return;
     }
     setError("");
-    await mutateAsync({ para: paraId, contenido });
+    await mutateAsync({ para: destinatarioId, contenido });
   }
 
   return (
@@ -97,7 +92,7 @@ export function EnviarMensajeButton() {
                         type="button"
                         onClick={() => setParaId(c.id)}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-colors text-left ${
-                          paraId === c.id
+                          destinatarioId === c.id
                             ? "border-[#2F6B2A] bg-[#E5F1E3]"
                             : "border-[#DDE3EA] hover:border-[#2F6B2A]/40"
                         }`}
@@ -132,7 +127,7 @@ export function EnviarMensajeButton() {
 
               <Button
                 onClick={handleEnviar}
-                disabled={isPending || !paraId || contenido.trim().length === 0}
+                disabled={isPending || !destinatarioId || contenido.trim().length === 0}
                 className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white gap-2"
               >
                 <IconSend size={16} />

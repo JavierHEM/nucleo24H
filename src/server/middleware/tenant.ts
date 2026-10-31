@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { t } from "@/server/trpc/trpc";
+import { exigirAsesorAsignado } from "@/server/middleware/asesor";
 
 /**
  * Exige sesión y un local activo, y comprueba que el usuario pertenezca a ese local.
@@ -23,9 +24,12 @@ export const withTenant = t.middleware(async ({ ctx, next }) => {
     return next({ ctx });
   }
 
-  // Verificar que el usuario tenga acceso al tenant activo
-  // (para asesor, su tenant_activo debe estar en AsignacionAsesor)
-  if (ctx.userRole !== "asesor" && !ctx.tenants.includes(ctx.tenantActivo)) {
+  if (ctx.userRole === "asesor") {
+    await exigirAsesorAsignado(ctx, ctx.tenantActivo);
+    return next({ ctx });
+  }
+
+  if (!ctx.tenants.includes(ctx.tenantActivo)) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "No tienes acceso a este local.",

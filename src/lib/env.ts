@@ -26,6 +26,9 @@ const envSchema = z.object({
   // Browserless — opcional hasta Sprint 6
   BROWSERLESS_TOKEN: z.string().optional(),
 
+  // Correo que recibe los contactos del formulario de diagnóstico
+  LEADS_NOTIFY_EMAIL: z.string().email().optional(),
+
   // Cron jobs (Vercel Cron lo envía como Authorization: Bearer <secret>)
   CRON_SECRET: z.string().optional(),
 

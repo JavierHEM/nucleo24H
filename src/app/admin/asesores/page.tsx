@@ -119,7 +119,7 @@ export default async function AdminAsesoresPage({ searchParams }: PageProps) {
         <div>
           <h1 className="text-2xl font-bold text-[#0B1B33]">Asesores</h1>
           <p className="text-sm text-[#5B6980] mt-1">
-            Cuentas de Nucleo 24H y los locales que cada una tiene a cargo.
+            Cuentas de Núcleo 24H y los locales que cada una tiene a cargo.
           </p>
         </div>
         <InvitarAsesorButton />

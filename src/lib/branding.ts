@@ -1,10 +1,10 @@
-export const APP_NAME = "Nucleo 24H";
-export const APP_NAME_UPPER = "NUCLEO 24H";
+export const APP_NAME = "Núcleo 24H";
+export const APP_NAME_UPPER = "NÚCLEO 24H";
 export const APP_LEGAL_NAME = "Nucleo 24H SpA";
 export const APP_TAGLINE = "Gestión y Cumplimiento Integral";
 export const APP_FOOTER =
-  "Nucleo 24H · Gestión y Cumplimiento Integral · Osorno, Chile";
-export const APP_PAGE_TITLE = "Nucleo 24H — Gestión y Cumplimiento Integral";
+  "Núcleo 24H · Gestión y Cumplimiento Integral · Osorno, Chile";
+export const APP_PAGE_TITLE = "Núcleo 24H — Gestión y Cumplimiento Integral";
 
 export const LOGO_PATHS = {
   principal: "/logo/principal.png",

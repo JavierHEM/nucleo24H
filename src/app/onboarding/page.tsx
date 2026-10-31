@@ -96,7 +96,7 @@ function OnboardingForm() {
             <>
               {/* Header */}
               <div className="bg-[#0B1B33] px-6 py-5">
-                <h1 className="text-white font-bold text-lg">Bienvenido a Nucleo 24H</h1>
+                <h1 className="text-white font-bold text-lg">Bienvenido a Núcleo 24H</h1>
                 <p className="text-white/60 text-sm mt-0.5">
                   Configura tu cuenta para comenzar
                 </p>
