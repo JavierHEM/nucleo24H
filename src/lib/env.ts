@@ -22,6 +22,7 @@ const envSchema = z.object({
   // Mercado Pago — opcional hasta que el cliente cree la cuenta
   MERCADOPAGO_ACCESS_TOKEN: z.string().optional(),
   MERCADOPAGO_WEBHOOK_SECRET: z.string().optional(),
+  MERCADOPAGO_MODO: z.enum(["prueba", "produccion"]).optional(),
 
   // Browserless — opcional hasta Sprint 6
   BROWSERLESS_TOKEN: z.string().optional(),

@@ -12,6 +12,7 @@ import {
 import {
   createMercadoPagoPreference,
   isMercadoPagoConfigured,
+  modoMercadoPago,
   MercadoPagoNotConfiguredError,
 } from "@/lib/payments/mercadopago";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
@@ -58,7 +59,12 @@ export const pagosRouter = router({
         suscripcion?.monto_clp ??
         PLAN_PRECIOS_CLP[tenant?.plan ?? "calidad"] ??
         PLAN_PRECIOS_CLP.calidad,
-      pagosEnLineaDisponibles: isFlowConfigured(),
+      pagosEnLineaDisponibles: isMercadoPagoConfigured() || isFlowConfigured(),
+      medioPagoEnLinea: isMercadoPagoConfigured()
+        ? "mercadopago"
+        : isFlowConfigured()
+          ? "flow"
+          : null,
     };
   }),
 
@@ -231,7 +237,7 @@ export const pagosRouter = router({
       });
 
       const appUrl = getAppUrl();
-      const modo = process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith("TEST-") ? "prueba" : "produccion";
+      const modo = modoMercadoPago();
 
       try {
         const preferencia = await createMercadoPagoPreference({

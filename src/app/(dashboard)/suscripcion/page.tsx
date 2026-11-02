@@ -172,7 +172,6 @@ export default async function SuscripcionPage() {
         )}
       </div>
 
-      {/* Aviso pago por transferencia mientras Flow no esté activo */}
       {!data.pagosEnLineaDisponibles && (
         <div className="bg-[#E5F1E3] rounded-xl border border-green-200 p-4 flex items-start gap-3">
           <IconBuildingBank size={20} className="text-[#255620] shrink-0 mt-0.5" />

@@ -4,6 +4,7 @@ const MP_API_URL = "https://api.mercadopago.com";
 const TOLERANCIA_FIRMA_MS = 5 * 60 * 1000;
 
 export type MercadoPagoEstadoPago = "pendiente" | "pagado" | "rechazado" | "anulado";
+export type ModoWebhookMercadoPago = "prueba" | "produccion";
 
 const MP_STATUS_MAP: Record<string, MercadoPagoEstadoPago> = {
   approved: "pagado",
@@ -37,6 +38,13 @@ export class MercadoPagoApiError extends Error {
 
 export function isMercadoPagoConfigured(): boolean {
   return Boolean(process.env.MERCADOPAGO_ACCESS_TOKEN && process.env.MERCADOPAGO_WEBHOOK_SECRET);
+}
+
+export function modoMercadoPago(): ModoWebhookMercadoPago {
+  if (process.env.MERCADOPAGO_MODO === "prueba" || process.env.MERCADOPAGO_MODO === "produccion") {
+    return process.env.MERCADOPAGO_MODO;
+  }
+  return process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith("TEST-") ? "prueba" : "produccion";
 }
 
 export function mapMercadoPagoStatus(status: string): MercadoPagoEstadoPago {
@@ -138,8 +146,6 @@ export async function createMercadoPagoPreference(params: {
   );
   return { id: preferencia.id, initPoint: preferencia.init_point, sandboxInitPoint: preferencia.sandbox_init_point };
 }
-
-export type ModoWebhookMercadoPago = "prueba" | "produccion";
 
 export function modoCoincide(pago: Pick<PagoMercadoPago, "live_mode">, modo: ModoWebhookMercadoPago): boolean {
   return modo === "produccion" ? pago.live_mode === true : pago.live_mode === false;

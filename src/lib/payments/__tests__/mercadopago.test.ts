@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import {
   mapMercadoPagoStatus,
   modoCoincide,
+  modoMercadoPago,
   montoCoincide,
   verificarFirmaMercadoPago,
 } from "@/lib/payments/mercadopago";
@@ -63,5 +64,18 @@ describe("estados y montos", () => {
     expect(modoCoincide({ live_mode: true }, "prueba")).toBe(false);
     expect(modoCoincide({ live_mode: true }, "produccion")).toBe(true);
     expect(modoCoincide({ live_mode: undefined }, "produccion")).toBe(false);
+  });
+
+  it("respeta MERCADOPAGO_MODO aunque el token no empiece con TEST-", () => {
+    const tokenAnterior = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const modoAnterior = process.env.MERCADOPAGO_MODO;
+    process.env.MERCADOPAGO_ACCESS_TOKEN = "APP_USR-prueba";
+    process.env.MERCADOPAGO_MODO = "prueba";
+    expect(modoMercadoPago()).toBe("prueba");
+    delete process.env.MERCADOPAGO_MODO;
+    expect(modoMercadoPago()).toBe("produccion");
+    process.env.MERCADOPAGO_ACCESS_TOKEN = tokenAnterior;
+    if (modoAnterior === undefined) delete process.env.MERCADOPAGO_MODO;
+    else process.env.MERCADOPAGO_MODO = modoAnterior;
   });
 });

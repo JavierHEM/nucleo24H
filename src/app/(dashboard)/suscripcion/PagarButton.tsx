@@ -14,7 +14,7 @@ interface PagarButtonProps {
 export function PagarButton({ periodo, monto, disponible }: PagarButtonProps) {
   const [error, setError] = useState<string | null>(null);
 
-  const pagar = trpc.pagos.pagar.useMutation({
+  const pagar = trpc.pagos.pagarMercadoPago.useMutation({
     onSuccess: ({ redirectUrl }) => {
       window.location.href = redirectUrl;
     },
@@ -28,7 +28,7 @@ export function PagarButton({ periodo, monto, disponible }: PagarButtonProps) {
       <button
         disabled
         className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-[#DDE3EA] text-[#94A3B8] cursor-not-allowed min-h-12"
-        title="El pago en línea estará disponible próximamente"
+        title="El pago en línea estará disponible cuando Mercado Pago esté configurado"
       >
         <IconCreditCard size={18} />
         Pago en línea próximamente
