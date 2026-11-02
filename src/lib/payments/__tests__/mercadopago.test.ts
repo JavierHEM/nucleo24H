@@ -5,6 +5,7 @@ import {
   modoCoincide,
   modoMercadoPago,
   montoCoincide,
+  transicionPagoMercadoPago,
   verificarFirmaMercadoPago,
 } from "@/lib/payments/mercadopago";
 
@@ -49,6 +50,8 @@ describe("estados y montos", () => {
     expect(mapMercadoPagoStatus("approved")).toBe("pagado");
     expect(mapMercadoPagoStatus("rejected")).toBe("rechazado");
     expect(mapMercadoPagoStatus("refunded")).toBe("anulado");
+    expect(mapMercadoPagoStatus("charged_back")).toBe("anulado");
+    expect(mapMercadoPagoStatus("cancelled")).toBe("anulado");
     expect(mapMercadoPagoStatus("in_process")).toBe("pendiente");
     expect(mapMercadoPagoStatus("desconocido")).toBe("pendiente");
   });
@@ -64,6 +67,29 @@ describe("estados y montos", () => {
     expect(modoCoincide({ live_mode: true }, "prueba")).toBe(false);
     expect(modoCoincide({ live_mode: true }, "produccion")).toBe(true);
     expect(modoCoincide({ live_mode: undefined }, "produccion")).toBe(false);
+  });
+
+  it("activa la suscripción al aprobar y la deja morosa si se anula el único pago", () => {
+    expect(transicionPagoMercadoPago({ estadoActual: "pendiente", estadoNuevo: "pagado", hayOtroPagoDelPeriodo: false })).toEqual({
+      actualizarPago: true,
+      suscripcion: "activa",
+    });
+    expect(transicionPagoMercadoPago({ estadoActual: "pagado", estadoNuevo: "anulado", hayOtroPagoDelPeriodo: false })).toEqual({
+      actualizarPago: true,
+      suscripcion: "morosa",
+    });
+    expect(transicionPagoMercadoPago({ estadoActual: "pagado", estadoNuevo: "anulado", hayOtroPagoDelPeriodo: true })).toEqual({
+      actualizarPago: true,
+      suscripcion: null,
+    });
+    expect(transicionPagoMercadoPago({ estadoActual: "pagado", estadoNuevo: "pagado", hayOtroPagoDelPeriodo: false })).toEqual({
+      actualizarPago: false,
+      suscripcion: null,
+    });
+    expect(transicionPagoMercadoPago({ estadoActual: "pagado", estadoNuevo: "rechazado", hayOtroPagoDelPeriodo: false })).toEqual({
+      actualizarPago: false,
+      suscripcion: null,
+    });
   });
 
   it("respeta MERCADOPAGO_MODO aunque el token no empiece con TEST-", () => {

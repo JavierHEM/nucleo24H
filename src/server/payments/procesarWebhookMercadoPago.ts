@@ -6,6 +6,7 @@ import {
   mapMercadoPagoStatus,
   modoCoincide,
   montoCoincide,
+  transicionPagoMercadoPago,
   verificarFirmaMercadoPago,
   type ModoWebhookMercadoPago,
 } from "@/lib/payments/mercadopago";
@@ -69,9 +70,30 @@ export async function procesarWebhookMercadoPago(req: NextRequest, modo: ModoWeb
       return NextResponse.json({ error: "Monto no coincide" }, { status: 400 });
     }
 
-    if (pago.estado === "pagado") {
+    const otroPagado = await prisma.pago.findFirst({
+      where: {
+        tenant_id: pago.tenant_id,
+        periodo: pago.periodo,
+        estado: "pagado",
+        id: { not: pago.id },
+      },
+      select: { id: true },
+    });
+
+    const transicion = transicionPagoMercadoPago({
+      estadoActual: pago.estado,
+      estadoNuevo: estado,
+      hayOtroPagoDelPeriodo: Boolean(otroPagado),
+    });
+
+    if (!transicion.actualizarPago) {
       return NextResponse.json({ ok: true, estado: pago.estado });
     }
+
+    const observacionReverso =
+      pago.estado === "pagado" && estado === "anulado"
+        ? [pago.observacion, `Reembolso o contracargo Mercado Pago (${pagoMp.status})`].filter(Boolean).join(" · ")
+        : pago.observacion;
 
     await prisma.pago.update({
       where: { id: pago.id },
@@ -79,12 +101,23 @@ export async function procesarWebhookMercadoPago(req: NextRequest, modo: ModoWeb
         estado,
         metodo: "mercadopago",
         mp_payment_id: String(pagoMp.id),
-        pagado_at: estado === "pagado" ? new Date() : null,
+        pagado_at: estado === "pagado" ? new Date() : pago.pagado_at,
+        observacion: observacionReverso,
       },
     });
 
-    if (estado === "pagado" && pago.suscripcion_id) {
-      await prisma.suscripcion.update({ where: { id: pago.suscripcion_id }, data: { estado: "activa" } });
+    if (transicion.suscripcion && pago.suscripcion_id) {
+      await prisma.suscripcion.update({
+        where: { id: pago.suscripcion_id },
+        data: { estado: transicion.suscripcion },
+      });
+      console.info("[webhook/mercadopago] Suscripción actualizada", {
+        pagoId: pago.id,
+        tenantId: pago.tenant_id,
+        estadoPago: estado,
+        suscripcion: transicion.suscripcion,
+        mpStatus: pagoMp.status,
+      });
     }
 
     return NextResponse.json({ ok: true, estado });

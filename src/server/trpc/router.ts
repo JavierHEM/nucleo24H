@@ -14,6 +14,7 @@ import { planRouter } from "./routers/plan";
 import { ambientalRouter } from "./routers/ambiental";
 import { calendarioRouter } from "./routers/calendario";
 import { fiscalizacionesRouter } from "./routers/fiscalizaciones";
+import { leadsRouter } from "./routers/leads";
 
 export const appRouter = router({
   sellos: sellosRouter,
@@ -31,6 +32,7 @@ export const appRouter = router({
   ambiental: ambientalRouter,
   calendario: calendarioRouter,
   fiscalizaciones: fiscalizacionesRouter,
+  leads: leadsRouter,
 });
 
 export type AppRouter = typeof appRouter;

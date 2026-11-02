@@ -26,14 +26,15 @@ function createPrismaClient(): PrismaClient {
   });
 }
 
-// En dev, si DATABASE_URL cambió (reload de .env.local), recrear el cliente
-// para no seguir usando el pool con la conexión antigua.
-const staleClient =
-  process.env.NODE_ENV !== "production" &&
-  globalForPrisma.prisma !== undefined &&
-  globalForPrisma.prismaConnectionString !== process.env.DATABASE_URL;
+function prismaEstaDesactualizado(client: PrismaClient | undefined): boolean {
+  if (!client) return false;
+  if (globalForPrisma.prismaConnectionString !== process.env.DATABASE_URL) return true;
+  const delegates = client as PrismaClient & { ticket?: { create?: unknown }; notificacion?: { count?: unknown } };
+  return typeof delegates.ticket?.create !== "function" || typeof delegates.notificacion?.count !== "function";
+}
 
-if (staleClient) {
+// En dev, recrear el cliente si cambió DATABASE_URL o el schema (modelos nuevos).
+if (process.env.NODE_ENV !== "production" && prismaEstaDesactualizado(globalForPrisma.prisma)) {
   void globalForPrisma.prisma?.$disconnect().catch(() => {});
   globalForPrisma.prisma = undefined;
 }

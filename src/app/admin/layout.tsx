@@ -30,7 +30,7 @@ export default async function AdminLayout({
     <div className="flex h-screen overflow-hidden bg-[#F4F6F3]">
       <Sidebar userRole="admin_nucleo" mode="admin" />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <TopBar userName={dbUser.nombre} />
+        <TopBar userName={dbUser.nombre} userRole="admin_nucleo" />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
           {children}
         </main>

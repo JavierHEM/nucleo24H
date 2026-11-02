@@ -28,7 +28,7 @@ function accesosPara(rol: UserRole, plan: unknown): Acceso[] {
       { href: "/calendario", label: "Calendario", icon: IconCalendarEvent },
       { href: "/programa", label: "Programa", icon: IconClipboardCheck },
       { href: "/sellos", label: "Sellos", icon: IconMedal },
-      { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2 },
+      { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2 },
     ];
   }
 
@@ -38,7 +38,7 @@ function accesosPara(rol: UserRole, plan: unknown): Acceso[] {
     { href: "/sellos", label: "Sello", icon: IconMedal },
     { href: "/calendario", label: "Calendario", icon: IconCalendarEvent },
     { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel },
-    { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2 },
+    { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2 },
   ];
   if (planIncluye(plan, "ambiental")) {
     accesos.push({ href: "/ambiental", label: "Ambiental", icon: IconLeaf });

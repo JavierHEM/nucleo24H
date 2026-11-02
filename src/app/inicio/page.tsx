@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
-import { APP_LEGAL_NAME, APP_NAME, APP_TAGLINE } from "@/lib/branding";
+import { APP_LEGAL_NAME, APP_NAME, APP_TAGLINE, CONTACTO_CORREO, CONTACTO_SOPORTE } from "@/lib/branding";
 import { PLANES as CATALOGO_PLANES, CONTRATO_MESES } from "@/lib/planes";
 import { formatCLP } from "@/lib/utils";
 import { DiagnosticoForm } from "./DiagnosticoForm";
@@ -187,7 +187,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <Boton href="#contacto" className="bg-[#E3B341] text-[#0B1B33]">Agenda tu diagnóstico</Boton>
-              <Boton href="#contacto" className="bg-transparent text-white border-[#8FA2C0]">Escríbenos por WhatsApp</Boton>
+              <Boton href={`mailto:${CONTACTO_CORREO}`} className="bg-transparent text-white border-[#8FA2C0]">Escríbenos</Boton>
             </div>
             <ul className="flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#C9D3E3]">
               {["Visita mensual presencial", "Documentos listos para fiscalización", "Sello mensual verificable"].map((item) => (
@@ -444,9 +444,16 @@ export default function LandingPage() {
             <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Agenda tu diagnóstico inicial.</h2>
             <p className="text-lg font-medium leading-relaxed text-[#C9D3E3]">Cuéntanos de tu local y coordinamos una visita para revisar cómo está hoy y qué falta para cumplir. Te respondemos en el día hábil.</p>
             <div className="flex flex-col gap-3">
-              <Contacto etiqueta="WhatsApp" valor="TODO: número de WhatsApp" />
-              <Contacto etiqueta="Correo" valor="TODO: correo de contacto" />
-              <Contacto etiqueta="Cobertura" valor="Radio urbano de Osorno · TODO: horario de atención" />
+              {CONTACTO_SOPORTE.whatsapp ? (
+                <Contacto etiqueta="WhatsApp" valor={CONTACTO_SOPORTE.whatsapp} href={`https://wa.me/${CONTACTO_SOPORTE.whatsapp.replace(/\D/g, "")}`} />
+              ) : (
+                <Contacto etiqueta="WhatsApp" valor="Por definir" />
+              )}
+              <Contacto etiqueta="Correo" valor={CONTACTO_CORREO} href={`mailto:${CONTACTO_CORREO}`} />
+              <Contacto
+                etiqueta="Cobertura"
+                valor={CONTACTO_SOPORTE.horario ? `Radio urbano de Osorno · ${CONTACTO_SOPORTE.horario}` : "Radio urbano de Osorno"}
+              />
             </div>
           </div>
           <DiagnosticoForm />
@@ -473,16 +480,25 @@ export default function LandingPage() {
   );
 }
 
-function Contacto({ etiqueta, valor }: { etiqueta: string; valor: string }) {
-  return (
-    <div className="flex items-center gap-3.5 min-h-16 px-4 rounded-[14px] bg-[#16294A] border border-[#2A4068]">
+function Contacto({ etiqueta, valor, href }: { etiqueta: string; valor: string; href?: string }) {
+  const contenido = (
+    <>
       <span className="w-10 h-10 rounded-[10px] bg-[#E3B341] shrink-0" aria-hidden />
       <span>
         <span className="block text-xs font-semibold text-[#9FB0CC]">{etiqueta}</span>
         <span className="block text-[17px] font-bold">{valor}</span>
       </span>
-    </div>
+    </>
   );
+  const clase = "flex items-center gap-3.5 min-h-16 px-4 rounded-[14px] bg-[#16294A] border border-[#2A4068] text-white";
+  if (href) {
+    return (
+      <a href={href} className={`${clase} hover:border-[#E3B341] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341]`}>
+        {contenido}
+      </a>
+    );
+  }
+  return <div className={clase}>{contenido}</div>;
 }
 
 function FilaTemp({ nombre, valor }: { nombre: string; valor: string }) {

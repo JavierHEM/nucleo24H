@@ -11,6 +11,7 @@ import {
   IconAlertTriangle,
   IconMapPin,
   IconThermometer,
+  IconMail,
 } from "@tabler/icons-react";
 import { formatCLP, formatDate } from "@/lib/utils";
 import { cargarPanelOperativo } from "@/server/admin/panelOperativo";
@@ -29,6 +30,7 @@ export default async function AdminPage() {
     sellosEsteMes,
     pagosMes,
     revisionesPendientes,
+    leadsPendientes,
     actividadReciente,
   ] = await Promise.all([
     prisma.tenant.count({ where: { estado: "activo" } }),
@@ -42,6 +44,7 @@ export default async function AdminPage() {
       _count: true,
     }),
     prisma.revisionSello.count({ where: { estado: "pendiente" } }),
+    prisma.lead.count({ where: { atendido: false } }),
     // Actividad reciente: últimos sellos + visitas
     Promise.all([
       prisma.sello.findMany({
@@ -98,6 +101,15 @@ export default async function AdminPage() {
       color: solicitudesPendientes > 0 ? "text-amber-600" : "text-[#2F6B2A]",
       bg: solicitudesPendientes > 0 ? "bg-amber-50" : "bg-[#E5F1E3]",
       badge: null,
+    },
+    {
+      href: "/admin/leads",
+      icon: IconMail,
+      title: "Diagnósticos pendientes",
+      value: leadsPendientes,
+      color: leadsPendientes > 0 ? "text-amber-600" : "text-[#2F6B2A]",
+      bg: leadsPendientes > 0 ? "bg-amber-50" : "bg-[#E5F1E3]",
+      badge: leadsPendientes > 0 ? `${leadsPendientes} nueva${leadsPendientes > 1 ? "s" : ""}` : null,
     },
   ];
 

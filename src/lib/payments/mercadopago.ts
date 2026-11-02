@@ -151,6 +151,29 @@ export function modoCoincide(pago: Pick<PagoMercadoPago, "live_mode">, modo: Mod
   return modo === "produccion" ? pago.live_mode === true : pago.live_mode === false;
 }
 
+export type TransicionSuscripcion = "activa" | "morosa" | null;
+
+/** Qué hacer con el pago local y la suscripción al llegar un estado de Mercado Pago. */
+export function transicionPagoMercadoPago(args: {
+  estadoActual: string;
+  estadoNuevo: MercadoPagoEstadoPago;
+  hayOtroPagoDelPeriodo: boolean;
+}): { actualizarPago: boolean; suscripcion: TransicionSuscripcion } {
+  if (args.estadoActual === args.estadoNuevo) {
+    return { actualizarPago: false, suscripcion: null };
+  }
+  if (args.estadoActual === "pagado" && args.estadoNuevo === "anulado") {
+    return { actualizarPago: true, suscripcion: args.hayOtroPagoDelPeriodo ? null : "morosa" };
+  }
+  if (args.estadoActual === "pagado") {
+    return { actualizarPago: false, suscripcion: null };
+  }
+  if (args.estadoNuevo === "pagado") {
+    return { actualizarPago: true, suscripcion: "activa" };
+  }
+  return { actualizarPago: true, suscripcion: null };
+}
+
 export function montoCoincide(pago: Pick<PagoMercadoPago, "transaction_amount" | "currency_id">, esperadoClp: number): boolean {
   return pago.currency_id === "CLP" && Number.isFinite(pago.transaction_amount) && Math.round(pago.transaction_amount) === esperadoClp;
 }

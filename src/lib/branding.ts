@@ -39,9 +39,16 @@ export const BRAND = {
   white: "#FFFFFF",
 } as const;
 
-/** TODO(Núcleo): completar con los datos reales de contacto; mientras sean null la pantalla Soporte los muestra como pendientes. */
+export const CONTACTO_CORREO = "contacto@nucleo24h.cl";
+
+/**
+ * WhatsApp y horario: TODO(Núcleo) hasta que el cliente los confirme.
+ * No inventar número ni horario. También pendientes del cliente (no implementar):
+ * IVA en $80.000 / $150.000, días de gracia y corte por mora, débito automático,
+ * y Access Token + webhook secret de Mercado Pago en modo productivo.
+ */
 export const CONTACTO_SOPORTE = {
   whatsapp: null as string | null,
-  correo: null as string | null,
+  correo: CONTACTO_CORREO,
   horario: null as string | null,
 };

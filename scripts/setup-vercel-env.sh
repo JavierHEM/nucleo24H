@@ -50,6 +50,13 @@ add_env SUPABASE_SERVICE_ROLE_KEY     "$SUPABASE_SERVICE_ROLE_KEY"    true
 echo ""
 echo "── Email / Resend ─────────────────────────────────────"
 add_env RESEND_API_KEY        "$RESEND_API_KEY"          true
+add_env LEADS_NOTIFY_EMAIL    "$LEADS_NOTIFY_EMAIL"
+
+echo ""
+echo "── Pagos / Mercado Pago ───────────────────────────────"
+add_env MERCADOPAGO_ACCESS_TOKEN     "$MERCADOPAGO_ACCESS_TOKEN"     true
+add_env MERCADOPAGO_WEBHOOK_SECRET   "$MERCADOPAGO_WEBHOOK_SECRET"   true
+add_env MERCADOPAGO_MODO             "$MERCADOPAGO_MODO"
 
 echo ""
 echo "── Pagos / Flow.cl ────────────────────────────────────"

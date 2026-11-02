@@ -21,7 +21,7 @@ describe("isPublic – rutas públicas (sin autenticación)", () => {
   });
 
   it("/api/trpc/* es público (tRPC maneja su propia auth)", () => {
-    expect(isPublic("/api/trpc/comunicaciones.list")).toBe(true);
+    expect(isPublic("/api/trpc/comunicaciones.listTickets")).toBe(true);
     expect(isPublic("/api/trpc/sellos.getActual")).toBe(true);
   });
 

@@ -63,7 +63,7 @@ const MAS_LOCAL: BottomNavItem[] = [
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["jefe_local", "admin_local"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local"] },
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["jefe_local", "admin_local"] },
-  { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["jefe_local", "admin_local"] },
+  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["jefe_local", "admin_local"] },
   { href: "/equipo", label: "Equipo", icon: IconUsers, roles: ["jefe_local", "admin_local"] },
   { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local"] },
   { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["trabajador_local", "jefe_local", "admin_local"] },
@@ -76,7 +76,7 @@ const BOTTOM_ITEMS: BottomNavItem[] = [
   { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
-  { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
+  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
 ];
 
 const ADMIN_BOTTOM_ITEMS: BottomNavItem[] = [

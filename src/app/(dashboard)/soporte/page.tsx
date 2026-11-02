@@ -5,11 +5,23 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { CONTACTO_SOPORTE } from "@/lib/branding";
 
-function Dato({ etiqueta, valor }: { etiqueta: string; valor: string | null }) {
+function Dato({ etiqueta, valor, href }: { etiqueta: string; valor: string | null; href?: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-[#F1F5F9] last:border-0">
       <dt className="text-sm text-[#5B6980]">{etiqueta}</dt>
-      <dd className="text-sm font-medium text-[#0B1B33]">{valor ?? <span className="text-[#5B6980]">Por definir</span>}</dd>
+      <dd className="text-sm font-medium text-[#0B1B33]">
+        {valor ? (
+          href ? (
+            <a href={href} className="underline underline-offset-2 hover:text-[#2F6B2A]">
+              {valor}
+            </a>
+          ) : (
+            valor
+          )
+        ) : (
+          <span className="text-[#5B6980]">Por definir</span>
+        )}
+      </dd>
     </div>
   );
 }
@@ -62,7 +74,7 @@ export default async function SoportePage() {
             href="/comunicaciones"
             className="mt-3 inline-flex items-center min-h-10 px-4 rounded-lg bg-[#2F6B2A] text-sm font-medium text-white hover:bg-[#255620] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] focus-visible:ring-offset-2"
           >
-            Escribir en Mensajes
+            Enviar una petición
           </Link>
         </section>
       )}
@@ -71,7 +83,11 @@ export default async function SoportePage() {
         <h2 className="text-sm font-semibold text-[#0B1B33]">Casa central</h2>
         <dl className="mt-2">
           <Dato etiqueta="WhatsApp" valor={CONTACTO_SOPORTE.whatsapp} />
-          <Dato etiqueta="Correo" valor={CONTACTO_SOPORTE.correo} />
+          <Dato
+            etiqueta="Correo"
+            valor={CONTACTO_SOPORTE.correo}
+            href={CONTACTO_SOPORTE.correo ? `mailto:${CONTACTO_SOPORTE.correo}` : undefined}
+          />
           <Dato etiqueta="Horario de atención" valor={CONTACTO_SOPORTE.horario} />
         </dl>
       </section>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -30,6 +31,7 @@ import {
   IconGavel,
   IconLifebuoy,
   IconBadge,
+  IconMail,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 import { PlanBadge } from "@/components/plan/PlanBadge";
@@ -62,7 +64,7 @@ const LOCAL_MAS: NavItem[] = [
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local", "admin_nucleo"] },
   { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
@@ -74,6 +76,8 @@ const ADMIN_ITEMS: NavItem[] = [
   { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
   { href: "/admin/asesores", label: "Asesores", icon: IconUserCheck, roles: ["admin_nucleo"] },
   { href: "/admin/pagos", label: "Pagos", icon: IconCreditCard, roles: ["admin_nucleo"] },
+  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["admin_nucleo"] },
+  { href: "/admin/leads", label: "Diagnósticos", icon: IconMail, roles: ["admin_nucleo"] },
   { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
   { href: "/admin/informes", label: "Informes", icon: IconChartBar, roles: ["admin_nucleo"] },
   { href: "/admin/configuracion", label: "Configuración", icon: IconSettings, roles: ["admin_nucleo"] },
@@ -85,7 +89,7 @@ const ASESOR_ITEMS: NavItem[] = [
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sellos por revisar", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
   { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
-  { href: "/comunicaciones", label: "Mensajes", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
+  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
   { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["asesor", "admin_nucleo"] },
 ];
 
@@ -142,6 +146,7 @@ const ESTADO_PLAN: Record<string, { label: string; className: string }> = {
 
 export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActivo, localNombre, plan, planId }: SidebarProps) {
   const pathname = usePathname();
+  const navScroll = useRef<HTMLDivElement>(null);
   const catalogo = mode === "admin" ? ADMIN_ITEMS : mode === "asesor" ? ASESOR_ITEMS : LOCAL_PRIMARIOS;
   const visibles = (items: NavItem[]) =>
     items.filter(
@@ -150,8 +155,20 @@ export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActi
   const principales = visibles(catalogo);
   const mas = mode === "dashboard" ? visibles(LOCAL_MAS) : [];
 
+  function alAbrirMas(evento: React.SyntheticEvent<HTMLDetailsElement>) {
+    if (!evento.currentTarget.open) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => {
+      navScroll.current?.scrollTo({
+        top: navScroll.current.scrollHeight,
+        behavior: reduced ? "auto" : "smooth",
+      });
+    });
+  }
+
   return (
-    <aside className="hidden md:flex flex-col w-[272px] min-h-screen bg-[#0B1B33] text-white shrink-0 px-4 py-6 gap-6">
+    <aside className="hidden md:flex flex-col w-[272px] h-full min-h-0 overflow-hidden bg-[#0B1B33] text-white shrink-0 px-4 py-6 gap-4">
+      <div className="shrink-0 flex flex-col gap-6">
       <Link href="/" className="px-1.5 block" aria-label="Núcleo 24H, ir al inicio">
         <BrandLogo variant="negativo" className="w-44" priority />
       </Link>
@@ -179,7 +196,12 @@ export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActi
           <p className="text-[15px] font-bold">Cartera del local activo</p>
         </div>
       )}
+      </div>
 
+      <div
+        ref={navScroll}
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain [scrollbar-width:thin] [scrollbar-color:#2A4068_transparent]"
+      >
       <nav aria-label="Principal" className="flex flex-col gap-1">
         {principales.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} />
@@ -187,20 +209,21 @@ export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActi
       </nav>
 
       {mas.length > 0 && (
-        <details className="group">
+        <details className="group mt-1" onToggle={alAbrirMas}>
           <summary className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-[15px] font-bold text-[#C9D3E3] cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-[#16294A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341]">
             <IconDots size={22} />
             Más
           </summary>
-          <div className="mt-1 flex flex-col gap-1">
+          <div className="mt-1 flex flex-col gap-1 pb-2">
             {mas.map((item) => (
               <NavLink key={item.href} item={item} pathname={pathname} />
             ))}
           </div>
         </details>
       )}
+      </div>
 
-      <div className="mt-auto flex flex-col gap-3">
+      <div className="shrink-0 flex flex-col gap-3">
         {plan && userRole === "admin_local" && (
           <div className="rounded-xl bg-[#16294A] p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between gap-2">

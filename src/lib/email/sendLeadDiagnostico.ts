@@ -1,5 +1,5 @@
 import { getResend, FROM_EMAIL } from "./resend";
-import { APP_NAME } from "@/lib/branding";
+import { APP_NAME, CONTACTO_CORREO } from "@/lib/branding";
 import { escapeHtml } from "@/lib/escapeHtml";
 
 type LeadParaAviso = {
@@ -11,10 +11,10 @@ type LeadParaAviso = {
 };
 
 export async function sendLeadDiagnostico(lead: LeadParaAviso): Promise<void> {
-  const destino = process.env.LEADS_NOTIFY_EMAIL;
+  const destino = process.env.LEADS_NOTIFY_EMAIL || CONTACTO_CORREO;
   const resend = getResend();
-  if (!destino || !resend) {
-    console.info("[sendLeadDiagnostico] Aviso omitido: falta LEADS_NOTIFY_EMAIL o RESEND_API_KEY.");
+  if (!resend) {
+    console.info("[sendLeadDiagnostico] Aviso omitido: falta RESEND_API_KEY.");
     return;
   }
 

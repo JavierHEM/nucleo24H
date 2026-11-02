@@ -28,6 +28,8 @@ model Tenant {
   documentos        Documento[]
   visitas           Visita[]
   mensajes          Mensaje[]
+  tickets           Ticket[]
+  notificaciones    Notificacion[]
   tareas            Tarea[]
   consentimientos   Consentimiento[]
   solicitudesArsopb SolicitudArsopb[]
@@ -51,6 +53,9 @@ model User {
   tarea_completaciones TareaCompletacion[]
   mensajes_enviados    Mensaje[]           @relation("MensajeRemitente")
   mensajes_recibidos   Mensaje[]           @relation("MensajeDestinatario")
+  tickets_creados      Ticket[]            @relation("TicketAutor")
+  tickets_asignados    Ticket[]            @relation("TicketAsignado")
+  notificaciones       Notificacion[]
 }
 
 // Relación many-to-many User ↔ Tenant (soporta multi-local)
@@ -218,9 +223,34 @@ model NoConformidad {
   visita Visita @relation(fields: [visita_id], references: [id])
 }
 
+model Ticket {
+  id          String    @id @default(uuid())
+  tenant_id   String
+  creado_por  String    @db.Uuid
+  asignado_a  String?   @db.Uuid
+  asunto      String
+  categoria   String    @default("consulta") // 'consulta' | 'incidencia' | 'documentos' | 'visita' | 'otro'
+  estado      String    @default("abierta") // 'abierta' | 'en_atencion' | 'resuelta'
+  prioridad   String    @default("normal") // 'normal' | 'urgente'
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  resuelto_at DateTime?
+
+  tenant         Tenant          @relation(fields: [tenant_id], references: [id])
+  autor          User            @relation("TicketAutor", fields: [creado_por], references: [id])
+  asignado       User?           @relation("TicketAsignado", fields: [asignado_a], references: [id])
+  mensajes       Mensaje[]
+  notificaciones Notificacion[]
+
+  @@index([tenant_id, estado, updated_at])
+  @@index([asignado_a, estado])
+  @@index([creado_por])
+}
+
 model Mensaje {
   id          String   @id @default(uuid())
   tenant_id   String
+  ticket_id   String?
   de          String   @db.Uuid // user_id
   para        String   @db.Uuid // user_id
   contenido   String
@@ -228,13 +258,35 @@ model Mensaje {
   leido       Boolean  @default(false)
   created_at  DateTime @default(now())
 
-  tenant       Tenant @relation(fields: [tenant_id], references: [id])
-  remitente    User   @relation("MensajeRemitente", fields: [de], references: [id])
-  destinatario User   @relation("MensajeDestinatario", fields: [para], references: [id])
+  tenant       Tenant  @relation(fields: [tenant_id], references: [id])
+  ticket       Ticket? @relation(fields: [ticket_id], references: [id])
+  remitente    User    @relation("MensajeRemitente", fields: [de], references: [id])
+  destinatario User    @relation("MensajeDestinatario", fields: [para], references: [id])
 
   @@index([tenant_id])
+  @@index([ticket_id, created_at])
   @@index([de])
   @@index([para])
+}
+
+model Notificacion {
+  id         String   @id @default(uuid())
+  user_id    String   @db.Uuid
+  tenant_id  String?
+  ticket_id  String?
+  tipo       String   // 'ticket_nueva' | 'ticket_respuesta' | 'ticket_estado'
+  titulo     String
+  cuerpo     String
+  href       String
+  leida      Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user   User    @relation(fields: [user_id], references: [id])
+  tenant Tenant? @relation(fields: [tenant_id], references: [id])
+  ticket Ticket? @relation(fields: [ticket_id], references: [id])
+
+  @@index([user_id, leida, created_at])
+  @@index([ticket_id])
 }
 
 // ── Compliance Ley 21.719 ─────────────────────────────────────────────
