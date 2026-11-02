@@ -75,9 +75,6 @@ add_env NEXTAUTH_SECRET       "$NEXTAUTH_SECRET"         true
 # NEXT_PUBLIC_APP_URL se actualiza manualmente con la URL de producción de Vercel
 
 echo ""
-echo "✅ Variables cargadas. Falta configurar manualmente:"
-echo "   NEXT_PUBLIC_APP_URL → URL de producción de Vercel (ej: https://nucleo.vercel.app)"
-echo ""
-echo "Puedes hacerlo con:"
-echo "  echo 'https://TU-URL.vercel.app' | vercel env add NEXT_PUBLIC_APP_URL production --force"
-echo "  echo 'https://TU-URL.vercel.app' | vercel env add NEXT_PUBLIC_APP_URL preview --force"
+echo "✅ Variables cargadas. Confirma en Vercel:"
+echo "   NEXT_PUBLIC_APP_URL=https://nucleo24h.cl"
+echo "   (nunca un *.vercel.app: el QR del sello quedaría con login de Vercel)"

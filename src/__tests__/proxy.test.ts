@@ -43,6 +43,7 @@ describe("isPublic – rutas públicas (sin autenticación)", () => {
   });
 
   it("/sello/[id] es público (certificados de verificación)", () => {
+    expect(isPublic("/sello")).toBe(true);
     expect(isPublic("/sello/abc-123-uuid")).toBe(true);
     expect(isPublic("/sello/")).toBe(true);
   });

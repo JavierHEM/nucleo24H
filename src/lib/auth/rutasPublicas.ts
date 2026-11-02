@@ -11,7 +11,7 @@ export const PUBLIC_PREFIXES = [
   "/api/webhooks",
   "/api/pagos/retorno",
   "/api/local",
-  "/sello/",
+  "/sello",
 ] as const;
 
 /** Ruta pública solo si coincide o sigue el borde `/`. `/login` no abre `/loginX`. */
