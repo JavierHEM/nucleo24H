@@ -13,6 +13,7 @@ import {
   createMercadoPagoPreference,
   isMercadoPagoConfigured,
   modoMercadoPago,
+  urlCheckoutMercadoPago,
   MercadoPagoNotConfiguredError,
 } from "@/lib/payments/mercadopago";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
@@ -248,7 +249,7 @@ export const pagosRouter = router({
           urlRetorno: `${appUrl}/api/pagos/retorno`,
           urlNotificacion: `${appUrl}/api/webhooks/mercadopago/${modo}`,
         });
-        return { redirectUrl: modo === "prueba" ? preferencia.sandboxInitPoint : preferencia.initPoint };
+        return { redirectUrl: urlCheckoutMercadoPago(preferencia) };
       } catch (err) {
         await ctx.prisma.pago.update({ where: { id: pago.id }, data: { estado: "anulado" } });
         if (err instanceof MercadoPagoNotConfiguredError) {

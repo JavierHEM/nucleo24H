@@ -5,6 +5,7 @@ import {
   modoCoincide,
   modoMercadoPago,
   montoCoincide,
+  urlCheckoutMercadoPago,
   transicionPagoMercadoPago,
   verificarFirmaMercadoPago,
 } from "@/lib/payments/mercadopago";
@@ -103,5 +104,29 @@ describe("estados y montos", () => {
     process.env.MERCADOPAGO_ACCESS_TOKEN = tokenAnterior;
     if (modoAnterior === undefined) delete process.env.MERCADOPAGO_MODO;
     else process.env.MERCADOPAGO_MODO = modoAnterior;
+  });
+
+  it("usa init_point con credenciales APP_USR de prueba (no el sandbox legado)", () => {
+    const tokenAnterior = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    process.env.MERCADOPAGO_ACCESS_TOKEN = "APP_USR-prueba";
+    expect(
+      urlCheckoutMercadoPago({
+        initPoint: "https://www.mercadopago.cl/checkout/v1/redirect?pref_id=1",
+        sandboxInitPoint: "https://sandbox.mercadopago.cl/checkout/v1/redirect?pref_id=1",
+      })
+    ).toBe("https://www.mercadopago.cl/checkout/v1/redirect?pref_id=1");
+    process.env.MERCADOPAGO_ACCESS_TOKEN = tokenAnterior;
+  });
+
+  it("usa sandbox_init_point solo con el token legado TEST-", () => {
+    const tokenAnterior = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    process.env.MERCADOPAGO_ACCESS_TOKEN = "TEST-viejo";
+    expect(
+      urlCheckoutMercadoPago({
+        initPoint: "https://www.mercadopago.cl/checkout/v1/redirect?pref_id=1",
+        sandboxInitPoint: "https://sandbox.mercadopago.cl/checkout/v1/redirect?pref_id=1",
+      })
+    ).toBe("https://sandbox.mercadopago.cl/checkout/v1/redirect?pref_id=1");
+    process.env.MERCADOPAGO_ACCESS_TOKEN = tokenAnterior;
   });
 });

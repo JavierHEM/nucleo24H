@@ -47,6 +47,21 @@ export function modoMercadoPago(): ModoWebhookMercadoPago {
   return process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith("TEST-") ? "prueba" : "produccion";
 }
 
+/**
+ * Checkout Pro: las credenciales de prueba nuevas también son APP_USR- y usan init_point.
+ * sandbox_init_point solo aplica al token legado TEST-.
+ */
+export function urlCheckoutMercadoPago(preferencia: {
+  initPoint: string;
+  sandboxInitPoint: string;
+}): string {
+  const token = process.env.MERCADOPAGO_ACCESS_TOKEN ?? "";
+  if (token.startsWith("TEST-") && preferencia.sandboxInitPoint) {
+    return preferencia.sandboxInitPoint;
+  }
+  return preferencia.initPoint;
+}
+
 export function mapMercadoPagoStatus(status: string): MercadoPagoEstadoPago {
   return MP_STATUS_MAP[status] ?? "pendiente";
 }
