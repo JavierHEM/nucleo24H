@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PRODUCTION_URL, esUrlPublicaDeLaApp, getAppUrl } from "@/lib/branding";
 
 describe("esUrlPublicaDeLaApp", () => {
@@ -19,23 +19,18 @@ describe("esUrlPublicaDeLaApp", () => {
 });
 
 describe("getAppUrl", () => {
-  const original = process.env.NEXT_PUBLIC_APP_URL;
-  const originalEnv = process.env.NODE_ENV;
-
   afterEach(() => {
-    if (original === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
-    else process.env.NEXT_PUBLIC_APP_URL = original;
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
   });
 
   it("ignora NEXT_PUBLIC_APP_URL si es un *.vercel.app", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://nucleo-javiers-projects-701ba2d1.vercel.app";
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://nucleo-javiers-projects-701ba2d1.vercel.app");
+    vi.stubEnv("NODE_ENV", "production");
     expect(getAppUrl()).toBe(PRODUCTION_URL);
   });
 
   it("usa el dominio configurado cuando es público", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://nucleo24h.cl/";
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://nucleo24h.cl/");
     expect(getAppUrl()).toBe("https://nucleo24h.cl");
   });
 });
