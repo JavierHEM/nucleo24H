@@ -1,8 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "env": {
-    "LEADS_NOTIFY_EMAIL": "contacto@nucleo24h.cl"
-  },
   "crons": [
     {
       "path": "/api/cron/emitir-sellos",
