@@ -105,17 +105,35 @@ export const visitasRouter = router({
         },
       };
 
-      if (input.agendada_id) {
-        return ctx.prisma.visita.update({
-          where: { id: input.agendada_id },
-          data: datos,
-          include: { no_conformidades: true },
+      const visita = input.agendada_id
+        ? await ctx.prisma.visita.update({
+            where: { id: input.agendada_id },
+            data: datos,
+            include: { no_conformidades: true },
+          })
+        : await ctx.prisma.visita.create({
+            data: { tenant_id: input.tenant_id, ...datos },
+            include: { no_conformidades: true },
+          });
+
+      for (const nc of noConformidades) {
+        await ctx.prisma.hallazgo.create({
+          data: {
+            tenant_id: input.tenant_id,
+            visita_id: visita.id,
+            gravedad: nc.severidad === "mayor" ? "mayor" : "menor",
+            descripcion: nc.descripcion,
+            fundamento: nc.area,
+            observador_id: ctx.userId!,
+            plazo: nc.fecha_limite ? new Date(`${nc.fecha_limite}T12:00:00`) : null,
+            eventos: {
+              create: { actor_id: ctx.userId!, a_estado: "abierto", nota: "Apertura desde visita" },
+            },
+          },
         });
       }
-      return ctx.prisma.visita.create({
-        data: { tenant_id: input.tenant_id, ...datos },
-        include: { no_conformidades: true },
-      });
+
+      return visita;
     }),
 
   agendar: asesorProcedure

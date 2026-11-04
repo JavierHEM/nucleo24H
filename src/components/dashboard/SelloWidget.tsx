@@ -20,6 +20,10 @@ const NEXT_LEVEL: Record<NivelSello, { label: string; umbral: number } | null> =
   intermedio: { label: "Avanzado", umbral: 75 },
   avanzado: { label: "Premium", umbral: 90 },
   premium: null,
+  sin_sello: { label: "Bronce", umbral: 70 },
+  bronce: { label: "Plata", umbral: 85 },
+  plata: { label: "Oro", umbral: 95 },
+  oro: null,
 };
 
 const ANILLO: Record<NivelSello, string> = {
@@ -27,6 +31,10 @@ const ANILLO: Record<NivelSello, string> = {
   intermedio: "#E8B100",
   avanzado: "#2F6B2A",
   premium: "#0B1B33",
+  sin_sello: "#94A3B8",
+  bronce: "#C17A2B",
+  plata: "#64748B",
+  oro: "#E3B341",
 };
 
 function colorBarra(valor: number) {
@@ -43,10 +51,10 @@ export function SelloWidget({
   descargosHabilitados = false,
   dimensiones = [],
 }: SelloWidgetProps) {
-  const config = SELLO_CONFIG[nivel];
+  const config = SELLO_CONFIG[nivel] ?? SELLO_CONFIG.sin_sello;
   const siguiente = NEXT_LEVEL[nivel];
   const puntos = Math.max(0, Math.ceil((siguiente?.umbral ?? score) - score));
-  const color = ANILLO[nivel];
+  const color = ANILLO[nivel] ?? ANILLO.sin_sello;
 
   return (
     <section className="bg-white border border-[#DDE3EA] rounded-[14px] p-6 flex flex-wrap gap-8 items-center" aria-label="Avance del sello">
@@ -67,9 +75,7 @@ export function SelloWidget({
           <p className="text-2xl font-extrabold leading-tight text-[#0B1B33]">
             {siguiente && puntos > 0
               ? `Te faltan ${puntos} puntos para ${siguiente.label}`
-              : nivel === "premium"
-                ? "Nivel Premium de este período"
-                : `Nivel ${config.label} alcanzado`}
+              : `Nivel ${config.label} alcanzado`}
           </p>
           {descargosHabilitados && (
             <p className="text-[15px] font-medium leading-relaxed text-[#41506A]">Los descargos de este período están habilitados.</p>

@@ -1,8 +1,8 @@
-export const BUCKETS = ["registros", "documentos"] as const;
+export const BUCKETS = ["registros", "documentos", "hallazgos"] as const;
 export type BucketArchivo = (typeof BUCKETS)[number];
 
 const RUTA =
-  /^(registros|documentos)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/[^/]+$/i;
+  /^(registros|documentos|hallazgos)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/[^/]+$/i;
 
 export function parseRuta(ruta: string) {
   const match = RUTA.exec(ruta);
@@ -35,4 +35,16 @@ export function construirRuta(bucket: BucketArchivo, tenantId: string, filename:
 export function hrefArchivo(valor: string) {
   if (valor.startsWith("https://") || valor.startsWith("http://")) return valor;
   return `/api/archivos?ruta=${encodeURIComponent(valor)}`;
+}
+
+export function esImagenRuta(ruta: string) {
+  return /\.(jpe?g|png|webp)$/i.test(ruta);
+}
+
+export function sonRutasHallazgoDelLocal(rutas: string[], tenantId: string) {
+  return rutas.every((ruta) => rutaPertenece(ruta, "hallazgos", tenantId));
+}
+
+export function sonRutasDocumentoDelLocal(rutas: string[], tenantId: string) {
+  return rutas.every((ruta) => rutaPertenece(ruta, "documentos", tenantId));
 }

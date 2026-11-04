@@ -13,7 +13,7 @@ const TONO = {
 
 export function ScoreCards({ items }: { items: ScoreItem[] }) {
   return (
-    <div className="@container">
+    <div className="@container w-full">
       <ul className="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
         {items.map((item) => (
           <li key={item.label} className="min-w-0 rounded-[14px] border border-[#DDE3EA] bg-white px-4 py-4">

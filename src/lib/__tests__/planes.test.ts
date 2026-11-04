@@ -12,11 +12,22 @@ import {
   normalizarPlan,
   normalizarTipoLocal,
   planIncluye,
+  precioConIva,
+  tarifaNeta,
 } from "@/lib/planes";
 
 describe("catálogo de planes", () => {
   it("el precio de cada plan coincide con PLAN_PRECIOS_CLP", () => {
     for (const id of PLAN_IDS) expect(PLANES[id].precio).toBe(PLAN_PRECIOS_CLP[id]);
+  });
+
+  it("el Plan Calidad cobra IVA 19% sobre la tarifa neta vigente", () => {
+    expect(PLAN_PRECIOS_CLP.calidad).toBe(precioConIva(tarifaNeta()));
+    expect(tarifaNeta(new Date(2026, 11, 31))).toBe(80_000);
+    expect(precioConIva(80_000)).toBe(95_200);
+    expect(tarifaNeta(new Date(2027, 1, 28))).toBe(80_000);
+    expect(tarifaNeta(new Date(2027, 2, 1))).toBe(100_000);
+    expect(precioConIva(100_000)).toBe(119_000);
   });
 
   it("solo el Plan Integral incluye el módulo ambiental", () => {

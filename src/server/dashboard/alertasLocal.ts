@@ -12,7 +12,7 @@ export async function cargarAlertasLocal(
   const info = await planDeLocal(prisma, tenantId);
   const conAmbiental = planIncluye(info.plan, "ambiental");
 
-  const [documentos, noConformidades, pagoPeriodo, ambiental, suscripcion] = await Promise.all([
+  const [documentos, noConformidades, pagoPeriodo, ambiental, suscripcion, hallazgos, proveedores, resoluciones] = await Promise.all([
     prisma.documento.findMany({
       where: { tenant_id: tenantId },
       select: { estado: true, vencimiento: true },
@@ -36,9 +36,23 @@ export async function cargarAlertasLocal(
     verPagos
       ? prisma.suscripcion.findUnique({ where: { tenant_id: tenantId }, select: { estado: true, dia_cobro: true } })
       : Promise.resolve(null),
+    prisma.hallazgo.findMany({
+      where: { tenant_id: tenantId, estado: { notIn: ["cerrado_validado", "seguimiento_eficacia"] } },
+      select: { estado: true, plazo: true },
+    }),
+    prisma.proveedor.findMany({
+      where: { tenant_id: tenantId },
+      select: { vigencia: true },
+    }),
+    prisma.alertaResolucion.findMany({
+      where: { tenant_id: tenantId },
+      orderBy: { created_at: "desc" },
+      distinct: ["alerta_key"],
+      select: { alerta_key: true, created_at: true },
+    }),
   ]);
 
-  return armarAlertasLocal({
+  const alertas = armarAlertasLocal({
     ahora: new Date(),
     documentos,
     noConformidades,
@@ -47,5 +61,14 @@ export async function cargarAlertasLocal(
       : null,
     contratoHasta: verPagos ? info.contratoHasta : null,
     vencimientosAmbientales: ambiental,
+    hallazgos,
+    proveedores,
+  });
+  const ahora = new Date();
+  const ocultas = new Map(resoluciones.map((r) => [r.alerta_key, r.created_at]));
+  return alertas.filter((alerta) => {
+    const resuelta = ocultas.get(alerta.id);
+    if (!resuelta) return true;
+    return ahora.getTime() - resuelta.getTime() > 7 * 86_400_000;
   });
 }

@@ -8,10 +8,12 @@ import { Sidebar, type PlanLocal } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { BannerMora } from "@/components/dashboard/BannerMora";
+import { BannerDeclaracionD } from "@/components/dashboard/BannerDeclaracionD";
 import { BannerRenovacion } from "@/components/plan/BannerRenovacion";
 import type { UserRole } from "@/server/trpc/context";
 import { PLAN_PRECIOS_CLP } from "@/lib/payments/flow";
 import { planDeLocal } from "@/server/planes/planDeLocal";
+import { localesVisibles } from "@/server/locales/visibles";
 
 export default async function DashboardLayout({
   children,
@@ -45,21 +47,7 @@ export default async function DashboardLayout({
   const userRole = (dbUserEarly?.rol as UserRole | undefined) ?? null;
   const userName = dbUserEarly?.nombre ?? user.email?.split("@")[0] ?? "Usuario";
 
-  // admin_nucleo puede acceder a todos los locales del sistema
-  let locales: { id: string; nombre: string }[];
-  if (userRole === "admin_nucleo") {
-    locales = await prisma.tenant.findMany({
-      where: { estado: "activo" },
-      select: { id: true, nombre: true },
-      orderBy: { nombre: "asc" },
-    });
-  } else {
-    const userTenants = await prisma.userTenant.findMany({
-      where: { user_id: user.id },
-      include: { tenant: { select: { id: true, nombre: true } } },
-    });
-    locales = userTenants.map((ut) => ut.tenant);
-  }
+  const locales = await localesVisibles(user.id, userRole);
 
   const tenantActivo =
     tenantActivoCookie && locales.some((l) => l.id === tenantActivoCookie)
@@ -100,7 +88,7 @@ export default async function DashboardLayout({
           planId={infoPlan?.plan}
         />
       </div>
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <div className="print:hidden">
           <TopBar
             userName={userName}
@@ -114,9 +102,10 @@ export default async function DashboardLayout({
             <div className="print:hidden px-4 md:px-6 pt-4 md:pt-6">
               <BannerMora tenantId={tenantActivo} userRole={userRole} />
               <BannerRenovacion tenantId={tenantActivo} userRole={userRole} />
+              {(userRole === "admin_local" || userRole === "jefe_local") && <BannerDeclaracionD />}
             </div>
           )}
-          <div className="p-4 md:p-6 print:p-0">
+          <div className="p-4 md:p-6 w-full min-w-0 print:p-0">
             {children}
           </div>
         </main>

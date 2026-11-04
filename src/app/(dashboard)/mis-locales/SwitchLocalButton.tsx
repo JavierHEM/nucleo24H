@@ -1,35 +1,32 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { cambiarLocalActivo } from "@/lib/locales/cambiarLocal";
 
 interface Props {
   tenantId: string;
 }
 
 export function SwitchLocalButton({ tenantId }: Props) {
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [pendiente, setPendiente] = useState(false);
 
-  function handleSwitch() {
-    startTransition(async () => {
-      await fetch("/api/tenant/switch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenantId }),
-      });
-      router.push("/");
-      router.refresh();
-    });
+  async function handleSwitch() {
+    setPendiente(true);
+    try {
+      await cambiarLocalActivo(tenantId, "/");
+    } catch {
+      setPendiente(false);
+    }
   }
 
   return (
     <button
-      onClick={handleSwitch}
-      disabled={isPending}
+      type="button"
+      onClick={() => void handleSwitch()}
+      disabled={pendiente}
       className="w-full text-center text-xs font-medium text-[#2F6B2A] border border-[#2F6B2A] rounded-lg py-2 hover:bg-[#E5F1E3] transition-colors disabled:opacity-50"
     >
-      {isPending ? "Cambiando..." : "Ir a este local →"}
+      {pendiente ? "Cambiando..." : "Ir a este local →"}
     </button>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from "@tabler/icons-react";
 import { SolicitarDerechoButton } from "./SolicitarDerechoButton";
 import { EditarPerfilButton } from "./EditarPerfilButton";
+import { CancelarSuscripcionButton } from "@/app/(dashboard)/suscripcion/CancelarSuscripcionButton";
 
 export default async function MiCuentaPage() {
   const caller = await getCaller();
@@ -15,7 +16,7 @@ export default async function MiCuentaPage() {
   const datos = await caller.arsopb.misDatos().catch(() => null);
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33]">Mi Cuenta</h1>
         <p className="text-sm text-[#5B6980] mt-1">
@@ -38,7 +39,7 @@ export default async function MiCuentaPage() {
             </div>
             <EditarPerfilButton nombreActual={datos.user.nombre ?? ""} />
           </div>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
             <div className="bg-[#F4F6F3] rounded-lg p-3">
               <p className="text-xs text-[#5B6980] mb-1">Rol</p>
               <p className="font-medium text-[#0B1B33] capitalize">{datos.user.rol.replace("_", " ")}</p>
@@ -59,7 +60,8 @@ export default async function MiCuentaPage() {
         </div>
       )}
 
-      {/* Consentimientos */}
+      {(datos?.consentimientos && datos.consentimientos.length > 0) || datos?.user?.rol === "admin_local" ? (
+      <div className="grid gap-6 lg:grid-cols-2">
       {datos?.consentimientos && datos.consentimientos.length > 0 && (
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <p className="text-sm font-semibold text-[#0B1B33] mb-3">
@@ -86,6 +88,18 @@ export default async function MiCuentaPage() {
         </div>
       )}
 
+      {datos?.user?.rol === "admin_local" && (
+        <div className="bg-white rounded-xl border border-[#DDE3EA] p-5">
+          <p className="text-sm font-semibold text-[#0B1B33] mb-2">Suscripción</p>
+          <p className="text-xs text-[#5B6980] mb-3">
+            Puedes cancelar la renovación. Conservas acceso hasta el fin del período pagado. No hay devolución proporcional.
+          </p>
+          <CancelarSuscripcionButton />
+        </div>
+      )}
+      </div>
+      ) : null}
+
       {/* Derechos ARSOPB — Ley 21.719 */}
       <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
         <div className="flex items-center gap-2 mb-1">
@@ -96,7 +110,7 @@ export default async function MiCuentaPage() {
           Puedes ejercer los siguientes derechos sobre tus datos personales. El plazo de respuesta es de 30 días corridos.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {[
             { tipo: "acceso" as const, label: "Acceso", desc: "Conocer qué datos tenemos sobre ti" },
             { tipo: "rectificacion" as const, label: "Rectificación", desc: "Corregir datos incorrectos" },

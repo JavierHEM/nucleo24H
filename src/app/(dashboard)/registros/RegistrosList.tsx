@@ -21,8 +21,8 @@ import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { FAMILIAS, etiquetaPlanilla, resumenRegistro, type FamiliaId } from "@/lib/bpm/planillas";
-import { hrefArchivo } from "@/lib/storage/rutas";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
+import { DetalleRegistroSheet } from "./DetalleRegistroSheet";
 
 type Tipo = FamiliaId | "temperatura";
 
@@ -124,6 +124,7 @@ const FILTROS: Array<{ value: FamiliaId | "todos"; label: string }> = [
 
 export function RegistrosList() {
   const [filtro, setFiltro] = useState<FamiliaId | "todos">("todos");
+  const [detalleId, setDetalleId] = useState<string | null>(null);
 
   const { data, isLoading, error } = trpc.registros.list.useQuery({
     tipo: filtro === "todos" ? undefined : filtro,
@@ -197,7 +198,7 @@ export function RegistrosList() {
           <IconClipboardList size={36} className="mx-auto text-[#DDE3EA] mb-3" />
           <p className="font-medium text-[#0B1B33]">No hay registros aún</p>
           <p className="text-sm text-[#5B6980] mt-1">
-            Completa una planilla en el sistema o carga la impresa.
+            Completa una planilla o carga la impresa. En cada registro vas a poder consultar la constancia de veracidad.
           </p>
         </div>
       )}
@@ -222,9 +223,11 @@ export function RegistrosList() {
             const titulo = etiquetaPlanilla(registro.codigo, registro.tipo);
 
             return (
-              <div
+              <button
                 key={registro.id}
-                className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm flex items-center gap-4 px-4 py-3 hover:shadow-md transition-shadow"
+                type="button"
+                onClick={() => setDetalleId(registro.id)}
+                className="w-full bg-white rounded-xl border border-[#DDE3EA] shadow-sm flex items-center gap-4 px-4 py-3 hover:shadow-md hover:border-[#16294A] transition-shadow text-left"
               >
                 <div
                   className={cn(
@@ -236,7 +239,7 @@ export function RegistrosList() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-sm text-[#0B1B33]">
                       {titulo}
                     </p>
@@ -254,30 +257,29 @@ export function RegistrosList() {
                     </span>
                   </div>
                   <p className="text-xs text-[#5B6980] mt-0.5 truncate">{detalle}</p>
-                  {esPapel && registro.adjunto_url && (
-                    <a
-                      href={hrefArchivo(registro.adjunto_url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-[#16294A] underline"
-                    >
-                      Ver planilla
-                    </a>
-                  )}
                 </div>
 
-                <div className="text-right shrink-0">
-                  <p className="text-xs text-[#5B6980]">{formatDate(registro.fecha)}</p>
-                  <div className={cn("flex items-center justify-end gap-1 mt-1", estadoCfg.color)}>
-                    <EstadoIcon size={13} />
-                    <span className="text-xs font-medium">{estadoLabel}</span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right">
+                    <p className="text-xs text-[#5B6980]">{formatDate(registro.fecha)}</p>
+                    <div className={cn("flex items-center justify-end gap-1 mt-1", estadoCfg.color)}>
+                      <EstadoIcon size={13} />
+                      <span className="text-xs font-medium">{estadoLabel}</span>
+                    </div>
                   </div>
+                  <span className="inline-flex min-h-9 items-center px-3 rounded-lg bg-[#16294A] text-white text-xs font-medium">
+                    Ver constancia
+                  </span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       )}
+      <DetalleRegistroSheet
+        registro={data?.find((item) => item.id === detalleId) ?? null}
+        onCerrar={() => setDetalleId(null)}
+      />
     </div>
   );
 }

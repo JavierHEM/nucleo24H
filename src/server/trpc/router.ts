@@ -15,6 +15,11 @@ import { ambientalRouter } from "./routers/ambiental";
 import { calendarioRouter } from "./routers/calendario";
 import { fiscalizacionesRouter } from "./routers/fiscalizaciones";
 import { leadsRouter } from "./routers/leads";
+import { hallazgosRouter } from "./routers/hallazgos";
+import { proveedoresRouter } from "./routers/proveedores";
+import { capacitacionesLmsRouter } from "./routers/capacitacionesLms";
+import { declaracionesRouter } from "./routers/declaraciones";
+import { alertasRouter } from "./routers/alertas";
 
 export const appRouter = router({
   sellos: sellosRouter,
@@ -33,6 +38,11 @@ export const appRouter = router({
   calendario: calendarioRouter,
   fiscalizaciones: fiscalizacionesRouter,
   leads: leadsRouter,
+  hallazgos: hallazgosRouter,
+  proveedores: proveedoresRouter,
+  capacitacionesLms: capacitacionesLmsRouter,
+  declaraciones: declaracionesRouter,
+  alertas: alertasRouter,
 });
 
 export type AppRouter = typeof appRouter;

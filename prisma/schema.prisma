@@ -37,6 +37,10 @@ model Tenant {
   suscripcion       Suscripcion?
   pagos             Pago[]
   configuracion_bpm ConfiguracionBpm?
+  hallazgos         Hallazgo[]
+  declaraciones     DeclaracionVeracidad[]
+  proveedores       Proveedor[]
+  capacitacion_registros CapacitacionRegistro[]
 
   @@index([rut])
 }
@@ -93,16 +97,26 @@ model Sello {
   id                   String   @id @default(uuid())
   tenant_id            String
   periodo              String   // 'YYYY-MM'
-  nivel                String   // 'inicial' | 'intermedio' | 'avanzado' | 'premium'
+  esquema              String   @default("v1") // 'v1' | 'v2'
+  estado               String   @default("emitido") // 'propuesto' | 'emitido' | 'rechazado'
+  nivel                String   // v1: inicial|intermedio|avanzado|premium — v2: sin_sello|bronce|plata|oro
   score_general        Float
-  score_documentacion  Float
-  score_condiciones    Float
-  score_capacitaciones Float
-  score_tareas         Float
+  score_documentacion  Float    @default(0)
+  score_condiciones    Float    @default(0)
+  score_capacitaciones Float    @default(0)
+  score_tareas         Float    @default(0)
+  score_seguimiento    Float    @default(0)
+  score_visita         Float    @default(0)
+  scores_componentes   Json?
+  bloqueo_critico      Boolean  @default(false)
   plan_mejoras         String[] @default([])
   descargos_habilitados Boolean @default(false)
   pesos_usados         Json
   inputs_snapshot      Json
+  propuesto_por        String?
+  aprobado_por         String?
+  aprobado_at          DateTime?
+  rechazo_motivo       String?
   emitido_por          String
   emitido_at           DateTime @default(now())
 
@@ -111,6 +125,7 @@ model Sello {
 
   @@unique([tenant_id, periodo])
   @@index([tenant_id])
+  @@index([estado])
 }
 
 model RevisionSello {
@@ -141,24 +156,40 @@ model ConfiguracionSellos {
 // ── Registros BPM ─────────────────────────────────────────────────────
 
 model Registro {
-  id          String   @id @default(uuid())
-  tenant_id   String
-  tipo        String
-  codigo      String?
-  origen      String   @default("digital")
-  fecha       DateTime
-  datos       Json
-  estado      String   @default("completo")
-  observacion String?
-  adjunto_url String?
-  created_by  String
-  created_at  DateTime @default(now())
+  id               String   @id @default(uuid())
+  tenant_id        String
+  tipo             String
+  codigo           String?
+  origen           String   @default("digital")
+  fecha            DateTime
+  datos            Json
+  estado           String   @default("completo")
+  observacion      String?
+  adjunto_url      String?
+  evidencia_estado String   @default("declarado_cliente") // 'declarado_cliente' | 'revisado_documental' | 'verificado_visita'
+  extemporaneo     Boolean  @default(false)
+  created_by       String
+  created_at       DateTime @default(now())
 
-  tenant Tenant @relation(fields: [tenant_id], references: [id])
+  tenant   Tenant           @relation(fields: [tenant_id], references: [id])
+  ediciones RegistroEdicion[]
 
   @@index([tenant_id])
   @@index([tenant_id, tipo])
   @@index([tenant_id, codigo])
+}
+
+model RegistroEdicion {
+  id          String   @id @default(uuid())
+  registro_id String
+  actor_id    String
+  motivo      String
+  datos_antes Json
+  created_at  DateTime @default(now())
+
+  registro Registro @relation(fields: [registro_id], references: [id], onDelete: Cascade)
+
+  @@index([registro_id, created_at])
 }
 
 model ConfiguracionBpm {
@@ -173,18 +204,19 @@ model ConfiguracionBpm {
 }
 
 model Documento {
-  id          String    @id @default(uuid())
-  tenant_id   String
-  nombre      String
-  categoria   String
-  mes         String    // 'YYYY-MM'
-  url         String    // Cloudflare R2
-  vencimiento DateTime?
-  estado      String    @default("pendiente") // 'pendiente' | 'aprobado' | 'observado' | 'rechazado'
-  observacion String?
-  version     Int       @default(1)
-  created_by  String
-  created_at  DateTime  @default(now())
+  id               String    @id @default(uuid())
+  tenant_id        String
+  nombre           String
+  categoria        String
+  mes              String    // 'YYYY-MM'
+  url              String    // Cloudflare R2
+  vencimiento      DateTime?
+  estado           String    @default("pendiente") // 'pendiente' | 'aprobado' | 'observado' | 'rechazado'
+  evidencia_estado String    @default("declarado_cliente")
+  observacion      String?
+  version          Int       @default(1)
+  created_by       String
+  created_at       DateTime  @default(now())
 
   tenant Tenant @relation(fields: [tenant_id], references: [id])
 
@@ -204,9 +236,142 @@ model Visita {
   created_at DateTime @default(now())
 
   no_conformidades NoConformidad[]
+  hallazgos_v2     Hallazgo[]
   tenant           Tenant          @relation(fields: [tenant_id], references: [id])
 
   @@index([tenant_id])
+}
+
+model Hallazgo {
+  id                    String    @id @default(uuid())
+  tenant_id             String
+  visita_id             String?
+  proveedor_id          String?
+  gravedad              String    // 'critico' | 'mayor' | 'menor'
+  estado                String    @default("abierto")
+  descripcion           String
+  fundamento            String?
+  ubicacion             String?
+  observador_id         String
+  responsable_id        String?
+  plazo                 DateTime?
+  fotos_iniciales       String[]  @default([])
+  contencion            String?
+  accion_correctiva     String?
+  evidencia_cierre      String[]  @default([])
+  evidencia_estado      String    @default("declarado_cliente")
+  revisor_id            String?
+  revision_at           DateTime?
+  decision              String?
+  motivo_decision       String?
+  seguimiento_at        DateTime?
+  seguimiento_resultado String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  tenant    Tenant           @relation(fields: [tenant_id], references: [id])
+  visita    Visita?          @relation(fields: [visita_id], references: [id])
+  proveedor Proveedor?       @relation(fields: [proveedor_id], references: [id])
+  eventos   HallazgoEvento[]
+
+  @@index([tenant_id, estado])
+  @@index([tenant_id, gravedad])
+  @@index([visita_id])
+}
+
+model HallazgoEvento {
+  id          String   @id @default(uuid())
+  hallazgo_id String
+  actor_id    String
+  de_estado   String?
+  a_estado    String
+  nota        String?
+  created_at  DateTime @default(now())
+
+  hallazgo Hallazgo @relation(fields: [hallazgo_id], references: [id], onDelete: Cascade)
+
+  @@index([hallazgo_id, created_at])
+}
+
+model DeclaracionVeracidad {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  user_id      String
+  tipo         String   // 'A' | 'B' | 'C' | 'D'
+  version      String
+  texto        String
+  evento       String
+  recurso_tipo String?
+  recurso_id   String?
+  created_at   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, tipo])
+  @@index([recurso_tipo, recurso_id])
+}
+
+model Proveedor {
+  id                   String    @id @default(uuid())
+  tenant_id            String
+  razon_social         String
+  rut                  String
+  contacto             String?
+  tipo_servicio        String
+  autorizacion_entidad String?
+  autorizacion_numero  String?
+  autorizacion_fecha   DateTime?
+  vigencia             DateTime?
+  alcance              String?
+  proxima_prestacion   DateTime?
+  documentos           String[]  @default([])
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenant_id], references: [id])
+  hallazgos Hallazgo[]
+
+  @@index([tenant_id])
+}
+
+model CapacitacionContenido {
+  id               String   @id @default(uuid())
+  titulo           String
+  descripcion      String
+  url_recurso      String
+  tipo_recurso     String   @default("video") // 'video' | 'presentacion'
+  preguntas        Json     @default("[]")
+  activo           Boolean  @default(true)
+  created_at       DateTime @default(now())
+
+  registros CapacitacionRegistro[]
+}
+
+model CapacitacionRegistro {
+  id           String   @id @default(uuid())
+  contenido_id String
+  tenant_id    String
+  user_id      String
+  puntaje      Int
+  aprobado     Boolean
+  created_at   DateTime @default(now())
+
+  contenido CapacitacionContenido @relation(fields: [contenido_id], references: [id])
+  tenant    Tenant                @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id, user_id])
+  @@index([contenido_id])
+}
+
+model AlertaResolucion {
+  id         String   @id @default(uuid())
+  tenant_id  String
+  alerta_key String
+  actor_id   String
+  nota       String?
+  created_at DateTime @default(now())
+
+  @@index([tenant_id, alerta_key])
 }
 
 model NoConformidad {
@@ -359,16 +524,21 @@ model IncidenteSeguridad {
 // ── Pagos / Suscripciones (Flow.cl) ───────────────────────────────────
 
 model Suscripcion {
-  id         String    @id @default(uuid())
-  tenant_id  String    @unique
-  plan       String    // 'calidad' | 'integral'
-  monto_clp  Int       // monto mensual en CLP
-  estado     String    @default("activa") // 'activa' | 'morosa' | 'suspendida' | 'cancelada'
-  dia_cobro  Int       @default(5) // día del mes en que vence el pago
-  desde      DateTime  @default(now())
-  hasta      DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  id                     String    @id @default(uuid())
+  tenant_id              String    @unique
+  plan                   String    // 'calidad' | 'integral'
+  monto_clp              Int       // monto mensual en CLP (con IVA)
+  estado                 String    @default("activa") // 'activa' | 'morosa' | 'suspendida' | 'cancelada'
+  dia_cobro              Int       @default(5) // día del mes en que vence el pago
+  modo_cobro             String    @default("manual") // 'manual' | 'debito'
+  mp_preapproval_id      String?   @unique
+  mp_preapproval_status  String?   // 'pending' | 'authorized' | 'paused' | 'cancelled'
+  desde                  DateTime  @default(now())
+  hasta                  DateTime?
+  acceso_hasta           DateTime?
+  cancelada_at           DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
 
   pagos  Pago[]
   tenant Tenant @relation(fields: [tenant_id], references: [id])
@@ -380,7 +550,7 @@ model Pago {
   suscripcion_id String?
   periodo        String    // 'YYYY-MM'
   monto_clp      Int
-  metodo         String    @default("flow") // 'flow' | 'transferencia' | 'mercadopago'
+  metodo         String    @default("flow") // 'flow' | 'transferencia' | 'mercadopago' | 'debito'
   estado         String    @default("pendiente") // 'pendiente' | 'pagado' | 'rechazado' | 'anulado'
   flow_token     String?   @unique
   flow_order     Int?

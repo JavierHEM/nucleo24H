@@ -15,6 +15,8 @@ export type DatosAlertasLocal = {
   pago: { suscripcionEstado: string | null; pagadoEnPeriodo: boolean; diaCobro: number } | null;
   contratoHasta: Date | null | undefined;
   vencimientosAmbientales: { vence: Date | null }[] | null;
+  hallazgos?: { estado: string; plazo: Date | null }[];
+  proveedores?: { vigencia: Date | null }[];
 };
 
 export const DIAS_AVISO_DOCUMENTO = 30;
@@ -116,6 +118,47 @@ export function armarAlertasLocal(datos: DatosAlertasLocal): AlertaLocal[] {
       mensaje: `El contrato anual vence en ${contrato.dias} días`,
       href: "/plan",
       fecha: datos.contratoHasta ?? undefined,
+    });
+  }
+
+  const hallazgos = proximos(
+    (datos.hallazgos ?? []).filter((h) => h.estado !== "cerrado_validado" && h.estado !== "seguimiento_eficacia"),
+    (h) => h.plazo,
+    ahora,
+    DIAS_AVISO_NC
+  );
+  if (hallazgos.vencidos.length > 0) {
+    alertas.push({
+      id: "hallazgos-vencidos",
+      tipo: "vencido",
+      mensaje: plural(hallazgos.vencidos.length, "plazo de hallazgo vencido", "plazos de hallazgo vencidos"),
+      href: "/hallazgos",
+    });
+  }
+  if (hallazgos.porVencer.length > 0) {
+    alertas.push({
+      id: "hallazgos-proximos",
+      tipo: "proximo",
+      mensaje: `${plural(hallazgos.porVencer.length, "hallazgo vence", "hallazgos vencen")} en ${DIAS_AVISO_NC} días o menos`,
+      href: "/hallazgos",
+    });
+  }
+
+  const proveedores = proximos(datos.proveedores ?? [], (p) => p.vigencia, ahora, DIAS_AVISO_DOCUMENTO);
+  if (proveedores.vencidos.length > 0) {
+    alertas.push({
+      id: "proveedores-vencidos",
+      tipo: "vencido",
+      mensaje: plural(proveedores.vencidos.length, "autorización de proveedor vencida", "autorizaciones de proveedores vencidas"),
+      href: "/proveedores",
+    });
+  }
+  if (proveedores.porVencer.length > 0) {
+    alertas.push({
+      id: "proveedores-proximos",
+      tipo: "proximo",
+      mensaje: `${plural(proveedores.porVencer.length, "autorización de proveedor vence", "autorizaciones de proveedores vencen")} en ${DIAS_AVISO_DOCUMENTO} días o menos`,
+      href: "/proveedores",
     });
   }
 

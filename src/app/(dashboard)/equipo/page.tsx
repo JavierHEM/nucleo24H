@@ -9,15 +9,8 @@ import { IconUsers, IconUser, IconShieldHalf } from "@tabler/icons-react";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { InvitarMiembroButton } from "./InvitarMiembroButton";
 import { RemoverMiembroButton } from "./RemoverMiembroButton";
-import { puedeAsignarCargos, puedeGestionarEquipo, puedeRemoverMiembro } from "@/lib/roles";
-
-const ROL_LABEL: Record<string, { label: string; className: string }> = {
-  admin_local: { label: "Admin local", className: "bg-[#16294A] text-white" },
-  jefe_local: { label: "Jefe de local", className: "bg-[#16294A]/10 text-[#16294A]" },
-  trabajador_local: { label: "Trabajador", className: "bg-[#E5F1E3] text-[#255620]" },
-  asesor: { label: "Asesor", className: "bg-purple-100 text-purple-800" },
-  admin_nucleo: { label: "Admin Núcleo", className: "bg-orange-100 text-orange-800" },
-};
+import { EquipoNucleoVista } from "./EquipoNucleoVista";
+import { puedeAsignarCargos, puedeGestionarEquipo, puedeRemoverMiembro, ETIQUETA_ROL } from "@/lib/roles";
 
 export default async function EquipoPage() {
   const supabase = await createClient();
@@ -37,13 +30,24 @@ export default async function EquipoPage() {
   }
 
   const caller = await getCaller();
+
+  if (dbUser?.rol === "admin_nucleo") {
+    const empresas = await caller.locales.equipoPorEmpresa().catch(() => []);
+    return (
+      <EquipoNucleoVista
+        empresas={empresas}
+        puedeAsignarCargos={puedeAsignarCargos(dbUser.rol)}
+      />
+    );
+  }
+
   const miembros = await caller.locales.miEquipo().catch(() => []);
   const activos = miembros.filter((miembro) => miembro.activo).length;
   const jefes = miembros.filter((miembro) => miembro.rol === "admin_local" || miembro.rol === "jefe_local").length;
   const operarios = miembros.filter((miembro) => miembro.rol === "trabajador_local").length;
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 w-full">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
@@ -90,7 +94,7 @@ export default async function EquipoPage() {
             </thead>
             <tbody className="divide-y divide-[#DDE3EA]">
               {miembros.map((miembro) => {
-                const rolInfo = ROL_LABEL[miembro.rol] ?? { label: miembro.rol, className: "bg-gray-100 text-gray-600" };
+                const rolInfo = ETIQUETA_ROL[miembro.rol] ?? { label: miembro.rol, className: "bg-gray-100 text-gray-600" };
                 const esAdmin = miembro.rol === "admin_local" || miembro.rol === "admin_nucleo" || miembro.rol === "jefe_local";
 
                 return (
@@ -140,11 +144,11 @@ export default async function EquipoPage() {
       )}
 
       <div className="bg-[#F4F6F3] rounded-xl border border-[#DDE3EA] p-4 text-xs text-[#5B6980]">
-        <p className="font-medium text-[#0B1B33] mb-1">Permisos por rol</p>
-        <ul className="space-y-1">
-          <li><span className="font-medium">Trabajador:</span> Registros BPM, tareas diarias y capacitaciones.</li>
-          <li><span className="font-medium">Jefe de local:</span> Opera el local, sube documentos y gestiona al equipo. Puede tener más de un local a cargo.</li>
-          <li><span className="font-medium">Admin local:</span> Todo lo anterior, más la suscripción del local.</li>
+        <p className="font-medium text-[#0B1B33] mb-3">Permisos por rol</p>
+        <ul className="grid gap-3 sm:grid-cols-3">
+          <li><span className="font-medium text-[#0B1B33]">Trabajador:</span> Registros BPM, tareas diarias y capacitaciones.</li>
+          <li><span className="font-medium text-[#0B1B33]">Jefe de local:</span> Opera el local, sube documentos y gestiona al equipo. Puede tener más de un local a cargo.</li>
+          <li><span className="font-medium text-[#0B1B33]">Admin local:</span> Todo lo anterior, más la suscripción del local.</li>
         </ul>
       </div>
     </div>

@@ -32,10 +32,12 @@ import {
   IconLifebuoy,
   IconBadge,
   IconMail,
+  IconAlertTriangle,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 import { PlanBadge } from "@/components/plan/PlanBadge";
 import { planIncluye, type ModuloPlan, type PlanId } from "@/lib/planes";
+import type { LocalSelectorItem } from "@/lib/locales/selector";
 
 interface NavItem {
   href: string;
@@ -49,6 +51,7 @@ interface NavItem {
 const LOCAL_PRIMARIOS: NavItem[] = [
   { href: "/", label: "Hoy", icon: IconLayoutDashboard, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/documentos", label: "Documentos", icon: IconFileDescription, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sello y visitas", icon: IconMedal, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], active: ["/sellos", "/visitas"] },
@@ -62,6 +65,7 @@ const LOCAL_MAS: NavItem[] = [
   { href: "/ambiental", label: "Gestión ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], modulo: "ambiental" },
   { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+  { href: "/proveedores", label: "Proveedores", icon: IconBuildingStore, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
   { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
@@ -87,6 +91,7 @@ const ASESOR_ITEMS: NavItem[] = [
   { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
   { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
+  { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sellos por revisar", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
   { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
   { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
@@ -122,10 +127,7 @@ export interface PlanLocal {
   diaCobro: number;
 }
 
-interface Local {
-  id: string;
-  nombre: string;
-}
+type Local = LocalSelectorItem;
 
 interface SidebarProps {
   userRole: UserRole | null;

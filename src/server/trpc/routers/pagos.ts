@@ -18,6 +18,14 @@ import {
 } from "@/lib/payments/mercadopago";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { PLAN_IDS, finDeContrato } from "@/lib/planes";
+import { debitoAutorizado, mapPreapprovalStatus } from "@/lib/payments/debito";
+import { getCurrentPeriodo } from "@/lib/utils";
+import {
+  cancelarPreapprovalDeSuscripcion,
+  desactivarDebitoAutomatico,
+  iniciarDebitoAutomatico,
+  sincronizarMontoPreapproval,
+} from "@/server/payments/debitoMp";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const adminLocalProcedure = protectedProcedure.use(
@@ -66,7 +74,30 @@ export const pagosRouter = router({
         : isFlowConfigured()
           ? "flow"
           : null,
+      modoMercadoPago: isMercadoPagoConfigured() ? modoMercadoPago() : null,
+      debitoActivo: debitoAutorizado({
+        modoCobro: suscripcion?.modo_cobro,
+        preapprovalStatus: suscripcion?.mp_preapproval_status,
+      }),
+      debitoPendiente: mapPreapprovalStatus(suscripcion?.mp_preapproval_status) === "pending",
     };
+  }),
+
+  /** Checkout de Mercado Pago para autorizar el cargo mensual automático. */
+  activarDebito: adminLocalProcedure
+    .input(z.object({ autoriza_debito: z.literal(true) }))
+    .mutation(async ({ ctx }) => {
+      return iniciarDebitoAutomatico({
+        prisma: ctx.prisma,
+        tenantId: ctx.tenantActivo!,
+        userId: ctx.userId!,
+        periodoActual: getCurrentPeriodo(),
+      });
+    }),
+
+  /** Pausa el preapproval y el local vuelve a pagar mes a mes. */
+  desactivarDebito: adminLocalProcedure.mutation(async ({ ctx }) => {
+    return desactivarDebitoAutomatico({ prisma: ctx.prisma, tenantId: ctx.tenantActivo! });
   }),
 
   /** Inicia un pago en línea vía Flow.cl — retorna URL de redirección */
@@ -263,6 +294,41 @@ export const pagosRouter = router({
       }
     }),
 
+  cancelar: adminLocalProcedure.mutation(async ({ ctx }) => {
+    const tenantId = ctx.tenantActivo!;
+    const suscripcion = await ctx.prisma.suscripcion.findUnique({ where: { tenant_id: tenantId } });
+    if (!suscripcion) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "No hay una suscripción activa." });
+    }
+    if (suscripcion.estado === "cancelada") {
+      throw new TRPCError({ code: "CONFLICT", message: "La suscripción ya está cancelada." });
+    }
+    const { finPeriodoPagado } = await import("@/lib/payments/mora");
+    const accesoHasta = finPeriodoPagado();
+    await cancelarPreapprovalDeSuscripcion({ prisma: ctx.prisma, suscripcion });
+    const actualizada = await ctx.prisma.suscripcion.update({
+      where: { id: suscripcion.id },
+      data: {
+        estado: "cancelada",
+        cancelada_at: new Date(),
+        acceso_hasta: accesoHasta,
+        modo_cobro: "manual",
+        mp_preapproval_status: suscripcion.mp_preapproval_id ? "cancelled" : suscripcion.mp_preapproval_status,
+      },
+    });
+    const user = await ctx.prisma.user.findUnique({ where: { id: ctx.userId! }, select: { email: true } });
+    const tenant = await ctx.prisma.tenant.findUnique({ where: { id: tenantId }, select: { nombre: true } });
+    if (user?.email) {
+      const { sendAlertaMorosidad } = await import("@/lib/email/sendAlertaMorosidad");
+      await sendAlertaMorosidad({
+        to: user.email,
+        nombreLocal: tenant?.nombre ?? "Tu local",
+        periodo: "cancelación",
+      }).catch((err: unknown) => console.error("[pagos.cancelar] mail", err));
+    }
+    return actualizada;
+  }),
+
   /** admin_nucleo: panorama de cobranza de todos los locales para un período */
   adminResumen: nucleoProcedure
     .input(z.object({ periodo: z.string().regex(PERIODO_REGEX) }))
@@ -282,6 +348,8 @@ export const pagosRouter = router({
               monto_clp: true,
               estado: true,
               dia_cobro: true,
+              modo_cobro: true,
+              mp_preapproval_status: true,
               desde: true,
               hasta: true,
             },
@@ -358,6 +426,11 @@ export const pagosRouter = router({
         }),
         ctx.prisma.tenant.update({ where: { id: input.tenant_id }, data: { plan: input.plan } }),
       ]);
+      await sincronizarMontoPreapproval({
+        preapprovalId: suscripcion.mp_preapproval_id,
+        preapprovalStatus: suscripcion.mp_preapproval_status,
+        monto,
+      });
       return suscripcion;
     }),
 

@@ -41,7 +41,7 @@ export function FiscalizacionesVista({ esStaff, puedeAdjuntar }: { esStaff: bool
   const { elegibilidad, fiscalizaciones, descargos } = consulta.data;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33]">Fiscalizaciones y descargos</h1>
         <p className="text-sm text-[#5B6980] mt-1">
@@ -72,95 +72,146 @@ export function FiscalizacionesVista({ esStaff, puedeAdjuntar }: { esStaff: bool
         </section>
       )}
 
-      <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
-        <div className="flex items-center justify-between gap-3">
+      <section className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#DDE3EA] bg-[#F4F6F3]">
           <h2 className="text-sm font-semibold text-[#0B1B33]">Fiscalizaciones</h2>
           <Button size="sm" variant="outline" onClick={() => setRegistrando(true)}>
             Registrar fiscalización
           </Button>
         </div>
         {fiscalizaciones.length === 0 ? (
-          <p className="mt-3 text-sm text-[#5B6980]">No hay fiscalizaciones registradas.</p>
+          <p className="px-4 py-8 text-sm text-[#5B6980] text-center">No hay fiscalizaciones registradas.</p>
         ) : (
-          <ul className="mt-2 divide-y divide-[#F1F5F9]">
-            {fiscalizaciones.map((fiscalizacion) => (
-              <li key={fiscalizacion.id} className="py-3">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-[#0B1B33]">{fiscalizacion.autoridad}</p>
-                  <p className="text-xs text-[#5B6980]">{formatDate(new Date(fiscalizacion.fecha))}</p>
-                </div>
-                <p className="text-xs font-medium text-[#5B6980]">
-                  {RESULTADO_FISCALIZACION_LABEL[fiscalizacion.resultado as ResultadoFiscalizacion] ?? fiscalizacion.resultado}
-                </p>
-                {fiscalizacion.detalle && <p className="mt-1 text-sm text-[#334155]">{fiscalizacion.detalle}</p>}
-                {fiscalizacion.acta_url && (
-                  <a
-                    href={hrefArchivo(fiscalizacion.acta_url)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[#255620] underline"
-                  >
-                    <IconPaperclip size={14} aria-hidden /> Ver acta
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F4F6F3] border-b border-[#DDE3EA]">
+                <tr>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Autoridad</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Fecha</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Resultado</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">Detalle</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Acta</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DDE3EA]">
+                {fiscalizaciones.map((fiscalizacion) => (
+                  <tr key={fiscalizacion.id} className="hover:bg-[#F4F6F3] transition-colors">
+                    <td className="px-4 py-3 font-medium text-[#0B1B33]">{fiscalizacion.autoridad}</td>
+                    <td className="px-4 py-3 text-[#5B6980] whitespace-nowrap">
+                      {formatDate(new Date(fiscalizacion.fecha))}
+                    </td>
+                    <td className="px-4 py-3 text-[#334155]">
+                      {RESULTADO_FISCALIZACION_LABEL[fiscalizacion.resultado as ResultadoFiscalizacion] ??
+                        fiscalizacion.resultado}
+                    </td>
+                    <td className="px-4 py-3 text-[#334155] hidden md:table-cell">
+                      {fiscalizacion.detalle || "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      {fiscalizacion.acta_url ? (
+                        <a
+                          href={hrefArchivo(fiscalizacion.acta_url)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-sm font-medium text-[#255620] underline"
+                        >
+                          <IconPaperclip size={14} aria-hidden /> Ver acta
+                        </a>
+                      ) : (
+                        <span className="text-[#5B6980]">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
-      <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
-        <h2 className="text-sm font-semibold text-[#0B1B33]">Solicitudes de descargo</h2>
+      <section className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-[#DDE3EA] bg-[#F4F6F3]">
+          <h2 className="text-sm font-semibold text-[#0B1B33]">Solicitudes de descargo</h2>
+        </div>
         {descargos.length === 0 ? (
-          <p className="mt-3 text-sm text-[#5B6980]">Aún no hay solicitudes de descargo.</p>
+          <p className="px-4 py-8 text-sm text-[#5B6980] text-center">Aún no hay solicitudes de descargo.</p>
         ) : (
-          <ul className="mt-2 divide-y divide-[#F1F5F9]">
-            {descargos.map((descargo) => {
-              const estado = esEstadoDescargo(descargo.estado) ? descargo.estado : "abierto";
-              return (
-                <li key={descargo.id} className="py-4">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-medium text-[#0B1B33]">{descargo.titulo}</p>
-                      <p className="text-xs text-[#5B6980]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F4F6F3] border-b border-[#DDE3EA]">
+                <tr>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Solicitud</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Estado</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden sm:table-cell">Fecha</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden lg:table-cell">
+                    Antecedentes
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">
+                    Respuesta
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DDE3EA]">
+                {descargos.map((descargo) => {
+                  const estado = esEstadoDescargo(descargo.estado) ? descargo.estado : "abierto";
+                  return (
+                    <tr key={descargo.id} className="hover:bg-[#F4F6F3] transition-colors align-top">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-[#0B1B33]">{descargo.titulo}</p>
+                        <p className="text-sm text-[#334155] mt-1 whitespace-pre-line">{descargo.descripcion}</p>
+                        {esStaff && (
+                          <DescargoGestion id={descargo.id} estado={descargo.estado} respuesta={descargo.respuesta} />
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex h-6 items-center rounded-full px-2.5 text-xs font-bold ${COLOR_ESTADO[estado]}`}
+                        >
+                          {ESTADO_DESCARGO_LABEL[estado]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-[#5B6980] hidden sm:table-cell whitespace-nowrap">
                         {formatDate(new Date(descargo.created_at))}
                         {descargo.solicitanteNombre ? ` · ${descargo.solicitanteNombre}` : ""}
-                      </p>
-                    </div>
-                    <span className={`inline-flex h-6 items-center rounded-full px-2.5 text-xs font-bold ${COLOR_ESTADO[estado]}`}>
-                      {ESTADO_DESCARGO_LABEL[estado]}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm text-[#334155] whitespace-pre-line">{descargo.descripcion}</p>
-                  {descargo.adjuntos.length > 0 && (
-                    <ul className="mt-2 flex flex-wrap gap-3">
-                      {descargo.adjuntos.map((ruta, indice) => (
-                        <li key={ruta}>
-                          <a
-                            href={hrefArchivo(ruta)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-sm font-medium text-[#255620] underline"
-                          >
-                            <IconPaperclip size={14} aria-hidden /> Antecedente {indice + 1}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {descargo.respuesta && (
-                    <div className="mt-3 rounded-lg bg-[#F4F6F3] px-3 py-2">
-                      <p className="text-xs font-semibold text-[#5B6980]">
-                        Respuesta{descargo.asesorNombre ? ` de ${descargo.asesorNombre}` : " del asesor"}
-                      </p>
-                      <p className="text-sm text-[#334155] whitespace-pre-line">{descargo.respuesta}</p>
-                    </div>
-                  )}
-                  {esStaff && <DescargoGestion id={descargo.id} estado={descargo.estado} respuesta={descargo.respuesta} />}
-                </li>
-              );
-            })}
-          </ul>
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell">
+                        {descargo.adjuntos.length > 0 ? (
+                          <ul className="flex flex-col gap-1">
+                            {descargo.adjuntos.map((ruta, indice) => (
+                              <li key={ruta}>
+                                <a
+                                  href={hrefArchivo(ruta)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-sm font-medium text-[#255620] underline"
+                                >
+                                  <IconPaperclip size={14} aria-hidden /> Antecedente {indice + 1}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-[#5B6980]">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell text-[#334155] whitespace-pre-line">
+                        {descargo.respuesta ? (
+                          <>
+                            {descargo.asesorNombre ? (
+                              <p className="text-xs font-semibold text-[#5B6980] mb-1">{descargo.asesorNombre}</p>
+                            ) : null}
+                            {descargo.respuesta}
+                          </>
+                        ) : (
+                          <span className="text-[#5B6980]">Sin respuesta</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 

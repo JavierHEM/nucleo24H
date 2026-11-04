@@ -87,8 +87,8 @@ describe("isFlowConfigured", () => {
 
 describe("PLAN_PRECIOS_CLP", () => {
   it("refleja los precios del SRS", () => {
-    expect(PLAN_PRECIOS_CLP.calidad).toBe(80_000);
-    expect(PLAN_PRECIOS_CLP.integral).toBe(150_000);
+    expect(PLAN_PRECIOS_CLP.calidad).toBe(95_200);
+    expect(PLAN_PRECIOS_CLP.integral).toBe(178_500);
   });
 });
 

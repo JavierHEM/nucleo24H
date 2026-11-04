@@ -10,6 +10,7 @@ import {
   IconLeaf,
   IconClipboardCheck,
   IconGavel,
+  IconAlertTriangle,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 import { planIncluye } from "@/lib/planes";
@@ -25,6 +26,7 @@ function accesosPara(rol: UserRole, plan: unknown): Acceso[] {
     return [
       { href: "/registros", label: "Registros", icon: IconThermometer },
       { href: "/visitas", label: "Visitas", icon: IconMapPin },
+      { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle },
       { href: "/calendario", label: "Calendario", icon: IconCalendarEvent },
       { href: "/programa", label: "Programa", icon: IconClipboardCheck },
       { href: "/sellos", label: "Sellos", icon: IconMedal },
@@ -35,6 +37,7 @@ function accesosPara(rol: UserRole, plan: unknown): Acceso[] {
   const accesos: Acceso[] = [
     { href: "/registros", label: "Registros", icon: IconThermometer },
     { href: "/documentos", label: "Documentos", icon: IconFileDescription },
+    { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle },
     { href: "/sellos", label: "Sello", icon: IconMedal },
     { href: "/calendario", label: "Calendario", icon: IconCalendarEvent },
     { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel },

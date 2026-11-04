@@ -230,6 +230,7 @@ const COLOR_RESULTADO: Record<ResultadoPauta, string> = {
   cumple: "text-[#255620]",
   observacion: "text-[#92400E]",
   no_cumple: "text-[#991B1B]",
+  no_aplica: "text-[#64748B]",
   no_revisada: "text-[#94A3B8]",
 };
 

@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getCurrentPeriodo } from "@/lib/utils";
+import { CasillaDeclaracion } from "@/components/declaraciones/CasillaDeclaracion";
+import { AvisoEvidenciaTerceros } from "@/components/declaraciones/AvisoEvidenciaTerceros";
 
 const CATEGORIAS = [
   "Permiso sanitario",
@@ -46,6 +48,7 @@ type UploadState =
 
 export function SubirDocumentoButton() {
   const [open, setOpen] = useState(false);
+  const [aceptaB, setAceptaB] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState>({ status: "idle" });
   const fileRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -145,6 +148,7 @@ export function SubirDocumentoButton() {
   async function onSubmit(data: FormData) {
     if (uploadState.status !== "done") return;
 
+    if (!aceptaB) return;
     await subir.mutateAsync({
       nombre: data.nombre,
       categoria: data.categoria,
@@ -153,6 +157,7 @@ export function SubirDocumentoButton() {
       vencimiento: data.vencimiento
         ? new Date(data.vencimiento).toISOString()
         : undefined,
+      acepta_declaracion_b: true as const,
     });
   }
 
@@ -176,7 +181,7 @@ export function SubirDocumentoButton() {
 
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-xl max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA] sticky top-0 bg-white rounded-t-2xl">
               <p className="font-semibold text-[#0B1B33]">Subir documento</p>
@@ -186,8 +191,9 @@ export function SubirDocumentoButton() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
+              <div className="grid gap-5 sm:grid-cols-2">
               {/* Zona de archivo */}
-              <div>
+              <div className="min-w-0">
                 <Label className="block mb-2">Archivo (PDF o imagen, máx. 10 MB)</Label>
                 <input
                   ref={fileRef}
@@ -260,8 +266,12 @@ export function SubirDocumentoButton() {
                     </button>
                   </div>
                 )}
+                <div className="mt-3">
+                  <AvisoEvidenciaTerceros />
+                </div>
               </div>
 
+              <div className="space-y-4 min-w-0">
               {/* Nombre */}
               <div>
                 <Label htmlFor="nombre">Nombre del documento</Label>
@@ -317,6 +327,10 @@ export function SubirDocumentoButton() {
                   />
                 </div>
               </div>
+              </div>
+              </div>
+
+              <CasillaDeclaracion tipo="B" checked={aceptaB} onChange={setAceptaB} />
 
               {/* Error del servidor */}
               {subir.error && (
@@ -338,7 +352,7 @@ export function SubirDocumentoButton() {
                 <Button
                   type="submit"
                   className="flex-1 bg-[#2F6B2A] hover:bg-[#255620] text-white"
-                  disabled={uploadState.status !== "done" || subir.isPending}
+                  disabled={uploadState.status !== "done" || subir.isPending || !aceptaB}
                 >
                   {subir.isPending ? (
                     <span className="flex items-center gap-2">

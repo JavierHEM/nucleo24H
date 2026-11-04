@@ -12,6 +12,9 @@ import { getCaller } from "@/lib/trpc/server";
 import { formatCLP, formatDate, formatPeriodo, getCurrentPeriodo, cn } from "@/lib/utils";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { PagarButton } from "./PagarButton";
+import { ActivarDebitoButton } from "./ActivarDebitoButton";
+import { DesactivarDebitoButton } from "./DesactivarDebitoButton";
+import { CancelarSuscripcionButton } from "./CancelarSuscripcionButton";
 import { estadoContrato } from "@/lib/planes";
 import { ETIQUETA_METODO } from "@/lib/payments/metodos";
 
@@ -74,7 +77,7 @@ export default async function SuscripcionPage() {
   const contrato = estadoContrato(data.suscripcion?.hasta);
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33] flex items-center gap-2">
           <IconCreditCard size={26} className="text-[#2F6B2A]" />
@@ -89,17 +92,26 @@ export default async function SuscripcionPage() {
         items={[
           { label: "Plan", value: PLAN_LABELS[data.plan] ?? data.plan, hint: `${formatCLP(data.montoMensual)} / mes`, tone: "neutral" },
           { label: "Estado", value: estadoSus.label, hint: "De la suscripción", tone: data.suscripcion?.estado === "activa" || !data.suscripcion ? "ok" : "alerta" },
-          { label: "Este mes", value: pagoPeriodoActual ? "Pagado" : "Por pagar", hint: formatPeriodo(periodoActual), tone: pagoPeriodoActual ? "ok" : "alerta" },
           {
-            label: "Pagos",
-            value: data.pagos.filter((pago) => pago.estado === "pagado").length,
-            hint: `de ${data.pagos.length} registrados`,
-            tone: "neutral",
+            label: "Cobro",
+            value: data.debitoActivo ? "Débito automático" : data.debitoPendiente ? "Por autorizar" : "Pago mensual",
+            hint: data.debitoActivo
+              ? `Se cobra el día ${data.suscripcion?.dia_cobro ?? 5}`
+              : "Cada mes, a mano",
+            tone: data.debitoActivo ? "ok" : "neutral",
           },
+          { label: "Este mes", value: pagoPeriodoActual ? "Pagado" : "Por pagar", hint: formatPeriodo(periodoActual), tone: pagoPeriodoActual ? "ok" : "alerta" },
         ]}
       />
 
-      {/* Plan actual */}
+      {data.modoMercadoPago === "prueba" && (
+        <div className="rounded-xl border border-[#E3B341] bg-[#FFF8E6] px-4 py-3 text-sm text-[#5B3B00]">
+          Los pagos están en <span className="font-medium">modo prueba</span>. Cuando cambien las
+          credenciales de Mercado Pago a producción, los cargos serán reales.
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
       <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -137,14 +149,55 @@ export default async function SuscripcionPage() {
               </span>
             )}
           </div>
-          {!pagoPeriodoActual && (
-            <PagarButton
-              periodo={periodoActual}
-              monto={data.montoMensual}
-              disponible={data.pagosEnLineaDisponibles}
-            />
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {!pagoPeriodoActual && (
+              <PagarButton
+                periodo={periodoActual}
+                monto={data.montoMensual}
+                disponible={data.pagosEnLineaDisponibles}
+              />
+            )}
+            {data.suscripcion?.estado !== "cancelada" && <CancelarSuscripcionButton />}
+          </div>
         </div>
+        {data.debitoActivo && !pagoPeriodoActual && (
+          <p className="mt-3 text-xs text-[#5B6980]">
+            El débito se intenta el día {data.suscripcion?.dia_cobro ?? 5}. Si falla, puedes pagar este mes a mano.
+          </p>
+        )}
+      </div>
+
+      <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+        <p className="text-sm font-semibold text-[#0B1B33]">Forma de cobro</p>
+        {data.debitoActivo ? (
+          <>
+            <p className="text-sm text-[#334155] mt-1">
+              Débito automático activo. Mercado Pago cobra {formatCLP(data.montoMensual)} el día{" "}
+              {data.suscripcion?.dia_cobro ?? 5} de cada mes.
+            </p>
+            <div className="mt-4">
+              <DesactivarDebitoButton />
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-[#334155] mt-1">
+              {data.debitoPendiente
+                ? "Quedó pendiente autorizar el débito en Mercado Pago."
+                : "Hoy pagas cada mes a mano. Si activas el débito, autorizas una vez y el cargo se repite solo."}
+            </p>
+            {data.pagosEnLineaDisponibles && data.suscripcion?.estado !== "cancelada" && data.suscripcion?.estado !== "suspendida" && (
+              <div className="mt-4">
+                <ActivarDebitoButton
+                  monto={data.montoMensual}
+                  diaCobro={data.suscripcion?.dia_cobro ?? 5}
+                  pendiente={data.debitoPendiente}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
       </div>
 
       <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">

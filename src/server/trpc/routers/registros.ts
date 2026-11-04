@@ -10,8 +10,14 @@ import { sendAvisoPlanillaPapel } from "@/lib/email/sendPlanillaPapel";
 import { crearUrlDeLectura } from "@/lib/storage/archivos";
 import { rutaPertenece } from "@/lib/storage/rutas";
 import { env } from "@/lib/env";
+import { DECLARACIONES, DECLARACIONES_VERSION } from "@/lib/declaraciones/textos";
+import { requireSuscripcionEscribible } from "@/server/middleware/suscripcion";
+import { requireRole } from "@/server/middleware/rbac";
+import { ESTADOS_EVIDENCIA } from "@/lib/hallazgos/ciclo";
 
 const protectedProcedure = publicProcedure.use(withTenant);
+const writeProcedure = protectedProcedure.use(requireSuscripcionEscribible);
+const staffProcedure = protectedProcedure.use(requireRole("asesor", "admin_nucleo"));
 
 const equipoSchema = z.object({
   id: z.string(),
@@ -100,12 +106,13 @@ export const registrosRouter = router({
     };
   }),
 
-  crear: protectedProcedure
+  crear: writeProcedure
     .input(
       z.object({
         codigo: z.string(),
         fecha: z.string().datetime(),
         datos: z.record(z.string(), z.unknown()),
+        acepta_declaracion_a: z.literal(true),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -119,26 +126,47 @@ export const registrosRouter = router({
         });
       }
 
-      return ctx.prisma.registro.create({
+      const fecha = new Date(input.fecha);
+      const creado = new Date();
+      const extemporaneo =
+        fecha.toISOString().slice(0, 10) !== creado.toISOString().slice(0, 10);
+
+      const registro = await ctx.prisma.registro.create({
         data: {
           tenant_id: ctx.tenantActivo!,
           tipo: planilla.familia,
           codigo: planilla.codigo,
           origen: "digital",
-          fecha: new Date(input.fecha),
+          fecha,
           datos: parsed.data as Prisma.InputJsonValue,
+          evidencia_estado: "declarado_cliente",
+          extemporaneo,
           created_by: ctx.userId!,
         },
       });
+      await ctx.prisma.declaracionVeracidad.create({
+        data: {
+          tenant_id: ctx.tenantActivo!,
+          user_id: ctx.userId!,
+          tipo: "A",
+          version: DECLARACIONES_VERSION,
+          texto: DECLARACIONES.A.texto,
+          evento: "completar_registro",
+          recurso_tipo: "registro",
+          recurso_id: registro.id,
+        },
+      });
+      return registro;
     }),
 
-  cargarPapel: protectedProcedure
+  cargarPapel: writeProcedure
     .input(
       z.object({
         codigo: z.string(),
         fecha: z.string().datetime(),
         adjunto_url: z.string().min(1).max(500),
         nota: z.string().trim().max(500).optional(),
+        acepta_declaracion_a: z.literal(true),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -157,6 +185,7 @@ export const registrosRouter = router({
         });
       }
 
+      const fecha = new Date(input.fecha);
       const registro = await ctx.prisma.registro.create({
         data: {
           tenant_id: ctx.tenantActivo!,
@@ -164,10 +193,23 @@ export const registrosRouter = router({
           codigo: planilla.codigo,
           origen: "papel",
           estado: "pendiente",
-          fecha: new Date(input.fecha),
+          fecha,
           adjunto_url: input.adjunto_url,
           datos: { nota: input.nota ?? "" } as Prisma.InputJsonValue,
+          evidencia_estado: "declarado_cliente",
           created_by: ctx.userId!,
+        },
+      });
+      await ctx.prisma.declaracionVeracidad.create({
+        data: {
+          tenant_id: ctx.tenantActivo!,
+          user_id: ctx.userId!,
+          tipo: "A",
+          version: DECLARACIONES_VERSION,
+          texto: DECLARACIONES.A.texto,
+          evento: "cargar_planilla_papel",
+          recurso_tipo: "registro",
+          recurso_id: registro.id,
         },
       });
 
@@ -226,5 +268,45 @@ export const registrosRouter = router({
       );
 
       return { id: registro.id, asesoresNotificados: asesorIds.length };
+    }),
+
+  corregir: writeProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        datos: z.record(z.string(), z.unknown()),
+        motivo: z.string().trim().min(5).max(500),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const registro = await ctx.prisma.registro.findUnique({ where: { id: input.id } });
+      if (!registro || registro.tenant_id !== ctx.tenantActivo) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Registro no encontrado." });
+      }
+      await ctx.prisma.registroEdicion.create({
+        data: {
+          registro_id: registro.id,
+          actor_id: ctx.userId!,
+          motivo: input.motivo,
+          datos_antes: registro.datos as Prisma.InputJsonValue,
+        },
+      });
+      return ctx.prisma.registro.update({
+        where: { id: registro.id },
+        data: { datos: input.datos as Prisma.InputJsonValue },
+      });
+    }),
+
+  marcarEvidencia: staffProcedure
+    .input(z.object({ id: z.string().uuid(), evidencia_estado: z.enum(ESTADOS_EVIDENCIA) }))
+    .mutation(async ({ ctx, input }) => {
+      const registro = await ctx.prisma.registro.findUnique({ where: { id: input.id } });
+      if (!registro || registro.tenant_id !== ctx.tenantActivo) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Registro no encontrado." });
+      }
+      return ctx.prisma.registro.update({
+        where: { id: registro.id },
+        data: { evidencia_estado: input.evidencia_estado },
+      });
     }),
 });

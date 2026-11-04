@@ -53,7 +53,7 @@ function PlanillaSheetAbierta({ abierto, onCerrar, codigo, onSuccess }: Planilla
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={cerrar} />
-      <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div className="relative z-10 w-full max-w-3xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3 min-w-0">
             {(familia || planilla) && (

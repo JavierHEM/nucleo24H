@@ -17,7 +17,7 @@ import {
   type TipoVisita,
 } from "@/lib/bpm/visita";
 
-const OPCIONES: ResultadoPauta[] = ["cumple", "observacion", "no_cumple"];
+const OPCIONES: ResultadoPauta[] = ["cumple", "observacion", "no_cumple", "no_aplica"];
 
 type Fila = {
   resultado: ResultadoPauta | "";
@@ -56,6 +56,7 @@ const ESTILO_OPCION: Record<ResultadoPauta, string> = {
   cumple: "border-[#2F6B2A] bg-[#E5F1E3] text-[#255620]",
   observacion: "border-[#D97706] bg-[#FEF3C7] text-[#92400E]",
   no_cumple: "border-[#B42318] bg-red-50 text-[#991B1B]",
+  no_aplica: "border-[#94A3B8] bg-[#EEF1F4] text-[#41506A]",
   no_revisada: "border-[#DDE3EA] bg-white text-[#334155]",
 };
 

@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CasillaDeclaracion } from "@/components/declaraciones/CasillaDeclaracion";
 
 const schema = z.object({
   tema: z.string().min(2, "Ingresa el tema de la capacitación"),
@@ -23,6 +24,7 @@ type FormData = z.infer<typeof schema>;
 
 export function NuevaCapacitacionButton() {
   const [open, setOpen] = useState(false);
+  const [aceptaA, setAceptaA] = useState(false);
   const router = useRouter();
 
   const { mutateAsync, isPending } = trpc.registros.crear.useMutation({
@@ -50,8 +52,10 @@ export function NuevaCapacitacionButton() {
         relator: data.relator,
         asistentes: [{ nombre: data.asistente, cargo: data.cargo }],
       },
+      acepta_declaracion_a: true,
     });
     reset();
+    setAceptaA(false);
   }
 
   return (
@@ -67,11 +71,11 @@ export function NuevaCapacitacionButton() {
 
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA]">
               <p className="font-semibold text-[#0B1B33]">Nueva capacitación</p>
               <button
-                onClick={() => { setOpen(false); reset(); }}
+                onClick={() => { setOpen(false); reset(); setAceptaA(false); }}
                 className="text-[#5B6980] hover:text-[#0B1B33]"
               >
                 <IconX size={20} />
@@ -90,6 +94,7 @@ export function NuevaCapacitacionButton() {
                 {errors.tema && <p className="text-xs text-[#B42318] mt-1">{errors.tema.message}</p>}
               </div>
 
+              <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="fecha">Fecha</Label>
                 <Input
@@ -134,13 +139,15 @@ export function NuevaCapacitacionButton() {
                 />
                 {errors.cargo && <p className="text-xs text-[#B42318] mt-1">{errors.cargo.message}</p>}
               </div>
+              </div>
 
+              <CasillaDeclaracion tipo="A" checked={aceptaA} onChange={setAceptaA} />
               <Button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || !aceptaA}
                 className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
               >
-                {isPending ? "Guardando..." : "✅ Guardar capacitación"}
+                {isPending ? "Guardando..." : "Guardar capacitación"}
               </Button>
             </form>
           </div>

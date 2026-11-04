@@ -24,7 +24,7 @@ export default async function RegistrosPage() {
             Registros BPM
           </h1>
           <p className="text-sm text-[#5B6980] mt-1">
-            Completa la planilla en el sistema o carga la que imprimiste.
+            Completa la planilla o carga la impresa. En cada fila está el detalle y la constancia de veracidad.
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -3,6 +3,7 @@ import { formatDate, getCurrentPeriodo } from "@/lib/utils";
 import { IconSchool, IconCircleCheck, IconClock } from "@tabler/icons-react";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { NuevaCapacitacionButton } from "./NuevaCapacitacionButton";
+import { LmsCapacitacion } from "./LmsCapacitacion";
 
 export default async function CapacitacionesPage() {
   const caller = await getCaller();
@@ -37,6 +38,8 @@ export default async function CapacitacionesPage() {
         </div>
         <NuevaCapacitacionButton />
       </div>
+
+      <LmsCapacitacion />
 
       <ScoreCards
         items={[

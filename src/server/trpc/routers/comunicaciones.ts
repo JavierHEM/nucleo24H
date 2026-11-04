@@ -16,6 +16,8 @@ import {
   type AccionTicket,
 } from "@/lib/comunicaciones/tickets";
 import { crearNotificaciones, idsAdminNucleo } from "@/server/comunicaciones/notificar";
+import { cupoProfesional, esConsultaProfesional, periodoDe } from "@/lib/comunicaciones/cupos";
+import { requireSuscripcionEscribible } from "@/server/middleware/suscripcion";
 
 const commsProcedure = publicProcedure.use(
   requireRole("jefe_local", "admin_local", "asesor", "admin_nucleo")
@@ -23,6 +25,7 @@ const commsProcedure = publicProcedure.use(
 const localProcedure = publicProcedure
   .use(withTenant)
   .use(requireRole("jefe_local", "admin_local"));
+const localWriteProcedure = localProcedure.use(requireSuscripcionEscribible);
 const authProcedure = publicProcedure.use(requireAuth);
 
 const ticketInclude = {
@@ -135,7 +138,26 @@ export const comunicacionesRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => exigirTicket(ctx, input.id)),
 
-  crearTicket: localProcedure
+  cupo: localProcedure.query(async ({ ctx }) => {
+    const tenantId = ctx.tenantActivo!;
+    const tenant = await ctx.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { created_at: true },
+    });
+    const periodo = periodoDe(new Date());
+    const usadas = await ctx.prisma.ticket.count({
+      where: {
+        tenant_id: tenantId,
+        categoria: { in: ["consulta", "documentos", "visita"] },
+        created_at: {
+          gte: new Date(`${periodo}-01T00:00:00`),
+        },
+      },
+    });
+    return cupoProfesional({ tenantCreadoAt: tenant?.created_at ?? new Date(), usadasEnPeriodo: usadas });
+  }),
+
+  crearTicket: localWriteProcedure
     .input(
       z.object({
         asunto: z.string().trim().min(3, "Escribe un asunto de al menos 3 caracteres.").max(120),
@@ -146,6 +168,30 @@ export const comunicacionesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.tenantActivo!;
+      if (esConsultaProfesional(input.categoria)) {
+        const tenant = await ctx.prisma.tenant.findUnique({
+          where: { id: tenantId },
+          select: { created_at: true },
+        });
+        const periodo = periodoDe(new Date());
+        const usadas = await ctx.prisma.ticket.count({
+          where: {
+            tenant_id: tenantId,
+            categoria: { in: ["consulta", "documentos", "visita"] },
+            created_at: { gte: new Date(`${periodo}-01T00:00:00`) },
+          },
+        });
+        const cupo = cupoProfesional({
+          tenantCreadoAt: tenant?.created_at ?? new Date(),
+          usadasEnPeriodo: usadas,
+        });
+        if (!cupo.ilimitado && cupo.restantes <= 0) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Ya usaste las 5 consultas profesionales de este mes. El soporte técnico de la plataforma sigue disponible.",
+          });
+        }
+      }
       const asignacion = await ctx.prisma.asignacionAsesor.findFirst({
         where: { tenant_id: tenantId, activo: true },
         select: { asesor_id: true },

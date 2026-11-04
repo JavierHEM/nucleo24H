@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 import { APP_LEGAL_NAME, APP_NAME, APP_TAGLINE, CONTACTO_CORREO, CONTACTO_SOPORTE } from "@/lib/branding";
-import { PLANES as CATALOGO_PLANES, CONTRATO_MESES } from "@/lib/planes";
+import { PLANES as CATALOGO_PLANES, CONTRATO_MESES, TARIFA_NETA_DESDE_2027, precioConIva } from "@/lib/planes";
 import { formatCLP } from "@/lib/utils";
 import { DiagnosticoForm } from "./DiagnosticoForm";
 
@@ -70,10 +70,10 @@ const PASOS = [
 ];
 
 const SELLOS = [
-  { nivel: "Inicial", rango: "Menos de 60%", texto: "Cumplimiento bajo. Hay brechas importantes por mejorar.", bg: "#B42318", fg: "#FFFFFF" },
-  { nivel: "Intermedio", rango: "60% a 74%", texto: "Vas avanzando, pero aún hay aspectos por trabajar.", bg: "#E8B100", fg: "#0B1B33" },
-  { nivel: "Avanzado", rango: "75% a 89%", texto: "Buen cumplimiento. Tus procesos y registros están en orden.", bg: "#2F6B2A", fg: "#FFFFFF" },
-  { nivel: "Premium", rango: "90% o más", texto: "Cumplimiento sobresaliente. Tu local es un referente.", bg: "#0B1B33", fg: "#E3B341" },
+  { nivel: "Sin sello", rango: "Menos de 70%", texto: "Hay brechas abiertas. El mes no alcanza para emitir sello.", bg: "#5B6980", fg: "#FFFFFF" },
+  { nivel: "Bronce", rango: "70% a 84%", texto: "Cumplimiento básico. Hay que cerrar brechas para subir.", bg: "#C17A2B", fg: "#FFFFFF" },
+  { nivel: "Plata", rango: "85% a 94%", texto: "Buen cumplimiento. Los procesos y registros están en orden.", bg: "#64748B", fg: "#FFFFFF" },
+  { nivel: "Oro", rango: "95% o más", texto: "Cumplimiento sobresaliente en el período evaluado.", bg: "#E3B341", fg: "#0B1B33" },
 ];
 
 const PLATAFORMA = [
@@ -100,22 +100,6 @@ const PLANES = [
     cta: "Quiero el Plan Calidad",
     items: CATALOGO_PLANES.calidad.resumen,
   },
-  {
-    nombre: CATALOGO_PLANES.integral.nombre,
-    etiqueta: CATALOGO_PLANES.integral.etiqueta,
-    precio: CATALOGO_PLANES.integral.precio,
-    fondo: "#0B1B33",
-    texto: "#FFFFFF",
-    borde: "#0B1B33",
-    chipBg: "#E3B341",
-    chipFg: "#0B1B33",
-    linea: "#2A4068",
-    tick: "#E3B341",
-    btnBg: "#E3B341",
-    btnFg: "#0B1B33",
-    cta: "Quiero el Plan Integral",
-    items: CATALOGO_PLANES.integral.resumen,
-  },
 ];
 
 const ADICIONALES = [
@@ -130,7 +114,7 @@ const FAQ = [
   { p: "¿Qué zona cubren?", r: "La visita presencial mensual cubre el radio urbano de Osorno. Si tu local está fuera, escríbenos y vemos cómo atenderte." },
   { p: "¿Cuánto dura el contrato?", r: "El servicio es anual: 12 meses, con pago mensual. Incluye todo el año de soporte, capacitación y seguimiento." },
   { p: "¿Necesito saber de computación?", r: "No. La plataforma está pensada para usarse desde el celular, en la cocina, con pocos toques. Tu asesor te acompaña al comenzar." },
-  { p: "¿Qué pasa si el sello baja de nivel?", r: "Cada informe trae un plan de mejoras con lo que falta para subir. Si crees que hay un error en tu sello, puedes pedir una revisión." },
+  { p: "¿Qué pasa si el sello baja de nivel?", r: "Cada informe trae un plan de mejoras con lo que falta para subir a Plata u Oro. Si crees que hay un error en tu sello, puedes pedir una revisión." },
   { p: "¿Qué servicios no están incluidos?", r: "La resolución sanitaria e inicio de actividades, la elaboración de HACCP y manuales, el etiquetado nutricional, los proyectos sanitarios y la defensa en sumarios graves se cotizan aparte." },
   { p: "¿Cómo protegen los datos de mi local?", r: "Tratamos los datos personales conforme a la Ley 21.719. Puedes ejercer tus derechos de acceso, rectificación y supresión desde tu cuenta." },
 ];
@@ -210,7 +194,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <span className="self-start inline-flex h-7 items-center px-3 rounded-full text-[13px] font-bold bg-[#2F6B2A] text-white">Nivel Avanzado</span>
+                    <span className="self-start inline-flex h-7 items-center px-3 rounded-full text-[13px] font-bold bg-[#C17A2B] text-white">Bronce</span>
                     <p className="text-[13px] font-semibold leading-snug text-[#41506A]">Ilustración de cómo ve su resultado cada local. No es un local real.</p>
                   </div>
                 </div>
@@ -280,13 +264,9 @@ export default function LandingPage() {
               </article>
             ))}
           </div>
-          <div className="flex flex-wrap gap-5 items-center bg-[#E5F1E3] rounded-2xl px-7 py-6">
-            <div className="flex-1 basis-[360px]">
-              <p className="text-lg font-extrabold text-[#255620]">Gestión ambiental con el Plan Integral</p>
-              <p className="text-[15px] font-semibold leading-relaxed text-[#255620]">Segregación de residuos, declaraciones en Ventanilla Única, charlas ambientales y seguimiento de vencimientos.</p>
-            </div>
-            <a href="#planes" className="inline-flex items-center min-h-11 px-4 rounded-[10px] text-sm font-extrabold bg-[#255620] text-white">Ver planes</a>
-          </div>
+          <p className="text-sm font-medium text-[#5B6980]">
+            Precio de lanzamiento {formatCLP(CATALOGO_PLANES.calidad.precio)} al mes, IVA 19% incluido, hasta el 31 de diciembre de 2026.
+          </p>
         </div>
       </section>
 
@@ -333,9 +313,10 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="bg-[#0B1B33] text-white rounded-2xl px-8 py-7 flex flex-col gap-2">
-            <p className="text-xl font-extrabold text-[#E3B341]">Beneficio exclusivo del nivel Premium</p>
-            <p className="text-base font-medium leading-relaxed text-[#C9D3E3]">Orientación, revisión técnica y elaboración de descargos administrativos ante la autoridad, sin costo adicional, por materias del servicio contratado.</p>
-            <p className="text-xs font-semibold text-[#9FB0CC]">Aplica según términos y condiciones del contrato.</p>
+            <p className="text-xl font-extrabold text-[#E3B341]">Alcance del sello</p>
+            <p className="text-base font-medium leading-relaxed text-[#C9D3E3]">
+              El sello es una evaluación privada de las evidencias y la visita del período. No constituye autorización sanitaria ni garantía oficial de cumplimiento.
+            </p>
           </div>
         </div>
       </section>
@@ -382,7 +363,7 @@ export default function LandingPage() {
           <div className="max-w-[720px] flex flex-col gap-3.5">
             <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">Planes</p>
             <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Elige el plan de tu local.</h2>
-            <p className="text-lg font-medium leading-relaxed text-[#41506A]">Contrato anual de 12 meses. Valores mensuales en pesos chilenos. TODO: confirmar si incluyen IVA.</p>
+            <p className="text-lg font-medium leading-relaxed text-[#41506A]">Contrato anual de 12 meses. Precio con IVA 19% incluido. Desde marzo 2027: {formatCLP(precioConIva(TARIFA_NETA_DESDE_2027))} al mes.</p>
           </div>
           <div className="flex flex-wrap gap-6 items-stretch">
             {PLANES.map((plan) => (
@@ -473,7 +454,9 @@ export default function LandingPage() {
             <Link href="/politica-de-privacidad" className="py-2.5">Política de privacidad</Link>
             <Link href="/login" className="py-2.5">Iniciar sesión</Link>
           </nav>
-          <p className="text-[13px] font-semibold text-[#9FB0CC]">© {new Date().getFullYear()} {APP_LEGAL_NAME}</p>
+          <p suppressHydrationWarning className="text-[13px] font-semibold text-[#9FB0CC]">
+            © {new Date().getFullYear()} {APP_LEGAL_NAME}
+          </p>
         </div>
       </footer>
     </div>

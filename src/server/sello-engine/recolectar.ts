@@ -2,6 +2,16 @@ import type { PrismaClient } from "@prisma/client";
 import { evaluarProgramaDelMes, instanteDelDia } from "@/lib/bpm/evaluarMes";
 import { inicioSemanaChile } from "@/lib/bpm/programa";
 import { programaResuelto } from "@/lib/bpm/programa";
+import { hallazgoBloqueaSello } from "@/lib/hallazgos/ciclo";
+import {
+  CRITERIO_VISITA_POR_PAUTA,
+  calcularSelloV2,
+  type IdComponenteSeguimiento,
+  type IdComponenteVisita,
+  type ItemControl,
+  type ResultadoSelloV2,
+} from "@/lib/sellos/v2";
+import { leerEvaluacion } from "@/lib/bpm/visita";
 import type { Hallazgo } from "@/server/sello-engine/tipos";
 
 /**
@@ -278,6 +288,126 @@ export async function recolectarInputs(
       eventosSinAccion: evaluacion.eventosSinAccion,
       capacitaciones: { realizadas },
       tareas: { activas: tareas.length },
+    },
+  };
+}
+
+function logroDeEstado(estado: "hecho" | "observacion" | "pendiente"): number {
+  if (estado === "hecho") return 1;
+  if (estado === "observacion") return 0.5;
+  return 0;
+}
+
+export async function recolectarSelloV2(
+  prisma: PrismaClient,
+  tenantId: string,
+  periodo: string
+): Promise<{ resultado: ResultadoSelloV2; detalle: Record<string, unknown> }> {
+  const { inicio, fin } = rangoPeriodo(periodo);
+  const desde = new Date(`${inicioSemanaChile(instanteDelDia(`${periodo}-01`))}T00:00:00.000Z`);
+
+  const [config, documentos, registros, visita, hallazgos] = await Promise.all([
+    prisma.configuracionBpm.findUnique({
+      where: { tenant_id: tenantId },
+      select: { programa: true, equipos_frio: true },
+    }),
+    prisma.documento.findMany({
+      where: { tenant_id: tenantId, mes: periodo },
+      select: { nombre: true, estado: true, vencimiento: true },
+    }),
+    prisma.registro.findMany({
+      where: { tenant_id: tenantId, fecha: { gte: desde, lte: fin } },
+      select: { codigo: true, tipo: true, fecha: true, datos: true, extemporaneo: true },
+    }),
+    prisma.visita.findFirst({
+      where: { tenant_id: tenantId, estado: "realizada", fecha: { gte: inicio, lte: fin } },
+      orderBy: { fecha: "desc" },
+      select: { evaluacion: true },
+    }),
+    prisma.hallazgo.findMany({
+      where: { tenant_id: tenantId, created_at: { lte: fin } },
+      select: { gravedad: true, estado: true },
+    }),
+  ]);
+
+  const equipos = Array.isArray(config?.equipos_frio)
+    ? config.equipos_frio.flatMap((equipo) => {
+        if (!equipo || typeof equipo !== "object" || !("nombre" in equipo)) return [];
+        return [String((equipo as { nombre: unknown }).nombre)];
+      })
+    : [];
+  const evaluacion = evaluarProgramaDelMes({
+    programa: programaResuelto(config?.programa ?? null),
+    registros,
+    equipos,
+    periodo,
+  });
+
+  const seguimiento: Record<IdComponenteSeguimiento, ItemControl[]> = {
+    registros: evaluacion.estados.map((estado, i) => ({
+      id: `reg-${i}`,
+      aplicable: true,
+      logro: estado === "pendiente" ? 0 : 1,
+    })),
+    controles: evaluacion.estados.map((estado, i) => ({
+      id: `ctrl-${i}`,
+      aplicable: true,
+      logro: logroDeEstado(estado),
+    })),
+    correctivas: [
+      {
+        id: "eventos",
+        aplicable: evaluacion.estados.length > 0,
+        logro: evaluacion.eventosSinAccion > 0 ? 0 : 1,
+      },
+      {
+        id: "hallazgos-abiertos",
+        aplicable: hallazgos.length > 0,
+        logro: hallazgos.every((h) => h.estado === "cerrado_validado" || h.estado === "seguimiento_eficacia") ? 1 : 0.4,
+      },
+    ],
+    procedimientos: [
+      {
+        id: "docs",
+        aplicable: true,
+        logro:
+          documentos.length === 0
+            ? 0
+            : documentos.filter((d) => d.estado === "aprobado" && (!d.vencimiento || d.vencimiento >= fin)).length /
+              documentos.length,
+      },
+    ],
+  };
+
+  const visitaItems: Record<IdComponenteVisita, ItemControl[]> = {
+    higiene: [],
+    instalaciones: [],
+    almacenamiento: [],
+    verificacion: [],
+  };
+  const pauta = visita ? leerEvaluacion(visita.evaluacion) : null;
+  if (pauta) {
+    for (const item of pauta) {
+      const criterio = CRITERIO_VISITA_POR_PAUTA[item.area];
+      if (!criterio) continue;
+      const aplicable = item.resultado !== "no_revisada" && item.resultado !== "no_aplica";
+      const logro = item.resultado === "cumple" ? 1 : item.resultado === "observacion" ? 0.5 : 0;
+      visitaItems[criterio].push({ id: item.area, aplicable, logro });
+    }
+  } else {
+    visitaItems.verificacion.push({ id: "sin-visita", aplicable: true, logro: 0 });
+  }
+
+  const bloqueoCritico = hallazgos.some((h) => hallazgoBloqueaSello(h.gravedad, h.estado));
+  const resultado = calcularSelloV2({ seguimiento, visita: visitaItems, bloqueoCritico });
+  return {
+    resultado,
+    detalle: {
+      estadosPrograma: evaluacion.estados,
+      eventosSinAccion: evaluacion.eventosSinAccion,
+      documentos: documentos.length,
+      visita: Boolean(pauta),
+      hallazgos: hallazgos.length,
     },
   };
 }

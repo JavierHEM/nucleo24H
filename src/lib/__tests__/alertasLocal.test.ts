@@ -54,6 +54,15 @@ describe("alertas del local", () => {
     expect(ids({ vencimientosAmbientales: [{ vence: new Date(2026, 5, 20) }] })).toEqual(["ambiental-proximos"]);
   });
 
+  it("avisa plazos de hallazgo y vigencia de proveedores", () => {
+    expect(
+      ids({
+        hallazgos: [{ estado: "abierto", plazo: new Date(2026, 5, 1) }],
+        proveedores: [{ vigencia: new Date(2026, 5, 1) }],
+      })
+    ).toEqual(expect.arrayContaining(["hallazgos-vencidos", "proveedores-vencidos"]));
+  });
+
   it("ordena primero lo vencido", () => {
     const resultado = armarAlertasLocal({
       ...base,

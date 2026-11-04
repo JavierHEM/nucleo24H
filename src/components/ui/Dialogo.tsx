@@ -8,11 +8,13 @@ export function Dialogo({
   titulo,
   onCerrar,
   children,
+  ancho = "md",
 }: {
   abierto: boolean;
   titulo: string;
   onCerrar: () => void;
   children: React.ReactNode;
+  ancho?: "md" | "lg";
 }) {
   const tituloId = useId();
   const contenedor = useRef<HTMLDivElement>(null);
@@ -50,7 +52,7 @@ export function Dialogo({
         aria-labelledby={tituloId}
         tabIndex={-1}
         onClick={(evento) => evento.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto focus:outline-none"
+        className={`bg-white rounded-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto focus:outline-none ${ancho === "lg" ? "max-w-3xl" : "max-w-md"}`}
       >
         <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA] sticky top-0 bg-white rounded-t-2xl">
           <p id={tituloId} className="font-semibold text-[#0B1B33]">

@@ -4,11 +4,9 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { LocalSelector } from "./LocalSelector";
 import { NotificationBell } from "./NotificationBell";
 import { UserMenu } from "./UserMenu";
+import type { LocalSelectorItem } from "@/lib/locales/selector";
 
-interface Local {
-  id: string;
-  nombre: string;
-}
+type Local = LocalSelectorItem;
 
 interface TopBarProps {
   userName?: string;

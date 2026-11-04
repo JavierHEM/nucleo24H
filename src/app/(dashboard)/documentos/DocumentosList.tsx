@@ -13,6 +13,7 @@ import {
 import { trpc } from "@/lib/trpc/client";
 import { formatDate, getCurrentPeriodo, cn } from "@/lib/utils";
 import { RevisarDocumentoButton } from "./RevisarDocumentoButton";
+import { DetalleDocumentoSheet } from "./DetalleDocumentoSheet";
 import { hrefArchivo } from "@/lib/storage/rutas";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 
@@ -47,6 +48,7 @@ interface Props {
 
 export function DocumentosList({ userRole }: Props) {
   const [mes, setMes] = useState<string>(getCurrentPeriodo());
+  const [detalleId, setDetalleId] = useState<string | null>(null);
   const { data, isLoading } = trpc.documentos.list.useQuery({ mes });
 
   return (
@@ -106,7 +108,7 @@ export function DocumentosList({ userRole }: Props) {
           </div>
           <p className="font-semibold text-[#0B1B33]">Sin documentos para este período</p>
           <p className="text-sm text-[#5B6980] mt-1">
-            Sube documentos con el botón &ldquo;Subir documento&rdquo;.
+            Sube un documento con casilla B. Después vas a poder consultar la constancia en cada fila.
           </p>
         </div>
       )}
@@ -135,8 +137,13 @@ export function DocumentosList({ userRole }: Props) {
               return (
                 <div
                   key={doc.id}
-                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#F8FAFC] transition-colors"
+                  className="flex items-center gap-3 px-5 py-3 hover:bg-[#F8FAFC] transition-colors"
                 >
+                  <button
+                    type="button"
+                    onClick={() => setDetalleId(doc.id)}
+                    className="flex flex-1 min-w-0 items-center gap-3 text-left"
+                  >
                   {/* Ícono */}
                   <div className="w-9 h-9 rounded-lg bg-[#F4F6F3] flex items-center justify-center shrink-0">
                     <IconFileDescription size={18} className="text-[#5B6980]" />
@@ -178,6 +185,11 @@ export function DocumentosList({ userRole }: Props) {
                     <span className="hidden sm:inline">{estado.label}</span>
                   </span>
 
+                  <span className="inline-flex min-h-9 items-center px-3 rounded-lg bg-[#16294A] text-white text-xs font-medium shrink-0">
+                    Ver constancia
+                  </span>
+                  </button>
+
                   {/* Botón de revisión — solo asesores */}
                   {(userRole === "asesor" || userRole === "admin_nucleo") && (
                     <RevisarDocumentoButton
@@ -203,6 +215,10 @@ export function DocumentosList({ userRole }: Props) {
           </div>
         </div>
       )}
+      <DetalleDocumentoSheet
+        documento={data?.find((item) => item.id === detalleId) ?? null}
+        onCerrar={() => setDetalleId(null)}
+      />
     </div>
   );
 }

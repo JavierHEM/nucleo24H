@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, useFieldArray, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2, IconPlus, IconTrash } from "@tabler/icons-react";
@@ -14,6 +15,7 @@ import {
   type Planilla,
 } from "@/lib/bpm/planillas";
 import { guiaDe } from "@/lib/bpm/programa";
+import { CasillaDeclaracion } from "@/components/declaraciones/CasillaDeclaracion";
 
 type Equipo = { id: string; nombre: string; limite_min?: number | null; limite_max?: number | null };
 type Area = { id: string; nombre: string; producto?: string };
@@ -150,12 +152,15 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
   });
 
   const items = (watch("items") as string[] | undefined) ?? [];
+  const [aceptaA, setAceptaA] = useState(false);
 
   async function onSubmit(datos: Valores) {
+    if (!aceptaA) return;
     await crear.mutateAsync({
       codigo: planilla.codigo,
       fecha: fechaDelRegistro(datos),
       datos,
+      acepta_declaracion_a: true,
     });
   }
 
@@ -391,9 +396,11 @@ export function FormPlanilla({ planilla, equipos, areas, onSuccess }: Props) {
         </fieldset>
       )}
 
+      <CasillaDeclaracion tipo="A" checked={aceptaA} onChange={setAceptaA} />
+
       <Button
         type="submit"
-        disabled={crear.isPending}
+        disabled={crear.isPending || !aceptaA}
         className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
       >
         {crear.isPending ? (

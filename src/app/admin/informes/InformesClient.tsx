@@ -16,6 +16,10 @@ const NIVEL_COLORS: Record<string, string> = {
   intermedio: "bg-yellow-100 text-yellow-700",
   avanzado: "bg-blue-100 text-blue-700",
   premium: "bg-[#2F6B2A]/10 text-[#2F6B2A]",
+  sin_sello: "bg-[#EEF1F4] text-[#5B6980]",
+  bronce: "bg-[#FCF0D0] text-[#7A5000]",
+  plata: "bg-[#EEF1F4] text-[#334155]",
+  oro: "bg-[#F8E8C4] text-[#7A5000]",
 };
 
 const NIVEL_LABEL: Record<string, string> = {
@@ -23,6 +27,10 @@ const NIVEL_LABEL: Record<string, string> = {
   intermedio: "Intermedio",
   avanzado: "Avanzado",
   premium: "Premium",
+  sin_sello: "Sin sello",
+  bronce: "Bronce",
+  plata: "Plata",
+  oro: "Oro",
 };
 
 function getPeriodosPrevios(n: number): string[] {
@@ -103,11 +111,19 @@ export function InformesClient() {
               {detalle.tenant?.ciudad} · Plan {detalle.tenant?.plan}
             </p>
           </div>
-          {local?.sello && (
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${NIVEL_COLORS[local.sello.nivel] ?? ""}`}>
-              {NIVEL_LABEL[local.sello.nivel] ?? local.sello.nivel}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {local?.sello && (
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${NIVEL_COLORS[local.sello.nivel] ?? ""}`}>
+                {NIVEL_LABEL[local.sello.nivel] ?? local.sello.nivel}
+              </span>
+            )}
+            <a
+              href={`/sellos/informe?periodo=${periodo}&tenant_id=${selectedTenant}`}
+              className="text-xs border border-[#DDE3EA] rounded-lg px-3 py-1.5 hover:bg-[#F4F6F3]"
+            >
+              Informe mensual
+            </a>
+          </div>
         </div>
 
         {/* Historial de sellos */}

@@ -1,11 +1,16 @@
 import { APP_FOOTER, APP_NAME } from "@/lib/branding";
 import { escapeHtml } from "@/lib/escapeHtml";
+import { LEYENDA_ALCANCE_SELLO } from "@/lib/declaraciones/textos";
 
 const NIVEL_COLOR: Record<string, string> = {
   inicial: "#B42318",
   intermedio: "#B45309",
   avanzado: "#2F6B2A",
   premium: "#0B1B33",
+  sin_sello: "#5B6980",
+  bronce: "#C17A2B",
+  plata: "#64748B",
+  oro: "#E3B341",
 };
 
 const DIMENSIONES = [
@@ -29,6 +34,9 @@ export type SelloPdfDatos = {
   verificacionUrl: string;
   qrDataUrl: string;
   logoSrc: string;
+  esquema?: "v1" | "v2";
+  filasV2?: { etiqueta: string; peso: number; score: number }[];
+  leyendaAlcance?: string;
 };
 
 function colorPorScore(score: number): string {
@@ -51,15 +59,24 @@ function qrMarkup(qr: string): string {
 export function construirHtmlSello(datos: SelloPdfDatos): string {
   const nivelColor = NIVEL_COLOR[datos.nivel] ?? "#0B1B33";
 
-  const filas = DIMENSIONES.map(({ clave, etiqueta, peso }) => {
-    const score = datos.scores[clave];
-    const color = colorPorScore(score);
-    return `<div class="fila">
-      <div class="fila-texto"><span class="fila-nombre">${etiqueta}</span><span class="fila-peso">Peso ${peso}%</span></div>
+  const filasFuente =
+    datos.esquema === "v2" && datos.filasV2
+      ? datos.filasV2
+      : DIMENSIONES.map(({ clave, etiqueta, peso }) => ({
+          etiqueta,
+          peso,
+          score: datos.scores[clave],
+        }));
+  const filas = filasFuente
+    .map(({ etiqueta, peso, score }) => {
+      const color = colorPorScore(score);
+      return `<div class="fila">
+      <div class="fila-texto"><span class="fila-nombre">${escapeHtml(etiqueta)}</span><span class="fila-peso">${datos.esquema === "v2" ? `${peso} pts` : `Peso ${peso}%`}</span></div>
       <div class="barra"><div class="barra-relleno" style="width:${Math.max(0, Math.min(100, score))}%;background:${color}"></div></div>
       <span class="fila-score" style="color:${color}">${score.toFixed(0)}%</span>
     </div>`;
-  }).join("");
+    })
+    .join("");
 
   const mejoras = datos.planMejoras.length
     ? `<section class="bloque">
@@ -73,7 +90,12 @@ export function construirHtmlSello(datos: SelloPdfDatos): string {
       </section>`
     : "";
 
-  const descargos = datos.descargosHabilitados
+  const leyenda = `<section class="descargos">
+        <p class="descargos-titulo">Alcance de esta evaluación</p>
+        <p class="descargos-texto">${escapeHtml(datos.leyendaAlcance ?? LEYENDA_ALCANCE_SELLO)}</p>
+      </section>`;
+
+  const descargos = datos.esquema !== "v2" && datos.descargosHabilitados
     ? `<section class="descargos">
         <p class="descargos-titulo">Descargos administrativos habilitados</p>
         <p class="descargos-texto">Con sello Premium, el local dispone de descargos gratuitos ante la autoridad sanitaria. Coordina su uso con tu asesor.</p>
@@ -157,6 +179,7 @@ export function construirHtmlSello(datos: SelloPdfDatos): string {
     </section>
 
     ${mejoras}
+    ${leyenda}
     ${descargos}
   </main>
 

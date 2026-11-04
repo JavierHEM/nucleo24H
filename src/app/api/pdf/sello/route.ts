@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { getAppUrl } from "@/lib/branding";
 import { construirHtmlSello } from "@/server/pdf/selloHtml";
 import { logoNegativoParaPdf } from "@/server/pdf/logoNegativo";
+import { COMPONENTES_SEGUIMIENTO, COMPONENTES_VISITA } from "@/lib/sellos/v2";
 
 const querySchema = z.object({
   tenantId: z.string().uuid(),
@@ -97,6 +98,7 @@ export async function GET(req: NextRequest) {
     logoNegativoParaPdf(),
   ]);
 
+  const componentes = (sello.scores_componentes ?? {}) as Record<string, number>;
   const html = construirHtmlSello({
     local: tenant?.nombre ?? "Local",
     direccion: tenant?.direccion ?? "",
@@ -111,11 +113,17 @@ export async function GET(req: NextRequest) {
     },
     emitidoAt: sello.emitido_at,
     planMejoras: (sello.plan_mejoras ?? []) as string[],
-    descargosHabilitados: sello.descargos_habilitados,
+    descargosHabilitados: sello.esquema === "v2" ? false : sello.descargos_habilitados,
     selloId: sello.id,
     verificacionUrl,
     qrDataUrl,
     logoSrc,
+    esquema: sello.esquema === "v2" ? "v2" : "v1",
+    filasV2: [...COMPONENTES_SEGUIMIENTO, ...COMPONENTES_VISITA].map((c) => ({
+      etiqueta: c.etiqueta,
+      peso: c.puntos,
+      score: ((componentes[c.id] ?? 0) / c.puntos) * 100,
+    })),
   });
 
   try {

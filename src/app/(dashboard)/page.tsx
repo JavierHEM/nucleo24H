@@ -24,6 +24,7 @@ import {
 import type { UserRole } from "@/server/trpc/context";
 import { GuiaDelDia } from "@/components/guia/GuiaDelDia";
 import { puedeCargarPlanilla } from "@/lib/roles";
+import { localesVisibles } from "@/server/locales/visibles";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -43,21 +44,7 @@ export default async function DashboardPage() {
 
   const userRole = (dbUser?.rol as UserRole | undefined) ?? null;
 
-  // admin_nucleo puede acceder a cualquier tenant — usar misma lógica que el layout
-  let allLocales: { id: string; nombre: string }[];
-  if (userRole === "admin_nucleo") {
-    allLocales = await prisma.tenant.findMany({
-      where: { estado: "activo" },
-      select: { id: true, nombre: true },
-      orderBy: { nombre: "asc" },
-    });
-  } else {
-    const userTenants = await prisma.userTenant.findMany({
-      where: { user_id: user.id },
-      include: { tenant: { select: { id: true, nombre: true } } },
-    });
-    allLocales = userTenants.map((ut) => ut.tenant);
-  }
+  const allLocales = await localesVisibles(user.id, userRole);
 
   const tenantActivo =
     tenantActivoCookie && allLocales.some((l) => l.id === tenantActivoCookie)
@@ -183,20 +170,26 @@ export default async function DashboardPage() {
 
       <AccesosRapidos rol={userRole ?? "jefe_local"} plan={resumen?.plan} />
 
-      {sello ? (
+      {sello && sello.estado === "emitido" ? (
         <Link href="/sellos" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded-[14px]">
           <SelloWidget
-            nivel={sello.nivel as "inicial" | "intermedio" | "avanzado" | "premium"}
+            nivel={sello.nivel as import("@/components/sellos/SelloBadge").NivelSello}
             score={sello.score_general}
             periodo={sello.periodo}
             planMejoras={(sello.plan_mejoras ?? []) as string[]}
-            descargosHabilitados={sello.descargos_habilitados ?? false}
-            dimensiones={[
-              { nombre: "Documentación", valor: sello.score_documentacion },
-              { nombre: "Condiciones", valor: sello.score_condiciones },
-              { nombre: "Capacitaciones", valor: sello.score_capacitaciones },
-              { nombre: "Tareas", valor: sello.score_tareas },
-            ]}
+            dimensiones={
+              sello.esquema === "v2"
+                ? [
+                    { nombre: "Seguimiento", valor: sello.score_seguimiento },
+                    { nombre: "Visita", valor: sello.score_visita },
+                  ]
+                : [
+                    { nombre: "Documentación", valor: sello.score_documentacion },
+                    { nombre: "Condiciones", valor: sello.score_condiciones },
+                    { nombre: "Capacitaciones", valor: sello.score_capacitaciones },
+                    { nombre: "Tareas", valor: sello.score_tareas },
+                  ]
+            }
           />
         </Link>
       ) : (
@@ -206,8 +199,8 @@ export default async function DashboardPage() {
             <p className="font-extrabold text-[#0B1B33]">Sin sello para {periodoActual}</p>
             <p className="text-sm font-medium text-[#5B6980] mt-1">
               {userRole === "asesor" || userRole === "admin_nucleo"
-                ? "Ve a Sellos para emitirlo."
-                : "Tu asesor lo emitirá al cierre del mes."}
+                ? "Ve a Sellos para proponerlo."
+                : "Tu asesor lo propondrá al cierre del mes."}
             </p>
           </div>
         </div>

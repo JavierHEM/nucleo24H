@@ -63,4 +63,8 @@ describe("construirHtmlSello", () => {
   it("no usa emojis", () => {
     expect(construirHtmlSello({ ...base, descargosHabilitados: true })).not.toMatch(/\p{Extended_Pictographic}/u);
   });
+
+  it("incluye la leyenda de alcance", () => {
+    expect(construirHtmlSello(base)).toContain("evaluación privada");
+  });
 });

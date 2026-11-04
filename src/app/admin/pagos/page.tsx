@@ -85,6 +85,9 @@ export default async function AdminPagosPage() {
                                 Suscripción {local.suscripcion.estado}
                               </p>
                             )}
+                          {local.suscripcion?.modo_cobro === "debito" && (
+                            <p className="text-xs text-[#255620]">Débito automático</p>
+                          )}
                         </div>
                       </div>
                     </td>

@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc/client";
 import { FAMILIAS, getPlanilla, planillasDe, type FamiliaId, type Planilla } from "@/lib/bpm/planillas";
+import { CasillaDeclaracion } from "@/components/declaraciones/CasillaDeclaracion";
+import { AvisoEvidenciaTerceros } from "@/components/declaraciones/AvisoEvidenciaTerceros";
 
 const TIPOS = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
@@ -36,6 +38,7 @@ export function CargarPlanillaSheet({
   const [nota, setNota] = useState("");
   const [archivo, setArchivo] = useState<Archivo>({ status: "idle" });
   const [aviso, setAviso] = useState<string | null>(null);
+  const [aceptaA, setAceptaA] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
 
@@ -49,6 +52,7 @@ export function CargarPlanillaSheet({
       setNota("");
       setArchivo({ status: "idle" });
       setAviso(null);
+      setAceptaA(false);
     }
   }
   const programa = trpc.programa.actual.useQuery(undefined, { enabled: open });
@@ -76,12 +80,14 @@ export function CargarPlanillaSheet({
     setNota("");
     setArchivo({ status: "idle" });
     setAviso(null);
+    setAceptaA(false);
     onCerrar?.();
   }
 
   function volver() {
     if (planilla) {
       setPlanilla(null);
+      setAceptaA(false);
       return;
     }
     setFamilia(null);
@@ -139,13 +145,14 @@ export function CargarPlanillaSheet({
   }
 
   async function guardar() {
-    if (!planilla || archivo.status !== "done" || !fecha) return;
+    if (!planilla || archivo.status !== "done" || !fecha || !aceptaA) return;
     const instante = new Date(`${fecha}T12:00:00`);
     await cargar.mutateAsync({
       codigo: planilla.codigo,
       fecha: instante.toISOString(),
       adjunto_url: archivo.url,
       nota: nota.trim() || undefined,
+      acepta_declaracion_a: true,
     });
   }
 
@@ -172,7 +179,7 @@ export function CargarPlanillaSheet({
       {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={cerrar} />
-          <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-3xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
               <div className="flex items-center gap-3 min-w-0">
                 {(familia || planilla) && !aviso && !fija && (
@@ -248,6 +255,7 @@ export function CargarPlanillaSheet({
               ) : (
                 <div className="space-y-4">
                   <p className="font-mono text-xs text-[#5B6980]">{planilla.codigo}</p>
+                  <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="fecha-planilla">Fecha de la planilla</Label>
                     <Input
@@ -257,6 +265,17 @@ export function CargarPlanillaSheet({
                       onChange={(event) => setFecha(event.target.value)}
                       className="mt-1 min-h-12"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="nota-planilla">Nota (opcional)</Label>
+                    <textarea
+                      id="nota-planilla"
+                      value={nota}
+                      onChange={(event) => setNota(event.target.value)}
+                      rows={2}
+                      className="mt-1 w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm"
+                    />
+                  </div>
                   </div>
                   <div>
                     <Label htmlFor="archivo-planilla">Foto o PDF</Label>
@@ -280,24 +299,18 @@ export function CargarPlanillaSheet({
                     {archivo.status === "error" && (
                       <p className="text-xs text-[#B42318] mt-2">{archivo.message}</p>
                     )}
+                    <div className="mt-3">
+                      <AvisoEvidenciaTerceros />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="nota-planilla">Nota (opcional)</Label>
-                    <textarea
-                      id="nota-planilla"
-                      value={nota}
-                      onChange={(event) => setNota(event.target.value)}
-                      rows={2}
-                      className="mt-1 w-full rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm"
-                    />
-                  </div>
+                  <CasillaDeclaracion tipo="A" checked={aceptaA} onChange={setAceptaA} />
                   {cargar.error && (
                     <p className="text-sm text-[#B42318] bg-red-50 rounded-lg px-3 py-2">{cargar.error.message}</p>
                   )}
                   <Button
                     type="button"
                     onClick={() => void guardar()}
-                    disabled={archivo.status !== "done" || !fecha || cargar.isPending}
+                    disabled={archivo.status !== "done" || !fecha || !aceptaA || cargar.isPending}
                     className="w-full min-h-12 bg-[#2F6B2A] hover:bg-[#255620] text-white"
                   >
                     {cargar.isPending ? "Guardando..." : "Enviar al asesor"}

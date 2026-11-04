@@ -10,6 +10,7 @@ import {
   TICKET_CATEGORIAS,
   type TicketCategoria,
 } from "@/lib/comunicaciones/tickets";
+import { esConsultaProfesional } from "@/lib/comunicaciones/cupos";
 
 export function NuevaPeticionButton() {
   const [abierto, setAbierto] = useState(false);
@@ -21,6 +22,7 @@ export function NuevaPeticionButton() {
   const router = useRouter();
   const utils = trpc.useUtils();
 
+  const cupo = trpc.comunicaciones.cupo.useQuery();
   const crear = trpc.comunicaciones.crearTicket.useMutation({
     onSuccess: (ticket) => {
       setAbierto(false);
@@ -30,6 +32,7 @@ export function NuevaPeticionButton() {
       setMensaje("");
       void utils.comunicaciones.listTickets.invalidate();
       void utils.comunicaciones.resumen.invalidate();
+      void utils.comunicaciones.cupo.invalidate();
       router.push(`/comunicaciones/${ticket.id}`);
     },
     onError: (err) => setError(err.message),
@@ -76,6 +79,16 @@ export function NuevaPeticionButton() {
             />
           </div>
 
+          {cupo.data && (
+            <p className="text-xs text-[#5B6980]">
+              {cupo.data.ilimitado
+                ? "Consultas profesionales ilimitadas durante los primeros 30 días. El soporte técnico no consume cupo."
+                : `Consultas profesionales este mes: ${cupo.data.usadas} de ${cupo.data.tope}. Quedan ${cupo.data.restantes}. El soporte técnico es ilimitado.`}
+            </p>
+          )}
+          {esConsultaProfesional(categoria) && cupo.data && !cupo.data.ilimitado && cupo.data.restantes <= 0 && (
+            <p className="text-sm text-[#9A1C12]">Ya usaste las 5 consultas profesionales de este mes. Puedes abrir un ticket de soporte.</p>
+          )}
           <div>
             <label htmlFor="ticket-categoria" className="text-sm font-medium text-[#0B1B33] block mb-1.5">
               Tipo
@@ -123,7 +136,7 @@ export function NuevaPeticionButton() {
 
           <button
             type="submit"
-            disabled={crear.isPending}
+            disabled={crear.isPending || (esConsultaProfesional(categoria) && cupo.data?.ilimitado === false && (cupo.data?.restantes ?? 0) <= 0)}
             className="w-full min-h-12 rounded-lg bg-[#2F6B2A] text-sm font-medium text-white hover:bg-[#255620] disabled:opacity-60"
           >
             {crear.isPending ? "Enviando…" : "Enviar petición"}

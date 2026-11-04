@@ -61,7 +61,7 @@ export function MiPlan({ puedeVerPagos }: { puedeVerPagos: boolean }) {
   const capacitacion = mes.capacitacion.fecha ? new Date(mes.capacitacion.fecha) : null;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#0B1B33]">Mi plan</h1>
@@ -114,9 +114,10 @@ export function MiPlan({ puedeVerPagos }: { puedeVerPagos: boolean }) {
         </div>
       )}
 
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
         <h2 className="text-sm font-semibold text-[#0B1B33]">Servicio de {formatPeriodo(mes.periodo)}</h2>
-        <ul className="mt-2">
+        <ul className="mt-2 grid sm:grid-cols-2 gap-x-6">
           <Estado
             hecho={Boolean(visitaFecha)}
             texto="Visita presencial"
@@ -164,8 +165,23 @@ export function MiPlan({ puedeVerPagos }: { puedeVerPagos: boolean }) {
       </section>
 
       <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
+        <h2 className="text-sm font-semibold text-[#0B1B33]">Asesor del local</h2>
+        {datos.asesor ? (
+          <p className="mt-1 text-sm text-[#334155]">
+            {datos.asesor.nombre} · {datos.asesor.email}
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-[#5B6980]">Este local aún no tiene un asesor asignado.</p>
+        )}
+        <Link href="/soporte" className="mt-2 inline-block text-sm font-medium text-[#255620] underline">
+          Ir a Soporte
+        </Link>
+      </section>
+      </div>
+
+      <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
         <h2 className="text-sm font-semibold text-[#0B1B33]">Qué incluye tu plan</h2>
-        <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+        <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2">
           {definicion.beneficios.map((beneficio) => (
             <li key={beneficio.texto} className="flex items-start gap-2 text-sm text-[#334155]">
               <IconCheck size={16} className="mt-0.5 text-[#2F6B2A] shrink-0" aria-hidden />
@@ -176,7 +192,7 @@ export function MiPlan({ puedeVerPagos }: { puedeVerPagos: boolean }) {
         {noIncluidos.length > 0 && (
           <>
             <h3 className="mt-5 text-sm font-semibold text-[#5B6980]">Incluido en el {PLANES.integral.nombre}</h3>
-            <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+            <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2">
               {noIncluidos.map((beneficio) => (
                 <li key={beneficio.texto} className="flex items-start gap-2 text-sm text-[#5B6980]">
                   <IconLock size={16} className="mt-0.5 shrink-0" aria-hidden />
@@ -192,20 +208,6 @@ export function MiPlan({ puedeVerPagos }: { puedeVerPagos: boolean }) {
             </Link>
           </>
         )}
-      </section>
-
-      <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
-        <h2 className="text-sm font-semibold text-[#0B1B33]">Tu asesor</h2>
-        {datos.asesor ? (
-          <p className="mt-1 text-sm text-[#334155]">
-            {datos.asesor.nombre} · {datos.asesor.email}
-          </p>
-        ) : (
-          <p className="mt-1 text-sm text-[#5B6980]">Este local aún no tiene un asesor asignado.</p>
-        )}
-        <Link href="/soporte" className="mt-2 inline-block text-sm font-medium text-[#255620] underline">
-          Ir a Soporte
-        </Link>
       </section>
     </div>
   );

@@ -6,6 +6,7 @@ import { requireNucleo, requireAsesor, requireRole } from "@/server/middleware/r
 import { puedeRemoverMiembro } from "@/lib/roles";
 import { PLAN_IDS, TIPOS_LOCAL } from "@/lib/planes";
 import { syncUserClaims } from "@/lib/supabase/claims";
+import { agruparEquipoPorEmpresa, type VinculoEquipo } from "@/lib/equipo";
 
 const nucleoProcedure = publicProcedure.use(requireNucleo);
 const asesorProcedure = publicProcedure.use(withTenant).use(requireAsesor);
@@ -178,6 +179,76 @@ export const localesRouter = router({
         update: { activo: true },
       });
     }),
+
+  /** Directorio global de personas por empresa (RUT). Solo admin_nucleo. */
+  equipoPorEmpresa: nucleoProcedure.query(async ({ ctx }) => {
+    const seleccionUsuario = {
+      id: true,
+      email: true,
+      nombre: true,
+      rol: true,
+      activo: true,
+      created_at: true,
+    } as const;
+    const seleccionLocal = {
+      id: true,
+      nombre: true,
+      rut: true,
+      created_at: true,
+    } as const;
+
+    const [membresias, asignaciones] = await Promise.all([
+      ctx.prisma.userTenant.findMany({
+        include: {
+          user: { select: seleccionUsuario },
+          tenant: { select: seleccionLocal },
+        },
+      }),
+      ctx.prisma.asignacionAsesor.findMany({
+        where: { activo: true },
+        include: { tenant: { select: seleccionLocal } },
+      }),
+    ]);
+
+    const asesorIds = [...new Set(asignaciones.map((a) => a.asesor_id))];
+    const asesores = asesorIds.length
+      ? await ctx.prisma.user.findMany({
+          where: { id: { in: asesorIds } },
+          select: seleccionUsuario,
+        })
+      : [];
+    const porAsesor = new Map(asesores.map((usuario) => [usuario.id, usuario]));
+
+    const vinculos: VinculoEquipo[] = [
+      ...membresias.map((m) => ({
+        user: m.user,
+        local: m.tenant,
+        origen: "miembro" as const,
+      })),
+      ...asignaciones.flatMap((asignacion) => {
+        const usuario = porAsesor.get(asignacion.asesor_id);
+        if (!usuario) return [];
+        return [
+          {
+            user: usuario,
+            local: asignacion.tenant,
+            origen: "asesor" as const,
+          },
+        ];
+      }),
+    ];
+
+    return agruparEquipoPorEmpresa(vinculos).map((empresa) => ({
+      ...empresa,
+      miembros: empresa.miembros.map((miembro) => ({
+        ...miembro,
+        created_at:
+          miembro.created_at instanceof Date
+            ? miembro.created_at.toISOString()
+            : String(miembro.created_at),
+      })),
+    }));
+  }),
 
   // Admin local: miembros de su propio tenant
   miEquipo: publicProcedure

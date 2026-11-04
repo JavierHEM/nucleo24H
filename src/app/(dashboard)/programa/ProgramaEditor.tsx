@@ -58,7 +58,7 @@ export function ProgramaEditor({
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33]">
           {localNombre ? `Programa de ${localNombre}` : "Programa del local"}

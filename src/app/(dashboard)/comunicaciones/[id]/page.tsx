@@ -17,7 +17,7 @@ export default async function TicketPage({ params }: { params: Promise<{ id: str
   if (!dbUser || dbUser.rol === "trabajador_local") notFound();
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-4 w-full">
       <Link
         href="/comunicaciones"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-[#5B6980] hover:text-[#0B1B33] min-h-10"

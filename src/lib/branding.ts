@@ -55,9 +55,9 @@ export const CONTACTO_CORREO = "contacto@nucleo24h.cl";
 
 /**
  * WhatsApp y horario: TODO(Núcleo) hasta que el cliente los confirme.
- * No inventar número ni horario. También pendientes del cliente (no implementar):
- * IVA en $80.000 / $150.000, días de gracia y corte por mora, débito automático,
- * y Access Token + webhook secret de Mercado Pago en modo productivo.
+ * No inventar número ni horario.
+ * Mercado Pago: el código soporta prueba y producción. El corte es
+ * MERCADOPAGO_ACCESS_TOKEN + MERCADOPAGO_WEBHOOK_SECRET + MERCADOPAGO_MODO.
  */
 export const CONTACTO_SOPORTE = {
   whatsapp: null as string | null,

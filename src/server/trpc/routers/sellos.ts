@@ -3,13 +3,15 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireRole } from "@/server/middleware/rbac";
-import { emitirSello, leerReglasSello } from "@/server/sello-engine/emitirService";
-import { recolectarInputs } from "@/server/sello-engine/recolectar";
+import { recolectarSelloV2 } from "@/server/sello-engine/recolectar";
+import { aprobarSelloV2, proponerSelloV2, rechazarSelloV2 } from "@/server/sello-engine/proponer";
+import { requireNucleo } from "@/server/middleware/rbac";
 
 const protectedProcedure = publicProcedure.use(withTenant);
 const asesorProcedure = protectedProcedure.use(
   requireRole("asesor", "admin_nucleo")
 );
+const nucleoProcedure = protectedProcedure.use(requireNucleo);
 
 const scoresSchema = z.object({
   score_documentacion: z.number().min(0).max(100),
@@ -50,23 +52,70 @@ export const sellosRouter = router({
     )
     .query(async ({ ctx, input }) => {
       await asegurarLocal(ctx, input.tenant_id);
-      const [recolectado, reglas] = await Promise.all([
-        recolectarInputs(ctx.prisma, input.tenant_id, input.periodo),
-        leerReglasSello(ctx.prisma),
-      ]);
-      return {
-        scores: {
-          score_documentacion: recolectado.score_documentacion,
-          score_condiciones: recolectado.score_condiciones,
-          score_capacitaciones: recolectado.score_capacitaciones,
-          score_tareas: recolectado.score_tareas,
-        },
-        hallazgos: recolectado.hallazgos,
-        pesos: reglas.pesos,
-        umbrales: reglas.umbrales,
-      };
+      const { resultado, detalle } = await recolectarSelloV2(ctx.prisma, input.tenant_id, input.periodo);
+      return { resultado, detalle };
     }),
 
+  proponer: asesorProcedure
+    .input(
+      z.object({
+        tenant_id: z.string().uuid(),
+        periodo: z.string().regex(/^\d{4}-\d{2}$/),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await asegurarLocal(ctx, input.tenant_id);
+      return proponerSelloV2({
+        prisma: ctx.prisma,
+        tenantId: input.tenant_id,
+        periodo: input.periodo,
+        userId: ctx.userId!,
+      });
+    }),
+
+  listPropuestos: nucleoProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.sello.findMany({
+      where: { estado: "propuesto", esquema: "v2" },
+      include: { tenant: { select: { id: true, nombre: true } } },
+      orderBy: { emitido_at: "asc" },
+    });
+  }),
+
+  aprobar: nucleoProcedure
+    .input(
+      z.object({
+        tenant_id: z.string().uuid(),
+        periodo: z.string().regex(/^\d{4}-\d{2}$/),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return aprobarSelloV2({
+        prisma: ctx.prisma,
+        tenantId: input.tenant_id,
+        periodo: input.periodo,
+        userId: ctx.userId!,
+      });
+    }),
+
+  rechazar: nucleoProcedure
+    .input(
+      z.object({
+        tenant_id: z.string().uuid(),
+        periodo: z.string().regex(/^\d{4}-\d{2}$/),
+        motivo: z.string().min(5).max(500),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return rechazarSelloV2({
+        prisma: ctx.prisma,
+        tenantId: input.tenant_id,
+        periodo: input.periodo,
+        userId: ctx.userId!,
+        motivo: input.motivo,
+      });
+    }),
+
+  /** @deprecated v1 — se mantiene por revisiones históricas */
   emitir: asesorProcedure
     .input(
       z.object({
@@ -77,26 +126,12 @@ export const sellosRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await asegurarLocal(ctx, input.tenant_id);
-      const recolectado = await recolectarInputs(ctx.prisma, input.tenant_id, input.periodo);
-      const { sello } = await emitirSello({
+      return proponerSelloV2({
         prisma: ctx.prisma,
         tenantId: input.tenant_id,
         periodo: input.periodo,
-        scores: {
-          score_documentacion: input.score_documentacion,
-          score_condiciones: input.score_condiciones,
-          score_capacitaciones: input.score_capacitaciones,
-          score_tareas: input.score_tareas,
-        },
-        emitidoPor: ctx.userId!,
-        inputsSnapshot: {
-          scoresConfirmados: input,
-          calculado: recolectado.detalle,
-        },
-        hallazgos: recolectado.hallazgos,
+        userId: ctx.userId!,
       });
-
-      return sello;
     }),
 
   solicitarRevision: protectedProcedure
@@ -195,19 +230,11 @@ export const sellosRouter = router({
       await asegurarLocal(ctx, revision.sello.tenant_id);
 
       if (input.corregir) {
-        const recolectado = await recolectarInputs(
-          ctx.prisma,
-          revision.sello.tenant_id,
-          revision.sello.periodo
-        );
-        await emitirSello({
+        await proponerSelloV2({
           prisma: ctx.prisma,
           tenantId: revision.sello.tenant_id,
           periodo: revision.sello.periodo,
-          scores: input.corregir,
-          emitidoPor: ctx.userId!,
-          inputsSnapshot: { revision_id: input.revision_id, calculado: recolectado.detalle },
-          hallazgos: recolectado.hallazgos,
+          userId: ctx.userId!,
         });
       }
 

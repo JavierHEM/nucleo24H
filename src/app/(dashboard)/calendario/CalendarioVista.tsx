@@ -53,7 +53,7 @@ export function CalendarioVista({ tenantId, puedeAgendar }: { tenantId: string |
   const grupos = agruparPorMes(eventos);
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 w-full">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#0B1B33]">Calendario</h1>
@@ -69,40 +69,55 @@ export function CalendarioVista({ tenantId, puedeAgendar }: { tenantId: string |
       </div>
 
       {puedeAgendar && agendadas.length > 0 && tenantId && (
-        <section className="rounded-xl border border-[#DDE3EA] bg-white p-5">
-          <h2 className="text-sm font-semibold text-[#0B1B33]">Visitas agendadas</h2>
-          <ul className="mt-2 divide-y divide-[#F1F5F9]">
-            {agendadas.map((visita) => (
-              <li key={visita.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <div>
-                  <p className="text-sm font-medium text-[#0B1B33]">
-                    {visita.tipo === "sorpresa" ? "Visita sorpresa" : "Visita programada"}
-                  </p>
-                  <p className="text-xs text-[#5B6980]">{formatDate(new Date(visita.fecha))}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <NuevaVisitaButton
-                    tenantId={tenantId}
-                    agendadaId={visita.id}
-                    tipoInicial={visita.tipo === "sorpresa" ? "sorpresa" : "programada"}
-                    etiqueta="Completar"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    disabled={cancelar.isPending}
-                    onClick={() => {
-                      if (window.confirm("¿Cancelar esta visita agendada?")) cancelar.mutate({ id: visita.id });
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {cancelar.error && <p className="mt-2 text-sm text-[#B42318]">{cancelar.error.message}</p>}
+        <section className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-[#DDE3EA] bg-[#F4F6F3]">
+            <h2 className="text-sm font-semibold text-[#0B1B33]">Visitas agendadas</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F4F6F3] border-b border-[#DDE3EA]">
+                <tr>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Fecha</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Tipo</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#5B6980]">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DDE3EA]">
+                {agendadas.map((visita) => (
+                  <tr key={visita.id} className="hover:bg-[#F4F6F3] transition-colors">
+                    <td className="px-4 py-3 text-[#5B6980] whitespace-nowrap">
+                      {formatDate(new Date(visita.fecha))}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-[#0B1B33]">
+                      {visita.tipo === "sorpresa" ? "Visita sorpresa" : "Visita programada"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <NuevaVisitaButton
+                          tenantId={tenantId}
+                          agendadaId={visita.id}
+                          tipoInicial={visita.tipo === "sorpresa" ? "sorpresa" : "programada"}
+                          etiqueta="Completar"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={cancelar.isPending}
+                          onClick={() => {
+                            if (window.confirm("¿Cancelar esta visita agendada?")) cancelar.mutate({ id: visita.id });
+                          }}
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {cancelar.error && <p className="px-4 py-3 text-sm text-[#B42318]">{cancelar.error.message}</p>}
         </section>
       )}
 
@@ -112,41 +127,56 @@ export function CalendarioVista({ tenantId, puedeAgendar }: { tenantId: string |
         </p>
       ) : (
         grupos.map(([mes, items]) => (
-          <section key={mes}>
-            <h2 className="font-mono text-xs uppercase tracking-wide text-[#5B6980] mb-2">{mes}</h2>
-            <ul className="rounded-xl border border-[#DDE3EA] bg-white divide-y divide-[#F1F5F9]">
-              {items.map((evento) => {
-                const contenido = (
-                  <div className="flex items-start gap-4 px-4 py-3">
-                    <div className="w-12 shrink-0 text-center">
-                      <p className="font-mono text-xl font-semibold leading-none text-[#0B1B33]">{evento.fecha.getDate()}</p>
-                      <p className="font-mono text-[11px] uppercase text-[#5B6980]">
-                        {evento.fecha.toLocaleDateString("es-CL", { month: "short" })}
-                      </p>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-[#0B1B33]">{evento.titulo}</p>
-                      {evento.detalle && <p className="text-xs text-[#5B6980] truncate">{evento.detalle}</p>}
-                      {evento.vencido && <p className="text-xs font-medium text-[#B42318]">Plazo vencido</p>}
-                    </div>
-                    <span className={`shrink-0 inline-flex h-6 items-center rounded-full px-2.5 text-xs font-bold ${COLOR_TIPO[evento.tipo]}`}>
-                      {TIPO_EVENTO_LABEL[evento.tipo]}
-                    </span>
-                  </div>
-                );
-                return (
-                  <li key={evento.id}>
-                    {evento.href ? (
-                      <Link href={evento.href} className="block hover:bg-[#F4F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2F6B2A]">
-                        {contenido}
-                      </Link>
-                    ) : (
-                      contenido
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+          <section key={mes} className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-[#DDE3EA] bg-[#F4F6F3]">
+              <h2 className="font-mono text-xs uppercase tracking-wide text-[#5B6980]">{mes}</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-[#F4F6F3] border-b border-[#DDE3EA]">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Fecha</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Evento</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980] hidden md:table-cell">
+                      Detalle
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-[#5B6980]">Tipo</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#DDE3EA]">
+                  {items.map((evento) => (
+                    <tr key={evento.id} className="hover:bg-[#F4F6F3] transition-colors">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <p className="font-mono text-sm font-semibold text-[#0B1B33]">
+                          {evento.fecha.toLocaleDateString("es-CL", { day: "2-digit", month: "short" })}
+                        </p>
+                      </td>
+                      <td className="px-4 py-3">
+                        {evento.href ? (
+                          <Link
+                            href={evento.href}
+                            className="font-medium text-[#0B1B33] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
+                          >
+                            {evento.titulo}
+                          </Link>
+                        ) : (
+                          <p className="font-medium text-[#0B1B33]">{evento.titulo}</p>
+                        )}
+                        {evento.vencido && <p className="text-xs font-medium text-[#B42318]">Plazo vencido</p>}
+                      </td>
+                      <td className="px-4 py-3 text-[#5B6980] hidden md:table-cell">{evento.detalle || "—"}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex h-6 items-center rounded-full px-2.5 text-xs font-bold ${COLOR_TIPO[evento.tipo]}`}
+                        >
+                          {TIPO_EVENTO_LABEL[evento.tipo]}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         ))
       )}

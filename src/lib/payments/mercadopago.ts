@@ -131,6 +131,7 @@ export type PagoMercadoPago = {
   external_reference: string | null;
   live_mode?: boolean;
   date_approved?: string | null;
+  metadata?: { preapproval_id?: string } | null;
 };
 
 export function getMercadoPagoPayment(id: string): Promise<PagoMercadoPago> {
@@ -160,6 +161,93 @@ export async function createMercadoPagoPreference(params: {
     }
   );
   return { id: preferencia.id, initPoint: preferencia.init_point, sandboxInitPoint: preferencia.sandbox_init_point };
+}
+
+export type PreapprovalMercadoPago = {
+  id: string;
+  status: string;
+  init_point?: string;
+  sandbox_init_point?: string;
+  external_reference?: string | null;
+  live_mode?: boolean;
+  auto_recurring?: {
+    transaction_amount?: number;
+    currency_id?: string;
+    start_date?: string;
+    end_date?: string;
+  };
+};
+
+export type FacturaDebitoMercadoPago = {
+  id: number;
+  status: string;
+  preapproval_id: string;
+  external_reference?: string | number | null;
+  currency_id?: string;
+  transaction_amount?: number | string;
+  debit_date?: string;
+  summarized?: string;
+  payment?: { id?: number | string; status?: string; status_detail?: string } | null;
+};
+
+export async function createMercadoPagoPreapproval(params: {
+  externalReference: string;
+  titulo: string;
+  monto: number;
+  email: string;
+  urlRetorno: string;
+  startDate?: string;
+  endDate?: string;
+}): Promise<PreapprovalMercadoPago> {
+  return llamarApi<PreapprovalMercadoPago>("/preapproval", {
+    method: "POST",
+    body: JSON.stringify({
+      reason: params.titulo,
+      external_reference: params.externalReference,
+      payer_email: params.email,
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: "months",
+        transaction_amount: params.monto,
+        currency_id: "CLP",
+        ...(params.startDate ? { start_date: params.startDate } : {}),
+        ...(params.endDate ? { end_date: params.endDate } : {}),
+      },
+      back_url: params.urlRetorno,
+      status: "pending",
+    }),
+  });
+}
+
+export function getMercadoPagoPreapproval(id: string): Promise<PreapprovalMercadoPago> {
+  return llamarApi<PreapprovalMercadoPago>(`/preapproval/${encodeURIComponent(id)}`);
+}
+
+export function actualizarMercadoPagoPreapproval(
+  id: string,
+  data: { status?: "authorized" | "paused" | "cancelled"; monto?: number }
+): Promise<PreapprovalMercadoPago> {
+  return llamarApi<PreapprovalMercadoPago>(`/preapproval/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      ...(data.status ? { status: data.status } : {}),
+      ...(data.monto
+        ? { auto_recurring: { transaction_amount: data.monto, currency_id: "CLP" } }
+        : {}),
+    }),
+  });
+}
+
+export function getMercadoPagoFacturaDebito(id: string): Promise<FacturaDebitoMercadoPago> {
+  return llamarApi<FacturaDebitoMercadoPago>(`/authorized_payments/${encodeURIComponent(id)}`);
+}
+
+export function urlPreapprovalMercadoPago(preapproval: Pick<PreapprovalMercadoPago, "init_point" | "sandbox_init_point">): string | null {
+  if (!preapproval.init_point && !preapproval.sandbox_init_point) return null;
+  return urlCheckoutMercadoPago({
+    initPoint: preapproval.init_point ?? "",
+    sandboxInitPoint: preapproval.sandbox_init_point ?? "",
+  });
 }
 
 export function modoCoincide(pago: Pick<PagoMercadoPago, "live_mode">, modo: ModoWebhookMercadoPago): boolean {

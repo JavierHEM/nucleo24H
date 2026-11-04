@@ -7,9 +7,23 @@ export const CONTRATO_MESES = 12;
 export const AVISO_RENOVACION_DIAS = 60;
 export const DECLARACIONES_VU_ANUALES = 12;
 
+export const IVA = 0.19;
+export const TARIFA_NETA_HASTA_2026 = 80_000;
+export const TARIFA_NETA_DESDE_2027 = 100_000;
+/** Documento maestro §11: el valor sube en marzo de 2027. */
+export const ALZA_TARIFA_DESDE = new Date(2027, 2, 1);
+
+export function tarifaNeta(ahora: Date = new Date()): number {
+  return ahora >= ALZA_TARIFA_DESDE ? TARIFA_NETA_DESDE_2027 : TARIFA_NETA_HASTA_2026;
+}
+
+export function precioConIva(neto: number): number {
+  return Math.round(neto * (1 + IVA));
+}
+
 export const PLAN_PRECIOS_CLP: Record<PlanId, number> = {
-  calidad: 80_000,
-  integral: 150_000,
+  calidad: precioConIva(tarifaNeta()),
+  integral: precioConIva(150_000),
 };
 
 const BENEFICIOS_CALIDAD = [
@@ -22,7 +36,7 @@ const BENEFICIOS_CALIDAD = [
   "Evaluación y entrega de sello mensual",
   "Orientación técnica permanente",
   "Apoyo ante fiscalizaciones",
-  "Descargos gratuitos con sello Premium",
+  "Sello Bronce, Plata u Oro según evidencia del mes",
 ] as const;
 
 const BENEFICIOS_AMBIENTALES = [
@@ -57,7 +71,7 @@ export const PLANES: Record<PlanId, DefinicionPlan> = {
     id: "calidad",
     nombre: "Plan Calidad",
     etiqueta: "Para partir",
-    descripcion: "BPM, documentos, capacitaciones y sellos",
+    descripcion: "BPM, documentos, capacitaciones y sellos. Precio con IVA 19%.",
     precio: PLAN_PRECIOS_CLP.calidad,
     modulos: [],
     resumen: BENEFICIOS_CALIDAD,

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   debePromoverRol,
+  puedeAdjuntarHallazgo,
+  puedeAdjuntarProveedor,
   puedeAsignarCargos,
   puedeInvitarConRol,
   puedeRemoverMiembro,
@@ -28,6 +30,18 @@ describe("jefe_local", () => {
     expect(debePromoverRol("jefe_local", "jefe_local")).toBe(false);
     expect(debePromoverRol("admin_local", "jefe_local")).toBe(false);
     expect(debePromoverRol("jefe_local", "admin_local")).toBe(true);
+  });
+
+  it("el local y el staff pueden adjuntar fotos de hallazgo", () => {
+    expect(puedeAdjuntarHallazgo("trabajador_local")).toBe(true);
+    expect(puedeAdjuntarHallazgo("asesor")).toBe(true);
+    expect(puedeAdjuntarHallazgo("admin_nucleo")).toBe(true);
+  });
+
+  it("el local y el staff pueden adjuntar autorización de proveedor", () => {
+    expect(puedeAdjuntarProveedor("trabajador_local")).toBe(true);
+    expect(puedeAdjuntarProveedor("asesor")).toBe(true);
+    expect(puedeAdjuntarProveedor("admin_nucleo")).toBe(true);
   });
 
   it("el jefe solo remueve trabajadores, y nadie se remueve a sí mismo", () => {

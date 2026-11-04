@@ -15,7 +15,7 @@ export const ETIQUETA_ESTADO: Record<TicketEstado, string> = {
 
 export const ETIQUETA_CATEGORIA: Record<TicketCategoria, string> = {
   consulta: "Consulta",
-  incidencia: "Incidencia",
+  incidencia: "Soporte de plataforma",
   documentos: "Documentos",
   visita: "Visita",
   otro: "Otro",

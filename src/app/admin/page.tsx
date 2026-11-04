@@ -16,6 +16,7 @@ import {
 import { formatCLP, formatDate } from "@/lib/utils";
 import { cargarPanelOperativo } from "@/server/admin/panelOperativo";
 import { PanelOperativo } from "./PanelOperativo";
+import { ColaPropuestos } from "@/app/(dashboard)/sellos/ColaPropuestos";
 
 export default async function AdminPage() {
   const hoy = new Date();
@@ -119,6 +120,8 @@ export default async function AdminPage() {
         <h1 className="text-2xl font-bold text-[#0B1B33]">Panel Administración</h1>
         <p className="text-sm text-[#5B6980] mt-1">Gestión global de Núcleo 24H</p>
       </div>
+
+      <ColaPropuestos />
 
       {/* KPI cards principales */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { construirRuta, hrefArchivo, parseRuta, rutaPertenece } from "@/lib/storage/rutas";
+import { construirRuta, esImagenRuta, hrefArchivo, parseRuta, rutaPertenece, sonRutasDocumentoDelLocal, sonRutasHallazgoDelLocal } from "@/lib/storage/rutas";
 
 const TENANT = "a8f04228-e450-40af-984e-cd27cab9cde0";
 
@@ -16,5 +16,21 @@ describe("rutas de storage", () => {
   it("abre los archivos nuevos por el enlace firmado y conserva una URL antigua", () => {
     expect(hrefArchivo(`registros/${TENANT}/1-planilla.pdf`)).toContain("/api/archivos?ruta=");
     expect(hrefArchivo("https://ejemplo.r2.dev/viejo.pdf")).toBe("https://ejemplo.r2.dev/viejo.pdf");
+  });
+
+  it("acepta fotos de hallazgo del mismo local", () => {
+    const { ruta } = construirRuta("hallazgos", TENANT, "roedor-camara.jpg");
+    expect(parseRuta(ruta)?.bucket).toBe("hallazgos");
+    expect(rutaPertenece(ruta, "hallazgos", TENANT)).toBe(true);
+    expect(rutaPertenece(ruta, "documentos", TENANT)).toBe(false);
+    expect(sonRutasHallazgoDelLocal([ruta], TENANT)).toBe(true);
+    expect(sonRutasHallazgoDelLocal([`documentos/${TENANT}/acta.pdf`], TENANT)).toBe(false);
+    expect(esImagenRuta(ruta)).toBe(true);
+  });
+
+  it("acepta autorización o informe del proveedor del mismo local", () => {
+    const { ruta } = construirRuta("documentos", TENANT, "autorizacion-seremi.pdf");
+    expect(sonRutasDocumentoDelLocal([ruta], TENANT)).toBe(true);
+    expect(sonRutasDocumentoDelLocal([`hallazgos/${TENANT}/foto.jpg`], TENANT)).toBe(false);
   });
 });

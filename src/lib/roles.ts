@@ -30,6 +30,20 @@ export function puedeCargarPlanilla(rol: string | null | undefined): boolean {
   return rol === "trabajador_local" || puedeOperarLocal(rol);
 }
 
+export function puedeAdjuntarHallazgo(rol: string | null | undefined): boolean {
+  return (
+    rol === "trabajador_local" ||
+    rol === "jefe_local" ||
+    rol === "admin_local" ||
+    rol === "asesor" ||
+    rol === "admin_nucleo"
+  );
+}
+
+export function puedeAdjuntarProveedor(rol: string | null | undefined): boolean {
+  return puedeAdjuntarHallazgo(rol);
+}
+
 export function puedeInvitarConRol(
   actor: string | null | undefined,
   objetivo: string
@@ -74,3 +88,11 @@ export function esRolGestion(rol: string | null | undefined): boolean {
     rol === "admin_nucleo"
   );
 }
+
+export const ETIQUETA_ROL: Record<string, { label: string; className: string }> = {
+  admin_local: { label: "Admin local", className: "bg-[#16294A] text-white" },
+  jefe_local: { label: "Jefe de local", className: "bg-[#16294A]/10 text-[#16294A]" },
+  trabajador_local: { label: "Trabajador", className: "bg-[#E5F1E3] text-[#255620]" },
+  asesor: { label: "Asesor", className: "bg-[#E8EEF5] text-[#16294A]" },
+  admin_nucleo: { label: "Admin Núcleo", className: "bg-[#F4F6F3] text-[#0B1B33]" },
+};

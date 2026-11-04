@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { IconAlertTriangle, IconCircleCheck, IconClock } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
+import { trpc } from "@/lib/trpc/client";
 
 interface Alerta {
   id: string;
@@ -41,6 +45,10 @@ const TIPO_CONFIG = {
 
 export function AlertasPanel({ alertas }: AlertasPanelProps) {
   const activas = alertas.filter((a) => a.tipo !== "ok");
+  const router = useRouter();
+  const resolver = trpc.alertas.resolver.useMutation({
+    onSuccess: () => router.refresh(),
+  });
 
   if (activas.length === 0) {
     return (
@@ -67,28 +75,32 @@ export function AlertasPanel({ alertas }: AlertasPanelProps) {
           const config = TIPO_CONFIG[alerta.tipo];
           const Icon = config.icon;
           return (
-            <Link
+            <div
               key={alerta.id}
-              href={alerta.href}
-              className={cn(
-                "flex items-start gap-3 rounded-lg border p-3 text-sm transition-opacity hover:opacity-80",
-                config.bg,
-                config.border
-              )}
+              className={cn("flex items-start gap-3 rounded-lg border p-3 text-sm", config.bg, config.border)}
             >
               <Icon size={16} className={cn("shrink-0 mt-0.5", config.color)} />
               <div className="flex-1 min-w-0">
-                <p className="text-[#0B1B33] font-medium leading-snug">{alerta.mensaje}</p>
+                <Link href={alerta.href} className="text-[#0B1B33] font-medium leading-snug hover:underline">
+                  {alerta.mensaje}
+                </Link>
                 {alerta.fecha && (
-                  <p className="text-xs text-[#5B6980] mt-0.5">
-                    {formatDate(alerta.fecha)}
-                  </p>
+                  <p className="text-xs text-[#5B6980] mt-0.5">{formatDate(alerta.fecha)}</p>
                 )}
               </div>
-            </Link>
+              <button
+                type="button"
+                disabled={resolver.isPending}
+                onClick={() => resolver.mutate({ alerta_key: alerta.id, nota: "Revisada" })}
+                className="shrink-0 text-xs font-medium underline underline-offset-2"
+              >
+                Registrar resolución
+              </button>
+            </div>
           );
         })}
       </div>
+      {resolver.error && <p className="text-xs text-red-600 mt-2">{resolver.error.message}</p>}
     </div>
   );
 }

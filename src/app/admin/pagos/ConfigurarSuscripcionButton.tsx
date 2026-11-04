@@ -24,6 +24,8 @@ interface Suscripcion {
   monto_clp: number;
   estado: string;
   dia_cobro: number;
+  modo_cobro?: string;
+  mp_preapproval_status?: string | null;
 }
 
 interface Props {

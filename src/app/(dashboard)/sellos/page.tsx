@@ -7,7 +7,9 @@ import { SelloActual } from "./SelloActual";
 import { HistorialSellos } from "./HistorialSellos";
 import { EmitirSelloButton } from "./EmitirSelloButton";
 import { DescargarPdfButton } from "./DescargarPdfButton";
+import { DescargarInformeButton } from "./DescargarInformeButton";
 import { RevisionesPanel } from "./RevisionesPanel";
+import { ColaPropuestos } from "./ColaPropuestos";
 import { getCurrentPeriodo } from "@/lib/utils";
 import type { UserRole } from "@/server/trpc/context";
 import { getAppUrl } from "@/lib/branding";
@@ -38,7 +40,7 @@ export default async function SellosPage() {
         where: {
           tenant_id_periodo: { tenant_id: tenantActivo, periodo },
         },
-        select: { id: true },
+        select: { id: true, estado: true },
       })
     : null;
 
@@ -55,7 +57,7 @@ export default async function SellosPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          {selloActualDb && (
+          {selloActualDb?.estado === "emitido" && (
             <Link
               href={`${appUrl}/sello/${selloActualDb.id}`}
               target="_blank"
@@ -66,15 +68,18 @@ export default async function SellosPage() {
             </Link>
           )}
           {tenantActivo && (
-            <DescargarPdfButton tenantId={tenantActivo} periodo={getCurrentPeriodo()} />
+            <>
+              <DescargarInformeButton periodo={getCurrentPeriodo()} />
+              <DescargarPdfButton tenantId={tenantActivo} periodo={getCurrentPeriodo()} />
+            </>
           )}
           {canEmitir && tenantActivo && (
-            <EmitirSelloButton tenantId={tenantActivo} />
+            <EmitirSelloButton tenantId={tenantActivo} puedeAprobar={userRole === "admin_nucleo"} />
           )}
         </div>
       </div>
 
-      {/* Revisiones pendientes — solo visible para asesor/admin_nucleo */}
+      {userRole === "admin_nucleo" && <ColaPropuestos />}
       {canEmitir && <RevisionesPanel />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

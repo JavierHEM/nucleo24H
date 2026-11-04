@@ -1,7 +1,15 @@
 import { IconMedal } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
-export type NivelSello = "inicial" | "intermedio" | "avanzado" | "premium";
+export type NivelSello =
+  | "inicial"
+  | "intermedio"
+  | "avanzado"
+  | "premium"
+  | "sin_sello"
+  | "bronce"
+  | "plata"
+  | "oro";
 
 interface SelloConfig {
   label: string;
@@ -45,6 +53,38 @@ export const SELLO_CONFIG: Record<NivelSello, SelloConfig> = {
     border: "border-l-[#E3B341]",
     progressBar: "bg-[#E3B341]",
   },
+  sin_sello: {
+    label: "Sin sello",
+    color: "text-[#5B6980]",
+    bg: "bg-[#EEF1F4] text-[#5B6980]",
+    bgCard: "bg-[#EEF1F4]",
+    border: "border-l-[#94A3B8]",
+    progressBar: "bg-[#94A3B8]",
+  },
+  bronce: {
+    label: "Bronce",
+    color: "text-[#7A5000]",
+    bg: "bg-[#FCF0D0] text-[#7A5000]",
+    bgCard: "bg-[#FCF0D0]",
+    border: "border-l-[#C17A2B]",
+    progressBar: "bg-[#C17A2B]",
+  },
+  plata: {
+    label: "Plata",
+    color: "text-[#334155]",
+    bg: "bg-[#EEF1F4] text-[#334155]",
+    bgCard: "bg-[#EEF1F4]",
+    border: "border-l-[#64748B]",
+    progressBar: "bg-[#64748B]",
+  },
+  oro: {
+    label: "Oro",
+    color: "text-[#7A5000]",
+    bg: "bg-[#FCF0D0] text-[#7A5000]",
+    bgCard: "bg-[#F8E8C4]",
+    border: "border-l-[#E3B341]",
+    progressBar: "bg-[#E3B341]",
+  },
 };
 
 interface SelloBadgeProps {
@@ -60,7 +100,7 @@ export function SelloBadge({
   showIcon = false,
   className,
 }: SelloBadgeProps) {
-  const config = SELLO_CONFIG[nivel];
+  const config = SELLO_CONFIG[nivel] ?? SELLO_CONFIG.sin_sello;
 
   return (
     <span

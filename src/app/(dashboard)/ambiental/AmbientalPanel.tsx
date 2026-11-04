@@ -36,7 +36,7 @@ export function AmbientalPanel({ puedeRegistrar }: { puedeRegistrar: boolean }) 
   const charlasMes = registros.filter((registro) => registro.tipo === "charla" && new Date(registro.fecha) >= inicioMes).length;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#0B1B33]">Gestión ambiental</h1>

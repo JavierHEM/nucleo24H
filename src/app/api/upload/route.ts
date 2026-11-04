@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
-import { puedeCargarPlanilla, puedeOperarLocal } from "@/lib/roles";
+import { puedeAdjuntarHallazgo, puedeAdjuntarProveedor, puedeCargarPlanilla, puedeOperarLocal } from "@/lib/roles";
 import { crearUrlDeCarga } from "@/lib/storage/archivos";
 import { construirRuta, type BucketArchivo } from "@/lib/storage/rutas";
 
@@ -13,7 +13,7 @@ const bodySchema = z.object({
   filename: z.string().min(1).max(200),
   contentType: z.string().min(1),
   sizeMb: z.number().positive().max(MAX_MB),
-  bucket: z.enum(["registros", "documentos"]),
+  bucket: z.enum(["registros", "documentos", "hallazgos"]),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,7 +39,10 @@ export async function POST(req: NextRequest) {
 
   const bucketPedido = parsed.success ? parsed.data.bucket : null;
   const puedeSubir =
-    puedeOperarLocal(dbUser.rol) || (bucketPedido === "registros" && puedeCargarPlanilla(dbUser.rol));
+    puedeOperarLocal(dbUser.rol) ||
+    (bucketPedido === "registros" && puedeCargarPlanilla(dbUser.rol)) ||
+    (bucketPedido === "hallazgos" && puedeAdjuntarHallazgo(dbUser.rol)) ||
+    (bucketPedido === "documentos" && puedeAdjuntarProveedor(dbUser.rol));
   if (!puedeSubir) {
     return NextResponse.json({ error: "Sin permisos para subir archivos" }, { status: 403 });
   }
@@ -81,6 +84,17 @@ async function resolverTenant(userId: string, rol: string, cookieTenantId?: stri
       select: { id: true },
     });
     return tenant?.id ?? null;
+  }
+
+  if (rol === "asesor") {
+    const asignaciones = await prisma.asignacionAsesor.findMany({
+      where: { asesor_id: userId, activo: true },
+      select: { tenant_id: true },
+    });
+    if (cookieTenantId && asignaciones.some((asignacion) => asignacion.tenant_id === cookieTenantId)) {
+      return cookieTenantId;
+    }
+    return asignaciones[0]?.tenant_id ?? null;
   }
 
   const membresias = await prisma.userTenant.findMany({

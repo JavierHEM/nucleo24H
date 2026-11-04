@@ -1,21 +1,22 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
-  IconChevronDown,
   IconBuildingStore,
   IconCheck,
+  IconChevronDown,
+  IconLoader2,
   IconSearch,
 } from "@tabler/icons-react";
-
-interface Local {
-  id: string;
-  nombre: string;
-}
+import { cambiarLocalActivo } from "@/lib/locales/cambiarLocal";
+import {
+  agruparLocalesParaSelector,
+  localesPlanos,
+  type LocalSelectorItem,
+} from "@/lib/locales/selector";
 
 interface LocalSelectorProps {
-  locales: Local[];
+  locales: LocalSelectorItem[];
   tenantActivo?: string;
   isAdmin?: boolean;
   tone?: "light" | "dark";
@@ -24,51 +25,83 @@ interface LocalSelectorProps {
 export function LocalSelector({ locales, tenantActivo, isAdmin = false, tone = "light" }: LocalSelectorProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [pendiente, setPendiente] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activo, setActivo] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
 
-  const localActivo = locales.find((l) => l.id === tenantActivo);
+  const localActivo = locales.find((local) => local.id === tenantActivo);
+  const grupos = useMemo(() => agruparLocalesParaSelector(locales, query), [locales, query]);
+  const planos = useMemo(() => localesPlanos(grupos), [grupos]);
 
-  const filtered = query.trim()
-    ? locales.filter((l) => l.nombre.toLowerCase().includes(query.toLowerCase()))
-    : locales;
-
-  function handleSelect(localId: string) {
-    setOpen(false);
-    setQuery("");
-    startTransition(async () => {
-      await fetch("/api/tenant/switch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenantId: localId }),
-      });
-      router.refresh();
-    });
-  }
-
-  // Cerrar al hacer clic fuera
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    setActivo(0);
+  }, [query, open]);
+
+  useEffect(() => {
+    function alClick(evento: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(evento.target as Node)) {
+        setOpen(false);
+        setQuery("");
+      }
+    }
+    function alTecla(evento: KeyboardEvent) {
+      if (evento.key === "Escape") {
         setOpen(false);
         setQuery("");
       }
     }
     if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      // Foco al input de búsqueda cuando se abre
-      setTimeout(() => searchRef.current?.focus(), 50);
+      document.addEventListener("mousedown", alClick);
+      document.addEventListener("keydown", alTecla);
+      setTimeout(() => searchRef.current?.focus(), 30);
     }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", alClick);
+      document.removeEventListener("keydown", alTecla);
+    };
   }, [open]);
+
+  async function seleccionar(localId: string) {
+    if (localId === tenantActivo) {
+      setOpen(false);
+      setQuery("");
+      return;
+    }
+    setPendiente(true);
+    setError(null);
+    try {
+      await cambiarLocalActivo(localId);
+    } catch (causa) {
+      setPendiente(false);
+      setError(causa instanceof Error ? causa.message : "No se pudo cambiar de local.");
+    }
+  }
+
+  function alTeclado(evento: React.KeyboardEvent<HTMLInputElement>) {
+    if (evento.key === "ArrowDown") {
+      evento.preventDefault();
+      setActivo((i) => Math.min(i + 1, Math.max(planos.length - 1, 0)));
+    } else if (evento.key === "ArrowUp") {
+      evento.preventDefault();
+      setActivo((i) => Math.max(i - 1, 0));
+    } else if (evento.key === "Enter") {
+      evento.preventDefault();
+      const elegido = planos[activo];
+      if (elegido) void seleccionar(elegido.id);
+    }
+  }
 
   return (
     <div className="relative" ref={containerRef}>
       <button
-        onClick={() => setOpen(!open)}
-        disabled={isPending}
+        type="button"
+        onClick={() => setOpen((valor) => !valor)}
+        disabled={pendiente}
+        aria-expanded={open}
+        aria-haspopup="listbox"
         className={`flex items-center gap-2 border text-sm font-bold disabled:opacity-50 ${
           tone === "dark"
             ? "w-full min-h-14 justify-between px-3.5 rounded-xl bg-[#16294A] border-[#2A4068] text-white"
@@ -83,59 +116,84 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false, tone = "
         ) : (
           <>
             <IconBuildingStore size={15} className="text-[#2F6B2A]" />
-            <span className="max-w-[140px] truncate">
+            <span className="max-w-[160px] truncate">
               {localActivo?.nombre ?? (isAdmin ? "Seleccionar local" : "Mis locales")}
             </span>
           </>
         )}
-        <IconChevronDown
-          size={14}
-          className={`text-[#5B6980] transition-transform duration-150 ${open ? "rotate-180" : ""}`}
-        />
+        {pendiente ? (
+          <IconLoader2 size={14} className="animate-spin text-[#5B6980] shrink-0" />
+        ) : (
+          <IconChevronDown
+            size={14}
+            className={`text-[#5B6980] shrink-0 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+          />
+        )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-[#DDE3EA] rounded-xl shadow-lg py-1 w-64">
-          <p className="px-3 py-1.5 text-[11px] text-[#5B6980] uppercase tracking-wide font-medium">
-            {isAdmin ? "Todos los locales" : "Tus locales"}
+        <div className="absolute left-0 right-0 sm:right-auto top-full mt-1 z-50 bg-white border border-[#DDE3EA] rounded-xl shadow-lg w-[min(100vw-2rem,22rem)] py-2">
+          <p className="px-3 pb-2 text-[11px] text-[#5B6980] uppercase tracking-wide font-medium">
+            {isAdmin ? "Locales por empresa" : "Tus locales"}
           </p>
-
-          {/* Búsqueda — solo si hay más de 5 locales o es admin */}
-          {(isAdmin || locales.length > 5) && (
-            <div className="px-2 pb-1.5">
-              <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#F4F6F3] border border-[#DDE3EA]">
-                <IconSearch size={13} className="text-[#94A3B8] shrink-0" />
-                <input
-                  ref={searchRef}
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar local..."
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#94A3B8]"
-                />
-              </div>
+          <div className="px-2 pb-2">
+            <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-[#F4F6F3] border border-[#DDE3EA]">
+              <IconSearch size={14} className="text-[#94A3B8] shrink-0" />
+              <input
+                ref={searchRef}
+                type="search"
+                value={query}
+                onChange={(evento) => setQuery(evento.target.value)}
+                onKeyDown={alTeclado}
+                placeholder="Buscar por nombre o RUT"
+                aria-controls={listboxId}
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#94A3B8] text-[#0B1B33]"
+              />
             </div>
-          )}
-
-          <div className="max-h-60 overflow-y-auto">
-            {filtered.length === 0 ? (
-              <p className="px-3 py-3 text-sm text-[#94A3B8] text-center">
-                Sin resultados
-              </p>
+          </div>
+          {error && <p className="px-3 pb-2 text-xs text-[#B42318]">{error}</p>}
+          <div id={listboxId} role="listbox" className="max-h-72 overflow-y-auto">
+            {grupos.length === 0 ? (
+              <p className="px-3 py-4 text-sm text-[#94A3B8] text-center">Sin resultados</p>
             ) : (
-              filtered.map((local) => (
-                <button
-                  key={local.id}
-                  onClick={() => handleSelect(local.id)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#0B1B33] hover:bg-[#F4F6F3] transition-colors text-left"
-                >
-                  <IconBuildingStore size={14} className="text-[#5B6980] shrink-0" />
-                  <span className="flex-1 truncate">{local.nombre}</span>
-                  {local.id === tenantActivo && (
-                    <IconCheck size={14} className="text-[#2F6B2A] shrink-0" />
-                  )}
-                </button>
-              ))
+              grupos.map((grupo) => {
+                const localesGrupo = [grupo.casaCentral, ...grupo.sucursales];
+                return (
+                  <div key={grupo.casaCentral.id} className="pb-1">
+                    <p className="px-3 pt-2 pb-1 text-[11px] font-semibold text-[#5B6980] truncate">
+                      {grupo.casaCentral.nombre}
+                      <span className="font-normal font-mono"> · {grupo.rut}</span>
+                    </p>
+                    {localesGrupo.map((local) => {
+                      const indice = planos.findIndex((item) => item.id === local.id);
+                      const seleccionado = local.id === tenantActivo;
+                      const enfocado = indice === activo;
+                      return (
+                        <button
+                          key={local.id}
+                          type="button"
+                          role="option"
+                          aria-selected={seleccionado}
+                          onMouseEnter={() => setActivo(indice)}
+                          onClick={() => void seleccionar(local.id)}
+                          className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left ${
+                            enfocado ? "bg-[#F4F6F3]" : ""
+                          }`}
+                        >
+                          <IconBuildingStore size={14} className="text-[#5B6980] shrink-0" />
+                          <span className="flex-1 min-w-0">
+                            <span className="block truncate text-[#0B1B33]">{local.nombre}</span>
+                            {grupo.sucursales.length > 0 && local.id !== grupo.casaCentral.id && (
+                              <span className="block text-[11px] text-[#94A3B8]">Sucursal</span>
+                            )}
+                          </span>
+                          {seleccionado && <IconCheck size={14} className="text-[#2F6B2A] shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
