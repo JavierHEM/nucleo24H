@@ -49,24 +49,25 @@ const TRABAJADOR_ITEMS: BottomNavItem[] = [
 
 const DUENO_ITEMS: BottomNavItem[] = [
   { href: "/", label: "Hoy", icon: IconLayoutDashboard, roles: ["admin_local", "jefe_local"] },
-  { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["admin_local", "jefe_local"] },
-  { href: "/documentos", label: "Docs", icon: IconFileDescription, roles: ["admin_local", "jefe_local"] },
+  { href: "/calendario", label: "Agenda", icon: IconCalendarEvent, roles: ["admin_local", "jefe_local"] },
+  { href: "/hallazgos", label: "Hallazgos", icon: IconChecklist, roles: ["admin_local", "jefe_local"] },
   { href: "/sellos", label: "Sello", icon: IconMedal, roles: ["admin_local", "jefe_local"] },
 ];
 
 const MAS_LOCAL: BottomNavItem[] = [
-  { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/ambiental", label: "Ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], modulo: "ambiental" },
-  { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/hallazgos", label: "Hallazgos", icon: IconChecklist, roles: ["jefe_local", "admin_local"] },
+  { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["jefe_local", "admin_local"] },
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["jefe_local", "admin_local"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local"] },
+  { href: "/documentos", label: "Documentos", icon: IconFileDescription, roles: ["jefe_local", "admin_local"] },
+  { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["jefe_local", "admin_local"] },
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["jefe_local", "admin_local"] },
+  { href: "/proveedores", label: "Proveedores", icon: IconBuildingStore, roles: ["jefe_local", "admin_local"] },
+  { href: "/ambiental", label: "Ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local"], modulo: "ambiental" },
   { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["jefe_local", "admin_local"] },
   { href: "/equipo", label: "Equipo", icon: IconUsers, roles: ["jefe_local", "admin_local"] },
+  { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ["jefe_local", "admin_local"] },
   { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local"] },
+  { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ["trabajador_local", "jefe_local", "admin_local"] },
   { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["trabajador_local", "jefe_local", "admin_local"] },
 ];
 
@@ -74,7 +75,7 @@ const BOTTOM_ITEMS: BottomNavItem[] = [
   ...TRABAJADOR_ITEMS,
   ...DUENO_ITEMS,
   { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
-  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
+  { href: "/calendario", label: "Agenda", icon: IconCalendarEvent, roles: ["asesor", "admin_nucleo"] },
   { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
   { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
   { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
@@ -126,10 +127,10 @@ const ADMIN_BOTTOM_ITEMS: BottomNavItem[] = [
 ];
 
 const ASESOR_BOTTOM_ITEMS: BottomNavItem[] = [
-  { href: "/", label: "Dashboard", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
-  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
-  { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
-  { href: "/visitas", label: "Visitas", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
+  { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
+  { href: "/calendario", label: "Agenda", icon: IconCalendarEvent, roles: ["asesor", "admin_nucleo"] },
+  { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
+  { href: "/hallazgos", label: "Hallazgos", icon: IconChecklist, roles: ["asesor", "admin_nucleo"] },
   { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["asesor", "admin_nucleo"] },
 ];
 

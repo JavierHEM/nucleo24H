@@ -35,14 +35,26 @@ export const hallazgosRouter = router({
         },
         orderBy: { created_at: "desc" },
         take: input.limit,
-        include: { proveedor: { select: { id: true, razon_social: true } } },
+        include: {
+          proveedor: { select: { id: true, razon_social: true } },
+          visita: { select: { id: true, fecha: true, tipo: true, motivo: true, estado: true } },
+        },
       });
     }),
 
   get: protectedProcedure.input(z.object({ id: z.string().uuid() })).query(async ({ ctx, input }) => {
     const hallazgo = await ctx.prisma.hallazgo.findUnique({
       where: { id: input.id },
-      include: { eventos: { orderBy: { created_at: "asc" } }, proveedor: true },
+      include: {
+        eventos: { orderBy: { created_at: "asc" } },
+        proveedor: true,
+        visita: { select: { id: true, fecha: true, tipo: true, motivo: true, estado: true } },
+        visitas_por_origen: {
+          where: { estado: { in: ["agendada", "realizada"] } },
+          orderBy: { fecha: "desc" },
+          select: { id: true, fecha: true, tipo: true, motivo: true, estado: true },
+        },
+      },
     });
     if (!hallazgo || hallazgo.tenant_id !== ctx.tenantActivo) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Hallazgo no encontrado." });
@@ -79,6 +91,15 @@ export const hallazgosRouter = router({
           message: "Las fotos del hallazgo deben subirse desde la plataforma.",
         });
       }
+      if (input.visita_id) {
+        const visita = await ctx.prisma.visita.findFirst({
+          where: { id: input.visita_id, tenant_id: tenantId, estado: { not: "cancelada" } },
+          select: { id: true },
+        });
+        if (!visita) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "La visita no existe en este local." });
+        }
+      }
       const hallazgo = await ctx.prisma.hallazgo.create({
         data: {
           tenant_id: tenantId,
@@ -95,10 +116,27 @@ export const hallazgosRouter = router({
         },
       });
       await ctx.prisma.hallazgoEvento.create({
-        data: { hallazgo_id: hallazgo.id, actor_id: ctx.userId!, a_estado: "abierto", nota: "Apertura" },
+        data: {
+          hallazgo_id: hallazgo.id,
+          actor_id: ctx.userId!,
+          a_estado: "abierto",
+          nota: input.visita_id ? "Apertura desde visita" : "Apertura",
+        },
       });
       return hallazgo;
     }),
+
+  vinculables: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.hallazgo.findMany({
+      where: {
+        tenant_id: ctx.tenantActivo!,
+        estado: { notIn: ["cerrado_validado", "seguimiento_eficacia"] },
+      },
+      orderBy: { created_at: "desc" },
+      take: 80,
+      select: { id: true, descripcion: true, gravedad: true, estado: true },
+    });
+  }),
 
   transicionar: writeProcedure
     .input(

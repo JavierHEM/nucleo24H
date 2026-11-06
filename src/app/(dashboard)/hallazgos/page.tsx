@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ESTADOS_HALLAZGO, ETIQUETA_ESTADO_HALLAZGO, ETIQUETA_GRAVEDAD, GRAVEDADES } from "@/lib/hallazgos/ciclo";
 import { CrearHallazgoButton } from "./CrearHallazgoButton";
 import { formatDate } from "@/lib/utils";
+import { codigoHallazgo } from "@/lib/hallazgos/codigo";
 
 export default async function HallazgosPage({
   searchParams,
@@ -60,8 +61,11 @@ export default async function HallazgosPage({
               <div>
                 <p className="font-medium text-[#0B1B33]">{h.descripcion}</p>
                 <p className="text-xs text-[#5B6980] mt-1">
+                  <span className="font-mono">{codigoHallazgo(h.id)}</span>
+                  {" · "}
                   {ETIQUETA_GRAVEDAD[h.gravedad as keyof typeof ETIQUETA_GRAVEDAD] ?? h.gravedad} ·{" "}
                   {ETIQUETA_ESTADO_HALLAZGO[h.estado as keyof typeof ETIQUETA_ESTADO_HALLAZGO] ?? h.estado}
+                  {h.visita_id ? " · con visita" : ""}
                   {h.proveedor ? ` · ${h.proveedor.razon_social}` : ""}
                   {h.plazo ? ` · plazo ${formatDate(h.plazo)}` : ""}
                 </p>

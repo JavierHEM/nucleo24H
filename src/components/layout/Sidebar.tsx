@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -24,7 +23,6 @@ import {
   IconChecklist,
   IconChartBar,
   IconCreditCard,
-  IconDots,
   IconClipboardCheck,
   IconCalendarEvent,
   IconLeaf,
@@ -38,64 +36,116 @@ import type { UserRole } from "@/server/trpc/context";
 import { PlanBadge } from "@/components/plan/PlanBadge";
 import { planIncluye, type ModuloPlan, type PlanId } from "@/lib/planes";
 import type { LocalSelectorItem } from "@/lib/locales/selector";
+import type { ComponentType } from "react";
 
 interface NavItem {
   href: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: ComponentType<{ size?: number; className?: string }>;
   roles: UserRole[];
   active?: string[];
   modulo?: ModuloPlan;
 }
 
-const LOCAL_PRIMARIOS: NavItem[] = [
-  { href: "/", label: "Hoy", icon: IconLayoutDashboard, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/documentos", label: "Documentos", icon: IconFileDescription, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
-  { href: "/sellos", label: "Sello y visitas", icon: IconMedal, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], active: ["/sellos", "/visitas"] },
-  { href: "/equipo", label: "Equipo y cuenta", icon: IconUsers, roles: ["jefe_local", "admin_local", "admin_nucleo"], active: ["/equipo", "/mi-cuenta", "/suscripcion", "/comunicaciones"] },
-  { href: "/mi-cuenta", label: "Cuenta", icon: IconUser, roles: ["trabajador_local"] },
+interface NavGrupo {
+  etiqueta: string;
+  items: NavItem[];
+}
+
+const ROLES_LOCAL: UserRole[] = ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"];
+const ROLES_JEFE: UserRole[] = ["jefe_local", "admin_local", "asesor", "admin_nucleo"];
+const ROLES_STAFF: UserRole[] = ["asesor", "admin_nucleo"];
+
+const GRUPOS_LOCAL: NavGrupo[] = [
+  {
+    etiqueta: "Operar",
+    items: [
+      { href: "/", label: "Inicio", icon: IconLayoutDashboard, roles: ROLES_LOCAL },
+      { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ROLES_JEFE },
+      { href: "/registros", label: "Registros", icon: IconThermometer, roles: ROLES_LOCAL },
+      { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ROLES_LOCAL },
+    ],
+  },
+  {
+    etiqueta: "Cumplir",
+    items: [
+      { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ROLES_LOCAL },
+      { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ROLES_JEFE },
+      { href: "/documentos", label: "Documentos", icon: IconFileDescription, roles: ROLES_JEFE },
+      { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ROLES_JEFE },
+      { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ROLES_JEFE },
+      { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ROLES_LOCAL },
+      { href: "/proveedores", label: "Proveedores", icon: IconBuildingStore, roles: ROLES_JEFE },
+      { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ROLES_STAFF },
+      { href: "/ambiental", label: "Ambiental", icon: IconLeaf, roles: ROLES_JEFE, modulo: "ambiental" },
+    ],
+  },
+  {
+    etiqueta: "Local",
+    items: [
+      { href: "/equipo", label: "Equipo", icon: IconUsers, roles: ["jefe_local", "admin_local", "admin_nucleo"] },
+      { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ROLES_JEFE },
+      { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ROLES_JEFE },
+      { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local", "admin_nucleo"] },
+      { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ROLES_LOCAL },
+      { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ROLES_LOCAL },
+    ],
+  },
 ];
 
-const LOCAL_MAS: NavItem[] = [
-  { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/ambiental", label: "Gestión ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"], modulo: "ambiental" },
-  { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/proveedores", label: "Proveedores", icon: IconBuildingStore, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local", "admin_nucleo"] },
-  { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ["trabajador_local", "jefe_local", "admin_local", "asesor", "admin_nucleo"] },
-  { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["jefe_local", "admin_local", "asesor", "admin_nucleo"] },
+const GRUPOS_ASESOR: NavGrupo[] = [
+  {
+    etiqueta: "Operación",
+    items: [
+      { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ROLES_STAFF },
+      { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ROLES_STAFF },
+      { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ROLES_STAFF },
+      { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ROLES_STAFF },
+    ],
+  },
+  {
+    etiqueta: "Revisión",
+    items: [
+      { href: "/sellos", label: "Sellos", icon: IconMedal, roles: ROLES_STAFF },
+      { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ROLES_STAFF },
+      { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ROLES_STAFF },
+    ],
+  },
+  {
+    etiqueta: "Cuenta",
+    items: [
+      { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ROLES_STAFF },
+      { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ROLES_STAFF },
+    ],
+  },
 ];
 
-const ADMIN_ITEMS: NavItem[] = [
-  { href: "/admin", label: "Resumen", icon: IconLayoutDashboard, roles: ["admin_nucleo"] },
-  { href: "/admin/locales", label: "Locales", icon: IconBuildingStore, roles: ["admin_nucleo"] },
-  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
-  { href: "/admin/asesores", label: "Asesores", icon: IconUserCheck, roles: ["admin_nucleo"] },
-  { href: "/admin/pagos", label: "Pagos", icon: IconCreditCard, roles: ["admin_nucleo"] },
-  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["admin_nucleo"] },
-  { href: "/admin/leads", label: "Diagnósticos", icon: IconMail, roles: ["admin_nucleo"] },
-  { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
-  { href: "/admin/informes", label: "Informes", icon: IconChartBar, roles: ["admin_nucleo"] },
-  { href: "/admin/configuracion", label: "Configuración", icon: IconSettings, roles: ["admin_nucleo"] },
-];
-
-const ASESOR_ITEMS: NavItem[] = [
-  { href: "/", label: "Cartera", icon: IconLayoutDashboard, roles: ["asesor", "admin_nucleo"] },
-  { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["asesor", "admin_nucleo"] },
-  { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["asesor", "admin_nucleo"] },
-  { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ["asesor", "admin_nucleo"] },
-  { href: "/sellos", label: "Sellos por revisar", icon: IconMedal, roles: ["asesor", "admin_nucleo"] },
-  { href: "/asesor/informes", label: "Informes", icon: IconChartBar, roles: ["asesor", "admin_nucleo"] },
-  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["asesor", "admin_nucleo"] },
-  { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ["asesor", "admin_nucleo"] },
+const GRUPOS_ADMIN: NavGrupo[] = [
+  {
+    etiqueta: "Red",
+    items: [
+      { href: "/admin", label: "Resumen", icon: IconLayoutDashboard, roles: ["admin_nucleo"] },
+      { href: "/admin/locales", label: "Locales", icon: IconBuildingStore, roles: ["admin_nucleo"] },
+      { href: "/admin/asesores", label: "Asesores", icon: IconUserCheck, roles: ["admin_nucleo"] },
+    ],
+  },
+  {
+    etiqueta: "Operación",
+    items: [
+      { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
+      { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["admin_nucleo"] },
+      { href: "/admin/leads", label: "Diagnósticos", icon: IconMail, roles: ["admin_nucleo"] },
+      { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
+    ],
+  },
+  {
+    etiqueta: "Negocio",
+    items: [
+      { href: "/admin/pagos", label: "Pagos", icon: IconCreditCard, roles: ["admin_nucleo"] },
+      { href: "/admin/informes", label: "Informes", icon: IconChartBar, roles: ["admin_nucleo"] },
+      { href: "/admin/configuracion", label: "Configuración", icon: IconSettings, roles: ["admin_nucleo"] },
+    ],
+  },
 ];
 
 function activo(item: NavItem, pathname: string) {
@@ -110,11 +160,11 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
     <Link
       href={item.href}
       aria-current={isActive ? "page" : undefined}
-      className={`flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-[15px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341] ${
+      className={`flex items-center gap-3 min-h-11 px-3.5 rounded-[10px] text-[14px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341] ${
         isActive ? "bg-white text-[#0B1B33]" : "text-[#C9D3E3] hover:bg-[#16294A] hover:text-white"
       }`}
     >
-      <Icon size={22} />
+      <Icon size={20} />
       {item.label}
     </Link>
   );
@@ -148,82 +198,65 @@ const ESTADO_PLAN: Record<string, { label: string; className: string }> = {
 
 export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActivo, localNombre, plan, planId }: SidebarProps) {
   const pathname = usePathname();
-  const navScroll = useRef<HTMLDivElement>(null);
-  const catalogo = mode === "admin" ? ADMIN_ITEMS : mode === "asesor" ? ASESOR_ITEMS : LOCAL_PRIMARIOS;
-  const visibles = (items: NavItem[]) =>
-    items.filter(
-      (item) => userRole && item.roles.includes(userRole) && (!item.modulo || planIncluye(planId, item.modulo))
-    );
-  const principales = visibles(catalogo);
-  const mas = mode === "dashboard" ? visibles(LOCAL_MAS) : [];
-
-  function alAbrirMas(evento: React.SyntheticEvent<HTMLDetailsElement>) {
-    if (!evento.currentTarget.open) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    requestAnimationFrame(() => {
-      navScroll.current?.scrollTo({
-        top: navScroll.current.scrollHeight,
-        behavior: reduced ? "auto" : "smooth",
-      });
-    });
-  }
+  const catalogo = mode === "admin" ? GRUPOS_ADMIN : mode === "asesor" ? GRUPOS_ASESOR : GRUPOS_LOCAL;
+  const grupos = catalogo
+    .map((grupo) => ({
+      ...grupo,
+      items: grupo.items.filter(
+        (item) => userRole && item.roles.includes(userRole) && (!item.modulo || planIncluye(planId, item.modulo))
+      ),
+    }))
+    .filter((grupo) => grupo.items.length > 0);
 
   return (
     <aside className="hidden md:flex flex-col w-[272px] h-full min-h-0 overflow-hidden bg-[#0B1B33] text-white shrink-0 px-4 py-6 gap-4">
       <div className="shrink-0 flex flex-col gap-6">
-      <Link href="/" className="px-1.5 block" aria-label="Núcleo 24H, ir al inicio">
-        <BrandLogo variant="negativo" className="w-44" priority />
-      </Link>
+        <Link href="/" className="px-1.5 block" aria-label="Núcleo 24H, ir al inicio">
+          <BrandLogo variant="negativo" className="w-44" priority />
+        </Link>
 
-      {mode === "dashboard" && (locales.length > 1 || localNombre) && (
-        locales.length > 1 ? (
-          <LocalSelector locales={locales} tenantActivo={tenantActivo} isAdmin={userRole === "admin_nucleo"} tone="dark" />
-        ) : (
-          <div className="flex flex-col gap-0.5 min-h-14 justify-center px-3.5 rounded-xl bg-[#16294A] border border-[#2A4068]">
-            <span className="text-xs font-semibold text-[#9FB0CC]">Local activo</span>
-            <span className="text-sm font-bold truncate">{localNombre}</span>
+        {mode === "dashboard" && (locales.length > 1 || localNombre) && (
+          locales.length > 1 ? (
+            <LocalSelector locales={locales} tenantActivo={tenantActivo} isAdmin={userRole === "admin_nucleo"} tone="dark" />
+          ) : (
+            <div className="flex flex-col gap-0.5 min-h-14 justify-center px-3.5 rounded-xl bg-[#16294A] border border-[#2A4068]">
+              <span className="text-xs font-semibold text-[#9FB0CC]">Local activo</span>
+              <span className="text-sm font-bold truncate">{localNombre}</span>
+            </div>
+          )
+        )}
+
+        {mode === "dashboard" && planId && (
+          <div className="px-1.5 -mt-3">
+            <PlanBadge plan={planId} tone="dark" />
           </div>
-        )
-      )}
+        )}
 
-      {mode === "dashboard" && planId && (
-        <div className="px-1.5 -mt-3">
-          <PlanBadge plan={planId} tone="dark" />
-        </div>
-      )}
-
-      {mode === "asesor" && (
-        <div className="px-1.5">
-          <p className="text-xs font-semibold text-[#9FB0CC]">Asesor</p>
-          <p className="text-[15px] font-bold">Cartera del local activo</p>
-        </div>
-      )}
+        {mode === "asesor" && (
+          <div className="px-1.5">
+            <p className="text-xs font-semibold text-[#9FB0CC]">Asesor</p>
+            <p className="text-[15px] font-bold">Cartera del local activo</p>
+          </div>
+        )}
       </div>
 
-      <div
-        ref={navScroll}
+      <nav
+        aria-label="Principal"
         className="flex-1 min-h-0 overflow-y-auto overscroll-contain [scrollbar-width:thin] [scrollbar-color:#2A4068_transparent]"
       >
-      <nav aria-label="Principal" className="flex flex-col gap-1">
-        {principales.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} />
+        {grupos.map((grupo, indice) => (
+          <div key={grupo.etiqueta} className={indice === 0 ? "" : "mt-4"}>
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#7D8DA8] px-3.5 mb-1">
+              {grupo.etiqueta}
+            </p>
+            <div className="flex flex-col gap-0.5">
+              {grupo.items.map((item) => (
+                <NavLink key={item.href} item={item} pathname={pathname} />
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
-
-      {mas.length > 0 && (
-        <details className="group mt-1" onToggle={alAbrirMas}>
-          <summary className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-[15px] font-bold text-[#C9D3E3] cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-[#16294A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341]">
-            <IconDots size={22} />
-            Más
-          </summary>
-          <div className="mt-1 flex flex-col gap-1 pb-2">
-            {mas.map((item) => (
-              <NavLink key={item.href} item={item} pathname={pathname} />
-            ))}
-          </div>
-        </details>
-      )}
-      </div>
 
       <div className="shrink-0 flex flex-col gap-3">
         {plan && userRole === "admin_local" && (
@@ -245,7 +278,7 @@ export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActi
             {mode !== "dashboard" && (
               <Link href="/" className="flex items-center gap-3 min-h-12 px-3.5 rounded-[10px] text-sm font-bold text-[#C9D3E3] hover:bg-[#16294A]">
                 <IconArrowLeft size={18} />
-                Hoy
+                Inicio
               </Link>
             )}
             {userRole === "asesor" && mode !== "asesor" && (

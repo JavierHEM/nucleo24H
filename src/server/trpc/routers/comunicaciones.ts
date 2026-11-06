@@ -18,6 +18,9 @@ import {
 import { crearNotificaciones, idsAdminNucleo } from "@/server/comunicaciones/notificar";
 import { cupoProfesional, esConsultaProfesional, periodoDe } from "@/lib/comunicaciones/cupos";
 import { requireSuscripcionEscribible } from "@/server/middleware/suscripcion";
+import { MAX_ADJUNTOS_MENSAJE, MAX_ADJUNTOS_PETICION } from "@/lib/comunicaciones/adjuntos";
+import { sonRutasDocumentoDelLocal } from "@/lib/storage/rutas";
+import { DECLARACIONES, DECLARACIONES_VERSION } from "@/lib/declaraciones/textos";
 
 const commsProcedure = publicProcedure.use(
   requireRole("jefe_local", "admin_local", "asesor", "admin_nucleo")
@@ -164,6 +167,8 @@ export const comunicacionesRouter = router({
         categoria: z.enum(TICKET_CATEGORIAS),
         prioridad: z.enum(TICKET_PRIORIDADES).default("normal"),
         mensaje: z.string().trim().min(1, "Escribe el detalle de tu petición.").max(2000),
+        adjuntos: z.array(z.string().min(1).max(500)).max(MAX_ADJUNTOS_PETICION).default([]),
+        acepta_declaracion_b: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -205,6 +210,21 @@ export const comunicacionesRouter = router({
         });
       }
 
+      if (input.adjuntos.length > 0) {
+        if (!sonRutasDocumentoDelLocal(input.adjuntos, tenantId)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Los archivos deben subirse desde la plataforma para este local.",
+          });
+        }
+        if (input.acepta_declaracion_b !== true) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Debes aceptar la declaración de veracidad para adjuntar evidencia.",
+          });
+        }
+      }
+
       const ticket = await ctx.prisma.ticket.create({
         data: {
           tenant_id: tenantId,
@@ -213,16 +233,33 @@ export const comunicacionesRouter = router({
           asunto: input.asunto,
           categoria: input.categoria,
           prioridad: input.prioridad,
+          adjuntos: input.adjuntos,
           mensajes: {
             create: {
               tenant_id: tenantId,
               de: ctx.userId!,
               para: destinatarioMensaje,
               contenido: input.mensaje,
+              adjuntos: input.adjuntos,
             },
           },
         },
       });
+
+      if (input.adjuntos.length > 0) {
+        await ctx.prisma.declaracionVeracidad.create({
+          data: {
+            tenant_id: tenantId,
+            user_id: ctx.userId!,
+            tipo: "B",
+            version: DECLARACIONES_VERSION,
+            texto: DECLARACIONES.B.texto,
+            evento: "adjuntar_evidencia_peticion",
+            recurso_tipo: "ticket",
+            recurso_id: ticket.id,
+          },
+        });
+      }
 
       const localNombre =
         (await ctx.prisma.tenant.findUnique({ where: { id: tenantId }, select: { nombre: true } }))
@@ -247,14 +284,32 @@ export const comunicacionesRouter = router({
     .input(
       z.object({
         ticketId: z.string().uuid(),
-        contenido: z.string().trim().min(1, "Escribe una respuesta.").max(2000),
+        contenido: z.string().trim().max(2000).default(""),
+        adjuntos: z.array(z.string().min(1).max(500)).max(MAX_ADJUNTOS_MENSAJE).default([]),
+        acepta_declaracion_b: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const contenido = input.contenido.trim();
+      if (contenido.length === 0 && input.adjuntos.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Escribe una respuesta o adjunta un archivo." });
+      }
       const ticket = await exigirTicket(ctx, input.ticketId);
       const respondeStaff = esStaffNucleo(ctx.userRole);
       if (!respondeStaff && !esLocalComunicaciones(ctx.userRole)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "No puedes responder esta petición." });
+      }
+      if (input.adjuntos.length > 0 && !sonRutasDocumentoDelLocal(input.adjuntos, ticket.tenant_id)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Los archivos deben subirse desde la plataforma para este local.",
+        });
+      }
+      if (input.adjuntos.length > 0 && !respondeStaff && input.acepta_declaracion_b !== true) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Debes aceptar la declaración de veracidad para adjuntar evidencia.",
+        });
       }
 
       const para = respondeStaff
@@ -278,14 +333,21 @@ export const comunicacionesRouter = router({
           ticket_id: ticket.id,
           de: ctx.userId!,
           para,
-          contenido: input.contenido,
+          contenido: contenido || "Evidencia adjunta.",
+          adjuntos: input.adjuntos,
         },
       });
+
+      const adjuntosCaso =
+        input.adjuntos.length > 0
+          ? [...new Set([...ticket.adjuntos, ...input.adjuntos])].slice(0, MAX_ADJUNTOS_PETICION)
+          : ticket.adjuntos;
 
       await ctx.prisma.ticket.update({
         where: { id: ticket.id },
         data: {
           updated_at: new Date(),
+          adjuntos: adjuntosCaso,
           ...(nuevoEstado
             ? {
                 estado: nuevoEstado,
@@ -295,6 +357,21 @@ export const comunicacionesRouter = router({
           ...(respondeStaff && !ticket.asignado_a ? { asignado_a: ctx.userId! } : {}),
         },
       });
+
+      if (input.adjuntos.length > 0 && !respondeStaff) {
+        await ctx.prisma.declaracionVeracidad.create({
+          data: {
+            tenant_id: ticket.tenant_id,
+            user_id: ctx.userId!,
+            tipo: "B",
+            version: DECLARACIONES_VERSION,
+            texto: DECLARACIONES.B.texto,
+            evento: "adjuntar_evidencia_peticion",
+            recurso_tipo: "ticket",
+            recurso_id: ticket.id,
+          },
+        });
+      }
 
       const admins = await idsAdminNucleo(ctx.prisma);
       await crearNotificaciones(ctx.prisma, {

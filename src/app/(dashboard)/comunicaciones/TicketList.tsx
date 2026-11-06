@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { IconMessage2, IconLoader2 } from "@tabler/icons-react";
+import { IconMessage2, IconLoader2, IconPaperclip } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
@@ -117,6 +117,12 @@ export function TicketList({ userRole }: { userRole: string | null }) {
                     </p>
                     {ultimo && (
                       <p className="text-sm text-[#334155] mt-1.5 line-clamp-1 max-w-xl">{ultimo.contenido}</p>
+                    )}
+                    {ticket.adjuntos.length > 0 && (
+                      <p className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-[#16294A]">
+                        <IconPaperclip size={14} />
+                        {ticket.adjuntos.length} archivo{ticket.adjuntos.length === 1 ? "" : "s"}
+                      </p>
                     )}
                   </div>
                   <BadgeEstado estado={ticket.estado} />

@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { getCaller } from "@/lib/trpc/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { cookies } from "next/headers";
 import { formatDate } from "@/lib/utils";
+import { esStaffNucleo } from "@/lib/comunicaciones/tickets";
 import {
   IconMapPin,
   IconCircleCheck,
@@ -12,6 +14,15 @@ import {
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 import { NuevaVisitaButton } from "./NuevaVisitaButton";
 import { CerrarNcButton } from "./CerrarNcButton";
+import { CrearHallazgoButton } from "../hallazgos/CrearHallazgoButton";
+import { codigoHallazgo } from "@/lib/hallazgos/codigo";
+import { ETIQUETA_MOTIVO_VISITA, type MotivoVisita } from "@/lib/bpm/visita";
+import {
+  ETIQUETA_ESTADO_HALLAZGO,
+  ETIQUETA_GRAVEDAD,
+  type EstadoHallazgo,
+  type GravedadHallazgo,
+} from "@/lib/hallazgos/ciclo";
 import type { UserRole } from "@/server/trpc/context";
 import { puedeOperarLocal } from "@/lib/roles";
 import {
@@ -109,7 +120,20 @@ export default async function VisitasPage() {
                       Visita {visita.tipo === "programada" ? "Programada" : "Sorpresa"}
                     </span>
                   </div>
-                  <p className="text-xs text-[#5B6980]">{formatDate(visita.fecha)}</p>
+                  <p className="text-xs text-[#5B6980]">
+                    {formatDate(visita.fecha)}
+                    {visita.motivo
+                      ? ` · ${ETIQUETA_MOTIVO_VISITA[visita.motivo as MotivoVisita] ?? visita.motivo}`
+                      : ""}
+                  </p>
+                  {visita.hallazgo_origen && (
+                    <p className="text-xs text-[#5B6980] mt-1">
+                      Por hallazgo{" "}
+                      <Link href={`/hallazgos/${visita.hallazgo_origen.id}`} className="font-mono underline">
+                        {codigoHallazgo(visita.hallazgo_origen.id)}
+                      </Link>
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {hasMayores && (
@@ -195,6 +219,48 @@ export default async function VisitasPage() {
                   </div>
                 </div>
               )}
+
+              <div className="mt-4 pt-4 border-t border-[#DDE3EA] space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-medium text-[#5B6980]">
+                    Hallazgos de esta visita
+                    {visita.hallazgos_v2.length > 0 ? ` (${visita.hallazgos_v2.length})` : ""}
+                  </p>
+                  {esStaffNucleo(userRole) && (
+                    <CrearHallazgoButton
+                      visitaId={visita.id}
+                      etiqueta="Registrar hallazgo"
+                      variante="secundario"
+                    />
+                  )}
+                </div>
+                {visita.hallazgos_v2.length === 0 ? (
+                  <p className="text-xs text-[#5B6980]">
+                    Si viste algo que no está en la pauta, regístralo aquí con fotos.
+                  </p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {visita.hallazgos_v2.map((item) => (
+                      <li key={item.id}>
+                        <Link
+                          href={`/hallazgos/${item.id}`}
+                          className="flex items-start justify-between gap-3 rounded-lg border border-[#DDE3EA] px-3 py-2 hover:bg-[#F4F6F3]"
+                        >
+                          <span>
+                            <span className="font-mono text-[11px] text-[#5B6980]">{codigoHallazgo(item.id)}</span>
+                            <span className="block text-sm text-[#0B1B33]">{item.descripcion}</span>
+                          </span>
+                          <span className="text-[11px] text-[#5B6980] shrink-0 text-right">
+                            {ETIQUETA_GRAVEDAD[item.gravedad as GravedadHallazgo] ?? item.gravedad}
+                            <br />
+                            {ETIQUETA_ESTADO_HALLAZGO[item.estado as EstadoHallazgo] ?? item.estado}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           );
         })}

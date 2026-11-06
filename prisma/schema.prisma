@@ -225,21 +225,25 @@ model Documento {
 }
 
 model Visita {
-  id         String   @id @default(uuid())
-  tenant_id  String
-  asesor_id  String
-  tipo       String   // 'programada' | 'sorpresa'
-  estado     String   @default("realizada") // 'agendada' | 'realizada' | 'cancelada'
-  fecha      DateTime
-  hallazgos  String?
-  evaluacion Json?
-  created_at DateTime @default(now())
+  id                 String   @id @default(uuid())
+  tenant_id          String
+  asesor_id          String
+  tipo               String   // 'programada' | 'sorpresa'
+  estado             String   @default("realizada") // 'agendada' | 'realizada' | 'cancelada'
+  fecha              DateTime
+  motivo             String   @default("rutina") // 'rutina' | 'hallazgo' | 'seguimiento'
+  hallazgo_origen_id String?
+  hallazgos          String?
+  evaluacion         Json?
+  created_at         DateTime @default(now())
 
   no_conformidades NoConformidad[]
-  hallazgos_v2     Hallazgo[]
+  hallazgos_v2     Hallazgo[]      @relation("HallazgoDeVisita")
+  hallazgo_origen  Hallazgo?       @relation("VisitaPorHallazgo", fields: [hallazgo_origen_id], references: [id], onDelete: SetNull)
   tenant           Tenant          @relation(fields: [tenant_id], references: [id])
 
   @@index([tenant_id])
+  @@index([hallazgo_origen_id])
 }
 
 model Hallazgo {
@@ -269,10 +273,11 @@ model Hallazgo {
   created_at            DateTime  @default(now())
   updated_at            DateTime  @updatedAt
 
-  tenant    Tenant           @relation(fields: [tenant_id], references: [id])
-  visita    Visita?          @relation(fields: [visita_id], references: [id])
-  proveedor Proveedor?       @relation(fields: [proveedor_id], references: [id])
-  eventos   HallazgoEvento[]
+  tenant             Tenant           @relation(fields: [tenant_id], references: [id])
+  visita             Visita?          @relation("HallazgoDeVisita", fields: [visita_id], references: [id])
+  visitas_por_origen Visita[]         @relation("VisitaPorHallazgo")
+  proveedor          Proveedor?       @relation(fields: [proveedor_id], references: [id])
+  eventos            HallazgoEvento[]
 
   @@index([tenant_id, estado])
   @@index([tenant_id, gravedad])
@@ -397,6 +402,7 @@ model Ticket {
   categoria   String    @default("consulta") // 'consulta' | 'incidencia' | 'documentos' | 'visita' | 'otro'
   estado      String    @default("abierta") // 'abierta' | 'en_atencion' | 'resuelta'
   prioridad   String    @default("normal") // 'normal' | 'urgente'
+  adjuntos    String[]  @default([])
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
   resuelto_at DateTime?
@@ -420,6 +426,7 @@ model Mensaje {
   para        String   @db.Uuid // user_id
   contenido   String
   adjunto_url String?
+  adjuntos    String[] @default([])
   leido       Boolean  @default(false)
   created_at  DateTime @default(now())
 

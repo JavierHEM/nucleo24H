@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { Dialogo } from "@/components/ui/Dialogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { TIPOS_VISITA } from "@/lib/bpm/visita";
+import { TIPOS_VISITA, type MotivoVisita } from "@/lib/bpm/visita";
+import { CampoMotivoVisita } from "../visitas/CampoMotivoVisita";
 
 const hoy = () => new Date().toISOString().slice(0, 10);
 
@@ -14,21 +15,39 @@ export function AgendarVisitaDialogo({
   abierto,
   tenantId,
   onCerrar,
+  hallazgoInicial,
+  fechaInicial,
 }: {
   abierto: boolean;
   tenantId: string;
   onCerrar: () => void;
+  hallazgoInicial?: { id: string; descripcion: string };
+  fechaInicial?: string;
 }) {
   const [tipo, setTipo] = useState<(typeof TIPOS_VISITA)[number]>("programada");
-  const [fecha, setFecha] = useState(hoy);
+  const [fecha, setFecha] = useState(fechaInicial ?? hoy);
+  const [motivo, setMotivo] = useState<MotivoVisita>(hallazgoInicial ? "hallazgo" : "rutina");
+  const [hallazgoId, setHallazgoId] = useState(hallazgoInicial?.id ?? "");
+  const [codigo, setCodigo] = useState("");
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
   const utils = trpc.useUtils();
 
+  useEffect(() => {
+    if (abierto) setFecha(fechaInicial ?? hoy());
+  }, [abierto, fechaInicial]);
+
   const agendar = trpc.visitas.agendar.useMutation({
     onSuccess: async () => {
-      await Promise.all([utils.calendario.eventos.invalidate(), utils.plan.resumen.invalidate()]);
+      await Promise.all([
+        utils.calendario.eventos.invalidate(),
+        utils.plan.resumen.invalidate(),
+        utils.hallazgos.vinculables.invalidate(),
+      ]);
       setTipo("programada");
       setFecha(hoy());
+      setMotivo(hallazgoInicial ? "hallazgo" : "rutina");
+      setHallazgoId(hallazgoInicial?.id ?? "");
+      setCodigo("");
       onCerrar();
     },
   });
@@ -42,8 +61,19 @@ export function AgendarVisitaDialogo({
             setErrorLocal("Selecciona la fecha de la visita.");
             return;
           }
+          if (motivo === "hallazgo" && !hallazgoInicial && !hallazgoId && !codigo.trim()) {
+            setErrorLocal("Indica el hallazgo que origina esta visita.");
+            return;
+          }
           setErrorLocal(null);
-          agendar.mutate({ tenant_id: tenantId, tipo, fecha: new Date(`${fecha}T12:00:00`).toISOString() });
+          agendar.mutate({
+            tenant_id: tenantId,
+            tipo,
+            fecha: new Date(`${fecha}T12:00:00`).toISOString(),
+            motivo,
+            hallazgo_id: hallazgoInicial?.id || hallazgoId || undefined,
+            hallazgo_codigo: codigo.trim() || undefined,
+          });
         }}
         className="space-y-4"
       >
@@ -72,6 +102,16 @@ export function AgendarVisitaDialogo({
               : "El local verá esta visita en su calendario."}
           </p>
         </fieldset>
+
+        <CampoMotivoVisita
+          motivo={motivo}
+          onMotivo={setMotivo}
+          hallazgoId={hallazgoId}
+          onHallazgoId={setHallazgoId}
+          codigo={codigo}
+          onCodigo={setCodigo}
+          hallazgoFijo={hallazgoInicial}
+        />
 
         <div>
           <Label htmlFor="agenda-fecha">Fecha</Label>

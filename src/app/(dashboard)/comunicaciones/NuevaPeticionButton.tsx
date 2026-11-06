@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import { IconPlus } from "@tabler/icons-react";
 import { trpc } from "@/lib/trpc/client";
 import { Dialogo } from "@/components/ui/Dialogo";
+import { ArchivosAdjuntos, type ArchivoSubido } from "@/components/ui/ArchivosAdjuntos";
+import { CasillaDeclaracion } from "@/components/declaraciones/CasillaDeclaracion";
 import {
   ETIQUETA_CATEGORIA,
   TICKET_CATEGORIAS,
   type TicketCategoria,
 } from "@/lib/comunicaciones/tickets";
 import { esConsultaProfesional } from "@/lib/comunicaciones/cupos";
+import { MAX_ADJUNTOS_PETICION } from "@/lib/comunicaciones/adjuntos";
 
 export function NuevaPeticionButton() {
   const [abierto, setAbierto] = useState(false);
@@ -18,6 +21,8 @@ export function NuevaPeticionButton() {
   const [categoria, setCategoria] = useState<TicketCategoria>("consulta");
   const [urgente, setUrgente] = useState(false);
   const [mensaje, setMensaje] = useState("");
+  const [archivos, setArchivos] = useState<ArchivoSubido[]>([]);
+  const [aceptaB, setAceptaB] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
   const utils = trpc.useUtils();
@@ -30,6 +35,8 @@ export function NuevaPeticionButton() {
       setCategoria("consulta");
       setUrgente(false);
       setMensaje("");
+      setArchivos([]);
+      setAceptaB(false);
       void utils.comunicaciones.listTickets.invalidate();
       void utils.comunicaciones.resumen.invalidate();
       void utils.comunicaciones.cupo.invalidate();
@@ -46,6 +53,8 @@ export function NuevaPeticionButton() {
       categoria,
       prioridad: urgente ? "urgente" : "normal",
       mensaje,
+      adjuntos: archivos.map((archivo) => archivo.ruta),
+      ...(archivos.length > 0 ? { acepta_declaracion_b: true } : {}),
     });
   }
 
@@ -63,7 +72,7 @@ export function NuevaPeticionButton() {
         Nueva petición
       </button>
 
-      <Dialogo abierto={abierto} titulo="Nueva petición" onCerrar={() => setAbierto(false)}>
+      <Dialogo abierto={abierto} titulo="Nueva petición" onCerrar={() => setAbierto(false)} ancho="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="ticket-asunto" className="text-sm font-medium text-[#0B1B33] block mb-1.5">
@@ -132,11 +141,27 @@ export function NuevaPeticionButton() {
             />
           </div>
 
+          <div>
+            <p className="text-sm font-medium text-[#0B1B33] mb-1.5">Evidencia (opcional)</p>
+            <ArchivosAdjuntos
+              bucket="documentos"
+              valor={archivos}
+              onCambio={setArchivos}
+              maximo={MAX_ADJUNTOS_PETICION}
+              etiqueta="Adjuntar foto o PDF"
+            />
+          </div>
+          {archivos.length > 0 && <CasillaDeclaracion tipo="B" checked={aceptaB} onChange={setAceptaB} />}
+
           {error && <p className="text-sm text-[#B42318]">{error}</p>}
 
           <button
             type="submit"
-            disabled={crear.isPending || (esConsultaProfesional(categoria) && cupo.data?.ilimitado === false && (cupo.data?.restantes ?? 0) <= 0)}
+            disabled={
+              crear.isPending ||
+              (archivos.length > 0 && !aceptaB) ||
+              (esConsultaProfesional(categoria) && cupo.data?.ilimitado === false && (cupo.data?.restantes ?? 0) <= 0)
+            }
             className="w-full min-h-12 rounded-lg bg-[#2F6B2A] text-sm font-medium text-white hover:bg-[#255620] disabled:opacity-60"
           >
             {crear.isPending ? "Enviando…" : "Enviar petición"}

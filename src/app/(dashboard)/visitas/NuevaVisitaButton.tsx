@@ -13,11 +13,13 @@ import {
   puntosDe,
   validarEvaluacion,
   type ItemEvaluacion,
+  type MotivoVisita,
   type ResultadoPauta,
   type TipoVisita,
 } from "@/lib/bpm/visita";
+import { CampoMotivoVisita } from "./CampoMotivoVisita";
 
-const OPCIONES: ResultadoPauta[] = ["cumple", "observacion", "no_cumple", "no_aplica"];
+const OPCIONES = ["cumple", "observacion", "no_cumple", "no_aplica"] as const;
 
 type Fila = {
   resultado: ResultadoPauta | "";
@@ -52,12 +54,11 @@ function aEvaluacion(filas: Record<string, Fila>): ItemEvaluacion[] {
   });
 }
 
-const ESTILO_OPCION: Record<ResultadoPauta, string> = {
-  cumple: "border-[#2F6B2A] bg-[#E5F1E3] text-[#255620]",
-  observacion: "border-[#D97706] bg-[#FEF3C7] text-[#92400E]",
-  no_cumple: "border-[#B42318] bg-red-50 text-[#991B1B]",
-  no_aplica: "border-[#94A3B8] bg-[#EEF1F4] text-[#41506A]",
-  no_revisada: "border-[#DDE3EA] bg-white text-[#334155]",
+const CLASE_NIVEL: Record<(typeof OPCIONES)[number], string> = {
+  cumple: "pauta-nivel pauta-nivel-cumple",
+  observacion: "pauta-nivel pauta-nivel-observacion",
+  no_cumple: "pauta-nivel pauta-nivel-no_cumple",
+  no_aplica: "pauta-nivel pauta-nivel-no_aplica",
 };
 
 type NuevaVisitaButtonProps = {
@@ -65,6 +66,8 @@ type NuevaVisitaButtonProps = {
   agendadaId?: string;
   tipoInicial?: TipoVisita;
   fechaInicial?: string;
+  motivoInicial?: MotivoVisita;
+  hallazgoOrigen?: { id: string; descripcion: string } | null;
   etiqueta?: string;
 };
 
@@ -73,11 +76,16 @@ export function NuevaVisitaButton({
   agendadaId,
   tipoInicial = "programada",
   fechaInicial,
+  motivoInicial = "rutina",
+  hallazgoOrigen,
   etiqueta = "Nueva visita",
 }: NuevaVisitaButtonProps) {
   const [abierto, setAbierto] = useState(false);
   const [tipo, setTipo] = useState<TipoVisita>(tipoInicial);
   const [fecha, setFecha] = useState(fechaInicial ?? hoy());
+  const [motivo, setMotivo] = useState<MotivoVisita>(motivoInicial);
+  const [hallazgoId, setHallazgoId] = useState(hallazgoOrigen?.id ?? "");
+  const [codigo, setCodigo] = useState("");
   const [hallazgos, setHallazgos] = useState("");
   const [filas, setFilas] = useState(filasVacias);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
@@ -85,7 +93,12 @@ export function NuevaVisitaButton({
 
   const registrar = trpc.visitas.registrar.useMutation({
     onSuccess: async () => {
-      await Promise.all([utils.visitas.list.invalidate(), utils.calendario.eventos.invalidate(), utils.plan.resumen.invalidate()]);
+      await Promise.all([
+        utils.visitas.list.invalidate(),
+        utils.calendario.eventos.invalidate(),
+        utils.plan.resumen.invalidate(),
+        utils.hallazgos.list.invalidate(),
+      ]);
       cerrar();
     },
   });
@@ -94,6 +107,9 @@ export function NuevaVisitaButton({
     setAbierto(false);
     setTipo(tipoInicial);
     setFecha(fechaInicial ?? hoy());
+    setMotivo(motivoInicial);
+    setHallazgoId(hallazgoOrigen?.id ?? "");
+    setCodigo("");
     setHallazgos("");
     setFilas(filasVacias());
     setErrorLocal(null);
@@ -119,6 +135,10 @@ export function NuevaVisitaButton({
       setErrorLocal(error ?? "Selecciona la fecha de la visita.");
       return;
     }
+    if (motivo === "hallazgo" && !hallazgoOrigen && !hallazgoId && !codigo.trim()) {
+      setErrorLocal("Indica el hallazgo que origina esta visita.");
+      return;
+    }
     setErrorLocal(null);
     await registrar.mutateAsync({
       tenant_id: tenantId,
@@ -127,6 +147,9 @@ export function NuevaVisitaButton({
       fecha: new Date(`${fecha}T12:00:00`).toISOString(),
       hallazgos: hallazgos.trim() || undefined,
       evaluacion,
+      motivo,
+      hallazgo_id: hallazgoOrigen?.id || hallazgoId || undefined,
+      hallazgo_codigo: codigo.trim() || undefined,
     });
   }
 
@@ -146,7 +169,7 @@ export function NuevaVisitaButton({
       {abierto && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={cerrar} />
-          <div className="relative z-10 w-full max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-4xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-[#DDE3EA] sticky top-0 bg-white z-10">
               <div>
                 <p className="font-semibold text-[#0B1B33]">Registrar visita</p>
@@ -201,6 +224,16 @@ export function NuevaVisitaButton({
                 </div>
               </div>
 
+              <CampoMotivoVisita
+                motivo={motivo}
+                onMotivo={setMotivo}
+                hallazgoId={hallazgoId}
+                onHallazgoId={setHallazgoId}
+                codigo={codigo}
+                onCodigo={setCodigo}
+                hallazgoFijo={hallazgoOrigen}
+              />
+
               {GRUPOS_PAUTA.map((grupo) => (
                 <section key={grupo.id} className="space-y-2">
                   <h2 className="font-mono text-[11px] tracking-wide text-[#5B6980]">{grupo.titulo}</h2>
@@ -217,23 +250,18 @@ export function NuevaVisitaButton({
                           )}
                           <p className="text-xs text-[#5B6980] mt-1">{punto.mirar}</p>
                         </div>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {OPCIONES.map((opcion) => {
-                            const activo = fila.resultado === opcion;
-                            return (
-                              <button
-                                key={opcion}
-                                type="button"
-                                aria-pressed={activo}
-                                onClick={() => marcar(punto.id, opcion)}
-                                className={`min-h-10 rounded-lg border text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] ${
-                                  activo ? ESTILO_OPCION[opcion] : "border-[#DDE3EA] bg-white text-[#334155]"
-                                }`}
-                              >
-                                {ETIQUETA_RESULTADO[opcion]}
-                              </button>
-                            );
-                          })}
+                        <div className="pauta-niveles">
+                          {OPCIONES.map((opcion) => (
+                            <button
+                              key={opcion}
+                              type="button"
+                              aria-pressed={fila.resultado === opcion}
+                              onClick={() => marcar(punto.id, opcion)}
+                              className={CLASE_NIVEL[opcion]}
+                            >
+                              {ETIQUETA_RESULTADO[opcion]}
+                            </button>
+                          ))}
                         </div>
                         {exigeDetalle && (
                           <div className="space-y-2">

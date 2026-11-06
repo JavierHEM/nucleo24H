@@ -16,24 +16,32 @@ const AYUDA_GRAVEDAD: Record<GravedadHallazgo, string> = {
 const CAMPO =
   "w-full min-h-12 rounded-xl border border-[#DDE3EA] bg-white px-3 text-base sm:text-sm text-[#0B1B33] focus:outline-none focus:ring-2 focus:ring-[#2F6B2A]/40";
 
-export function CrearHallazgoButton() {
+export function CrearHallazgoButton({
+  visitaId,
+  etiqueta = "Registrar hallazgo",
+  variante = "principal",
+}: {
+  visitaId?: string;
+  etiqueta?: string;
+  variante?: "principal" | "secundario";
+}) {
   const [abierto, setAbierto] = useState(false);
+  const clase =
+    variante === "secundario"
+      ? "min-h-10 px-3 rounded-lg border border-[#16294A] text-[#16294A] text-sm font-medium shrink-0"
+      : "min-h-12 px-4 rounded-lg bg-[#2F6B2A] text-white text-sm font-medium shrink-0";
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setAbierto(true)}
-        className="min-h-12 px-4 rounded-lg bg-[#2F6B2A] text-white text-sm font-medium shrink-0"
-      >
-        Registrar hallazgo
+      <button type="button" onClick={() => setAbierto(true)} className={clase}>
+        {etiqueta}
       </button>
-      {abierto && <RegistrarHallazgoSheet onCerrar={() => setAbierto(false)} />}
+      {abierto && <RegistrarHallazgoSheet visitaId={visitaId} onCerrar={() => setAbierto(false)} />}
     </>
   );
 }
 
-function RegistrarHallazgoSheet({ onCerrar }: { onCerrar: () => void }) {
+function RegistrarHallazgoSheet({ visitaId, onCerrar }: { visitaId?: string; onCerrar: () => void }) {
   const tituloId = useId();
   const panel = useRef<HTMLDivElement>(null);
   const cerrarRef = useRef(onCerrar);
@@ -47,8 +55,10 @@ function RegistrarHallazgoSheet({ onCerrar }: { onCerrar: () => void }) {
   const [gravedad, setGravedad] = useState<GravedadHallazgo>("mayor");
   const router = useRouter();
   const proveedores = trpc.proveedores.list.useQuery();
+  const utils = trpc.useUtils();
   const crear = trpc.hallazgos.crear.useMutation({
-    onSuccess: (hallazgo) => {
+    onSuccess: async (hallazgo) => {
+      await Promise.all([utils.hallazgos.list.invalidate(), utils.visitas.list.invalidate()]);
       onCerrar();
       router.push(`/hallazgos/${hallazgo.id}`);
       router.refresh();
@@ -74,6 +84,7 @@ function RegistrarHallazgoSheet({ onCerrar }: { onCerrar: () => void }) {
   function onSubmit(evento: FormEvent) {
     evento.preventDefault();
     crear.mutate({
+      visita_id: visitaId,
       descripcion,
       gravedad,
       fundamento: fundamento || undefined,
@@ -101,10 +112,12 @@ function RegistrarHallazgoSheet({ onCerrar }: { onCerrar: () => void }) {
         <div className="flex items-start justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-[#DDE3EA] shrink-0">
           <div className="min-w-0">
             <h2 id={tituloId} className="text-lg sm:text-xl font-bold text-[#0B1B33]">
-              Registrar hallazgo
+              {visitaId ? "Hallazgo de esta visita" : "Registrar hallazgo"}
             </h2>
             <p className="text-sm text-[#5B6980] mt-0.5">
-              Describe lo observado, adjunta fotos y define gravedad y plazo.
+              {visitaId
+                ? "Queda vinculado a la visita. Describe lo observado y sube las fotos."
+                : "Describe lo observado, adjunta fotos y define gravedad y plazo."}
             </p>
           </div>
           <button

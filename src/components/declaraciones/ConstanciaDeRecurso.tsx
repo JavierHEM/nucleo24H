@@ -10,6 +10,7 @@ const VACIO: Record<RecursoConstancia, string> = {
     "Este documento no tiene una declaración de veracidad. Los anteriores a la casilla B no la registraron.",
   hallazgo: "Este hallazgo no tiene una declaración de veracidad registrada.",
   proveedor: "Este proveedor no tiene una declaración de veracidad por los archivos adjuntos.",
+  ticket: "Esta petición no tiene una declaración de veracidad por los archivos adjuntos.",
 };
 
 export function ConstanciaDeRecurso({

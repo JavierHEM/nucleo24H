@@ -1,6 +1,6 @@
 import { DECLARACIONES, type TipoDeclaracion } from "./textos";
 
-export const RECURSOS_CONSTANCIA = ["registro", "documento", "hallazgo", "proveedor"] as const;
+export const RECURSOS_CONSTANCIA = ["registro", "documento", "hallazgo", "proveedor", "ticket"] as const;
 export type RecursoConstancia = (typeof RECURSOS_CONSTANCIA)[number];
 
 export const ETIQUETA_EVENTO_DECLARACION: Record<string, string> = {
@@ -8,6 +8,7 @@ export const ETIQUETA_EVENTO_DECLARACION: Record<string, string> = {
   cargar_planilla_papel: "Cargar planilla en papel",
   adjuntar_documento: "Adjuntar documento",
   adjuntar_documento_proveedor: "Adjuntar documento de proveedor",
+  adjuntar_evidencia_peticion: "Adjuntar evidencia a petición",
   solicitar_cierre_hallazgo: "Solicitar cierre de hallazgo",
   aceptacion_servicio: "Aceptación del servicio",
 };

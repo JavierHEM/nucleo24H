@@ -2,10 +2,18 @@ import { z } from "zod";
 import { PROTOCOLOS } from "@/lib/bpm/biblioteca";
 
 export const TIPOS_VISITA = ["programada", "sorpresa"] as const;
+export const MOTIVOS_VISITA = ["rutina", "hallazgo", "seguimiento"] as const;
 export const RESULTADOS_PAUTA = ["cumple", "observacion", "no_cumple", "no_aplica", "no_revisada"] as const;
 
 export type TipoVisita = (typeof TIPOS_VISITA)[number];
+export type MotivoVisita = (typeof MOTIVOS_VISITA)[number];
 export type ResultadoPauta = (typeof RESULTADOS_PAUTA)[number];
+
+export const ETIQUETA_MOTIVO_VISITA: Record<MotivoVisita, string> = {
+  rutina: "Visita de rutina",
+  hallazgo: "Por hallazgo reportado",
+  seguimiento: "Seguimiento",
+};
 
 export const ETIQUETA_RESULTADO: Record<ResultadoPauta, string> = {
   cumple: "Cumple",
