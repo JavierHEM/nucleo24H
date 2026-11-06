@@ -1,6 +1,7 @@
 import { type NextRequest } from "next/server";
 import { prisma } from "@/server/db/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { leerCookieTenantActivo } from "@/server/trpc/tenantCookie";
 
 export type UserRole =
   | "trabajador_local"
@@ -55,8 +56,8 @@ export async function createContext(req?: NextRequest): Promise<TRPCContext> {
     };
   }
 
-  // 1. Leer tenant_activo desde cookie de sesión (para multi-local)
-  const tenantActivoCookie = req?.cookies.get("tenant_activo")?.value;
+  // 1. Cookie de sesión: del Request en /api/trpc, o de cookies() en RSC (getCaller).
+  const tenantActivoCookie = await leerCookieTenantActivo(req);
 
   // 2. Intentar desde app_metadata del JWT (rápido, no requiere DB)
   const metaTenants = user.app_metadata?.tenants as string[] | undefined;

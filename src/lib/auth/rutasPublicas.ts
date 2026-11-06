@@ -5,6 +5,8 @@ export const PUBLIC_PREFIXES = [
   "/onboarding",
   "/cuenta/nueva-clave",
   "/politica-de-privacidad",
+  "/icon",
+  "/apple-icon",
   "/api/auth",
   "/api/trpc",
   "/api/cron",

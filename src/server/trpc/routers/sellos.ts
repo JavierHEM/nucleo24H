@@ -33,6 +33,14 @@ export const sellosRouter = router({
       });
     }),
 
+  /** Último sello emitido. El del mes en curso se calcula al cierre. */
+  getVigente: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.sello.findFirst({
+      where: { tenant_id: ctx.tenantActivo!, estado: "emitido" },
+      orderBy: { periodo: "desc" },
+    });
+  }),
+
   getHistorial: protectedProcedure
     .input(z.object({ limit: z.number().min(1).max(24).default(12) }))
     .query(async ({ ctx, input }) => {

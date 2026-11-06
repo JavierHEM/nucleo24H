@@ -55,7 +55,6 @@ export default async function DashboardLayout({
       : locales[0]?.id ?? null;
 
   const infoPlan = tenantActivo ? await planDeLocal(prisma, tenantActivo) : null;
-  const localNombre = locales.find((local) => local.id === tenantActivo)?.nombre;
   let plan: PlanLocal | null = null;
   if (tenantActivo && userRole === "admin_local") {
     const suscripcion = await prisma.suscripcion.findUnique({
@@ -81,9 +80,6 @@ export default async function DashboardLayout({
       <div className="print:hidden contents">
         <Sidebar
           userRole={userRole}
-          locales={locales}
-          tenantActivo={tenantActivo ?? undefined}
-          localNombre={localNombre}
           plan={plan}
           planId={infoPlan?.plan}
         />

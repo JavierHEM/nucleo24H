@@ -28,6 +28,7 @@ export function EmitirSelloButton({ tenantId, puedeAprobar = false }: Props) {
 
   function refrescar() {
     void utils.sellos.getActual.invalidate();
+    void utils.sellos.getVigente.invalidate();
     void utils.sellos.getHistorial.invalidate();
     void utils.sellos.listPropuestos.invalidate();
     router.refresh();

@@ -6,7 +6,8 @@ import { SelloWidget } from "@/components/dashboard/SelloWidget";
 import { SELLO_CONFIG, type NivelSello } from "@/components/sellos/SelloBadge";
 import { SolicitarRevisionButton } from "./SolicitarRevisionButton";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
-import { getCurrentPeriodo } from "@/lib/utils";
+import { formatPeriodo, getCurrentPeriodo } from "@/lib/utils";
+import { selloEsDelPeriodoEnCurso } from "@/lib/sellos/vigente";
 import { cn } from "@/lib/utils";
 import { COMPONENTES_SEGUIMIENTO, COMPONENTES_VISITA } from "@/lib/sellos/v2";
 import { LEYENDA_ALCANCE_SELLO } from "@/lib/declaraciones/textos";
@@ -17,7 +18,8 @@ interface Props {
 
 export function SelloActual({ userRole }: Props) {
   const periodo = getCurrentPeriodo();
-  const { data: sello, isLoading } = trpc.sellos.getActual.useQuery({ periodo });
+  const { data: vigente, isLoading } = trpc.sellos.getVigente.useQuery();
+  const { data: delMes } = trpc.sellos.getActual.useQuery({ periodo });
 
   if (isLoading) {
     return (
@@ -28,7 +30,10 @@ export function SelloActual({ userRole }: Props) {
     );
   }
 
-  if (!sello || (sello.esquema === "v2" && sello.estado !== "emitido")) {
+  const propuestaPendiente = delMes?.estado === "propuesto";
+  const sello = vigente;
+
+  if (!sello) {
     return (
       <div className="rounded-xl border-2 border-dashed border-[#DDE3EA] bg-white p-10 text-center flex flex-col items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-[#E5F1E3] flex items-center justify-center">
@@ -36,12 +41,12 @@ export function SelloActual({ userRole }: Props) {
         </div>
         <div>
           <p className="font-semibold text-[#0B1B33]">
-            {sello?.estado === "propuesto" ? "Propuesta en revisión" : `Sin sello para ${periodo}`}
+            {propuestaPendiente ? "Propuesta en revisión" : "Aún no hay un sello emitido"}
           </p>
           <p className="text-sm text-[#5B6980] mt-1">
-            {sello?.estado === "propuesto"
+            {propuestaPendiente
               ? "El asesor ya propuso el sello. Falta la aprobación de la socia."
-              : "Tu asesor propondrá el sello al cierre del mes."}
+              : "Se calcula y entrega al cierre de cada mes."}
           </p>
         </div>
       </div>
@@ -76,9 +81,14 @@ export function SelloActual({ userRole }: Props) {
 
   return (
     <div className="space-y-4">
+      {propuestaPendiente && (
+        <p className="rounded-xl border border-[#F8E8C4] bg-[#FCF0D0] px-4 py-3 text-sm text-[#7A5000]">
+          Hay una propuesta de {formatPeriodo(periodo)} en revisión. Mientras tanto se muestra el último sello emitido.
+        </p>
+      )}
       <ScoreCards
         items={[
-          { label: "Nivel", value: config.label, hint: periodo, tone: nivel === "oro" || nivel === "plata" || nivel === "avanzado" || nivel === "premium" ? "ok" : "alerta" },
+          { label: "Nivel", value: config.label, hint: formatPeriodo(sello.periodo), tone: nivel === "oro" || nivel === "plata" || nivel === "avanzado" || nivel === "premium" ? "ok" : "alerta" },
           { label: "Puntaje", value: Math.round(sello.score_general), hint: "De 100", tone: sello.score_general >= 70 ? "ok" : "alerta" },
           { label: "Seguimiento", value: esV2 ? Math.round(sello.score_seguimiento) : "—", hint: "60 pts", tone: "neutral" },
           { label: "Visita", value: esV2 ? Math.round(sello.score_visita) : "—", hint: "40 pts", tone: "neutral" },
@@ -89,6 +99,11 @@ export function SelloActual({ userRole }: Props) {
         score={sello.score_general}
         periodo={sello.periodo}
         planMejoras={planMejoras}
+        nota={
+          selloEsDelPeriodoEnCurso(sello.periodo, periodo)
+            ? undefined
+            : `Último sello emitido. El de ${formatPeriodo(periodo)} se calcula al cierre del mes.`
+        }
       />
       <p className="text-xs text-[#5B6980]">{LEYENDA_ALCANCE_SELLO}</p>
 

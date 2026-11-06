@@ -56,6 +56,12 @@ describe("isPublic – rutas públicas (sin autenticación)", () => {
     expect(isPublic("/cuenta/nueva-clave")).toBe(true);
     expect(isPublic("/cuenta/nueva-clave/confirm")).toBe(true);
   });
+
+  it("/icon y /apple-icon son públicos (pestaña del navegador)", () => {
+    expect(isPublic("/icon")).toBe(true);
+    expect(isPublic("/apple-icon")).toBe(true);
+    expect(isPublic("/icono")).toBe(false);
+  });
 });
 
 describe("isPublic – rutas protegidas (requieren autenticación)", () => {

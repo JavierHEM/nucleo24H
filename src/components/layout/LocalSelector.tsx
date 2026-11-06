@@ -19,10 +19,10 @@ interface LocalSelectorProps {
   locales: LocalSelectorItem[];
   tenantActivo?: string;
   isAdmin?: boolean;
-  tone?: "light" | "dark";
+  align?: "left" | "right";
 }
 
-export function LocalSelector({ locales, tenantActivo, isAdmin = false, tone = "light" }: LocalSelectorProps) {
+export function LocalSelector({ locales, tenantActivo, isAdmin = false, align = "left" }: LocalSelectorProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [pendiente, setPendiente] = useState(false);
@@ -102,25 +102,14 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false, tone = "
         disabled={pendiente}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className={`flex items-center gap-2 border text-sm font-bold disabled:opacity-50 ${
-          tone === "dark"
-            ? "w-full min-h-14 justify-between px-3.5 rounded-xl bg-[#16294A] border-[#2A4068] text-white"
-            : "px-3 py-1.5 rounded-lg bg-white border-[#DDE3EA] text-[#0B1B33] hover:bg-[#F4F6F3]"
-        }`}
+        aria-label={`Local activo: ${localActivo?.nombre ?? (isAdmin ? "Seleccionar local" : "Mis locales")}`}
+        title={localActivo?.nombre}
+        className="flex items-center gap-2 h-12 min-w-0 max-w-[11rem] sm:max-w-[16rem] px-3 rounded-[10px] bg-white border border-[#DDE3EA] text-sm font-bold text-[#0B1B33] hover:bg-[#F4F6F3] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
       >
-        {tone === "dark" ? (
-          <span className="flex flex-col items-start gap-0.5 min-w-0">
-            <span className="text-xs font-semibold text-[#9FB0CC]">Local activo</span>
-            <span className="truncate">{localActivo?.nombre ?? "Seleccionar local"}</span>
-          </span>
-        ) : (
-          <>
-            <IconBuildingStore size={15} className="text-[#2F6B2A]" />
-            <span className="max-w-[160px] truncate">
-              {localActivo?.nombre ?? (isAdmin ? "Seleccionar local" : "Mis locales")}
-            </span>
-          </>
-        )}
+        <IconBuildingStore size={18} className="text-[#2F6B2A] shrink-0" />
+        <span className="min-w-0 truncate">
+          {localActivo?.nombre ?? (isAdmin ? "Seleccionar local" : "Mis locales")}
+        </span>
         {pendiente ? (
           <IconLoader2 size={14} className="animate-spin text-[#5B6980] shrink-0" />
         ) : (
@@ -132,7 +121,11 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false, tone = "
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 sm:right-auto top-full mt-1 z-50 bg-white border border-[#DDE3EA] rounded-xl shadow-lg w-[min(100vw-2rem,22rem)] py-2">
+        <div
+          className={`absolute top-full mt-1 z-50 bg-white border border-[#DDE3EA] rounded-xl shadow-lg w-[min(calc(100vw-2rem),22rem)] py-2 ${
+            align === "right" ? "right-0" : "left-0"
+          }`}
+        >
           <p className="px-3 pb-2 text-[11px] text-[#5B6980] uppercase tracking-wide font-medium">
             {isAdmin ? "Locales por empresa" : "Tus locales"}
           </p>

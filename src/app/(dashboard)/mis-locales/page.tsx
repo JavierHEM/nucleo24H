@@ -3,7 +3,6 @@ import { prisma } from "@/server/db/prisma";
 import { redirect } from "next/navigation";
 import { SelloBadge, type NivelSello } from "@/components/sellos/SelloBadge";
 import { IconBuildingStore, IconMedal } from "@tabler/icons-react";
-import { getCurrentPeriodo } from "@/lib/utils";
 import { SwitchLocalButton } from "./SwitchLocalButton";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
 
@@ -18,7 +17,8 @@ export default async function MisLocalesPage() {
       tenant: {
         include: {
           sellos: {
-            where: { periodo: getCurrentPeriodo() },
+            where: { estado: "emitido" },
+            orderBy: { periodo: "desc" },
             take: 1,
           },
           _count: { select: { registros: true, documentos: true } },
@@ -39,16 +39,16 @@ export default async function MisLocalesPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33]">Mis Locales</h1>
         <p className="text-sm text-[#5B6980] mt-1">
-          Resumen de todos tus locales — {getCurrentPeriodo()}
+          Resumen de todos tus locales. El sello vigente es el último emitido.
         </p>
       </div>
 
       <ScoreCards
         items={[
           { label: "Locales", value: userTenants.length, hint: "A tu cargo", tone: "neutral" },
-          { label: "Con sello", value: conSello, hint: "Del período", tone: conSello === userTenants.length ? "ok" : "alerta" },
+          { label: "Con sello", value: conSello, hint: "Último emitido", tone: conSello === userTenants.length ? "ok" : "alerta" },
           { label: "Sin sello", value: userTenants.length - conSello, hint: "Aún no emitido", tone: userTenants.length - conSello > 0 ? "alerta" : "ok" },
-          { label: "Promedio", value: promedio === null ? "—" : promedio, hint: "Puntaje del mes", tone: promedio !== null && promedio >= 75 ? "ok" : "neutral" },
+          { label: "Promedio", value: promedio === null ? "—" : promedio, hint: "Puntaje vigente", tone: promedio !== null && promedio >= 75 ? "ok" : "neutral" },
         ]}
       />
 

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
 import { formatCLP } from "@/lib/utils";
-import { LocalSelector } from "./LocalSelector";
 import {
   IconLayoutDashboard,
   IconThermometer,
@@ -35,7 +34,6 @@ import {
 import type { UserRole } from "@/server/trpc/context";
 import { PlanBadge } from "@/components/plan/PlanBadge";
 import { planIncluye, type ModuloPlan, type PlanId } from "@/lib/planes";
-import type { LocalSelectorItem } from "@/lib/locales/selector";
 import type { ComponentType } from "react";
 
 interface NavItem {
@@ -181,14 +179,9 @@ export interface PlanLocal {
   diaCobro: number;
 }
 
-type Local = LocalSelectorItem;
-
 interface SidebarProps {
   userRole: UserRole | null;
   mode?: "dashboard" | "admin" | "asesor";
-  locales?: Local[];
-  tenantActivo?: string;
-  localNombre?: string;
   plan?: PlanLocal | null;
   planId?: PlanId;
 }
@@ -200,7 +193,7 @@ const ESTADO_PLAN: Record<string, { label: string; className: string }> = {
   cancelada: { label: "Cancelada", className: "bg-[#DDE3EA] text-[#41506A]" },
 };
 
-export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActivo, localNombre, plan, planId }: SidebarProps) {
+export function Sidebar({ userRole, mode = "dashboard", plan, planId }: SidebarProps) {
   const pathname = usePathname();
   const catalogo = mode === "admin" ? GRUPOS_ADMIN : mode === "asesor" ? GRUPOS_ASESOR : GRUPOS_LOCAL;
   const grupos = catalogo
@@ -219,19 +212,8 @@ export function Sidebar({ userRole, mode = "dashboard", locales = [], tenantActi
           <BrandLogo variant="negativo" className="w-44" priority />
         </Link>
 
-        {mode === "dashboard" && (locales.length > 1 || localNombre) && (
-          locales.length > 1 ? (
-            <LocalSelector locales={locales} tenantActivo={tenantActivo} isAdmin={userRole === "admin_nucleo"} tone="dark" />
-          ) : (
-            <div className="flex flex-col gap-0.5 min-h-14 justify-center px-3.5 rounded-xl bg-[#16294A] border border-[#2A4068]">
-              <span className="text-xs font-semibold text-[#9FB0CC]">Local activo</span>
-              <span className="text-sm font-bold truncate">{localNombre}</span>
-            </div>
-          )
-        )}
-
         {mode === "dashboard" && planId && (
-          <div className="px-1.5 -mt-3">
+          <div className="px-1.5">
             <PlanBadge plan={planId} tone="dark" />
           </div>
         )}

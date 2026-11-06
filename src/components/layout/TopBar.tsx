@@ -36,9 +36,12 @@ export function TopBar({ userName, locales = [], tenantActivo, userRole }: TopBa
 
       <div className="flex items-center gap-2 shrink-0">
         {locales.length > 0 && (userRole === "admin_nucleo" || locales.length > 1) && (
-          <div className="md:hidden">
-            <LocalSelector locales={locales} tenantActivo={tenantActivo} isAdmin={userRole === "admin_nucleo"} />
-          </div>
+          <LocalSelector
+            locales={locales}
+            tenantActivo={tenantActivo}
+            isAdmin={userRole === "admin_nucleo"}
+            align="right"
+          />
         )}
 
         <NotificationBell />

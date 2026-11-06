@@ -33,14 +33,11 @@ export default async function SellosPage() {
   const canEmitir = userRole === "asesor" || userRole === "admin_nucleo";
   const appUrl = getAppUrl();
 
-  // Obtener el id del sello actual para el link de certificado público
-  const periodo = getCurrentPeriodo();
-  const selloActualDb = tenantActivo
-    ? await prisma.sello.findUnique({
-        where: {
-          tenant_id_periodo: { tenant_id: tenantActivo, periodo },
-        },
-        select: { id: true, estado: true },
+  const selloVigenteDb = tenantActivo
+    ? await prisma.sello.findFirst({
+        where: { tenant_id: tenantActivo, estado: "emitido" },
+        orderBy: { periodo: "desc" },
+        select: { id: true, periodo: true },
       })
     : null;
 
@@ -53,13 +50,13 @@ export default async function SellosPage() {
             Sello de Cumplimiento
           </h1>
           <p className="text-sm text-[#5B6980] mt-1">
-            Seguimiento del nivel de cumplimiento BPM
+            Se muestra el último sello emitido. El del mes en curso se calcula al cierre.
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          {selloActualDb?.estado === "emitido" && (
+          {selloVigenteDb && (
             <Link
-              href={`${appUrl}/sello/${selloActualDb.id}`}
+              href={`${appUrl}/sello/${selloVigenteDb.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-[#5B6980] hover:text-[#0B1B33] border border-[#DDE3EA] rounded-lg px-3 py-1.5 hover:bg-[#F4F6F3] transition-colors"
@@ -69,8 +66,8 @@ export default async function SellosPage() {
           )}
           {tenantActivo && (
             <>
-              <DescargarInformeButton periodo={getCurrentPeriodo()} />
-              <DescargarPdfButton tenantId={tenantActivo} periodo={getCurrentPeriodo()} />
+              <DescargarInformeButton periodo={selloVigenteDb?.periodo ?? getCurrentPeriodo()} />
+              <DescargarPdfButton tenantId={tenantActivo} periodo={selloVigenteDb?.periodo ?? getCurrentPeriodo()} />
             </>
           )}
           {canEmitir && tenantActivo && (

@@ -12,7 +12,8 @@ import { HistorialSello } from "@/components/dashboard/HistorialSello";
 import { PlanBadge } from "@/components/plan/PlanBadge";
 import { cargarAlertasLocal } from "@/server/dashboard/alertasLocal";
 import { DECLARACIONES_VU_ANUALES } from "@/lib/planes";
-import { getCurrentPeriodo, formatDate } from "@/lib/utils";
+import { getCurrentPeriodo, formatDate, formatPeriodo } from "@/lib/utils";
+import { selloEsDelPeriodoEnCurso } from "@/lib/sellos/vigente";
 import { DashboardChart } from "./DashboardChart";
 import {
   IconMedal,
@@ -81,8 +82,19 @@ export default async function DashboardPage() {
   const caller = await getCaller();
 
   const [selloActual, historial, registros, resumenPlan, alertasLocal] = await Promise.allSettled([
-    caller.sellos.getActual({}),
-    caller.sellos.getHistorial({ limit: 6 }),
+    tenantActivo
+      ? prisma.sello.findFirst({
+          where: { tenant_id: tenantActivo, estado: "emitido" },
+          orderBy: { periodo: "desc" },
+        })
+      : Promise.resolve(null),
+    tenantActivo
+      ? prisma.sello.findMany({
+          where: { tenant_id: tenantActivo },
+          orderBy: { periodo: "desc" },
+          take: 6,
+        })
+      : Promise.resolve([]),
     caller.registros.list({ limit: 100 }),
     caller.plan.resumen(),
     tenantActivo
@@ -170,13 +182,18 @@ export default async function DashboardPage() {
 
       <AccesosRapidos rol={userRole ?? "jefe_local"} plan={resumen?.plan} />
 
-      {sello && sello.estado === "emitido" ? (
+      {sello ? (
         <Link href="/sellos" className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A] rounded-[14px]">
           <SelloWidget
             nivel={sello.nivel as import("@/components/sellos/SelloBadge").NivelSello}
             score={sello.score_general}
             periodo={sello.periodo}
             planMejoras={(sello.plan_mejoras ?? []) as string[]}
+            nota={
+              selloEsDelPeriodoEnCurso(sello.periodo, periodoActual)
+                ? undefined
+                : `Último sello emitido. El de ${formatPeriodo(periodoActual)} se calcula al cierre del mes.`
+            }
             dimensiones={
               sello.esquema === "v2"
                 ? [
@@ -196,11 +213,9 @@ export default async function DashboardPage() {
         <div className="rounded-[14px] border border-dashed border-[#DDE3EA] bg-white p-8 text-center flex flex-col items-center justify-center gap-3">
           <IconMedal size={24} className="text-[#2F6B2A]" />
           <div>
-            <p className="font-extrabold text-[#0B1B33]">Sin sello para {periodoActual}</p>
+            <p className="font-extrabold text-[#0B1B33]">Aún no hay un sello emitido</p>
             <p className="text-sm font-medium text-[#5B6980] mt-1">
-              {userRole === "asesor" || userRole === "admin_nucleo"
-                ? "Ve a Sellos para proponerlo."
-                : "Tu asesor lo propondrá al cierre del mes."}
+              Se calcula y entrega al cierre de cada mes.
             </p>
           </div>
         </div>

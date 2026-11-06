@@ -13,6 +13,7 @@ interface SelloWidgetProps {
   planMejoras?: string[];
   descargosHabilitados?: boolean;
   dimensiones?: Dimension[];
+  nota?: string;
 }
 
 const NEXT_LEVEL: Record<NivelSello, { label: string; umbral: number } | null> = {
@@ -50,6 +51,7 @@ export function SelloWidget({
   planMejoras = [],
   descargosHabilitados = false,
   dimensiones = [],
+  nota,
 }: SelloWidgetProps) {
   const config = SELLO_CONFIG[nivel] ?? SELLO_CONFIG.sin_sello;
   const siguiente = NEXT_LEVEL[nivel];
@@ -87,6 +89,7 @@ export function SelloWidget({
               ))}
             </ul>
           )}
+          {nota && <p className="text-sm font-medium text-[#5B6980]">{nota}</p>}
         </div>
       </div>
       {dimensiones.length > 0 && (
