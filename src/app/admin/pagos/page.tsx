@@ -4,19 +4,45 @@ import { formatCLP, formatDate, formatPeriodo, getCurrentPeriodo, cn } from "@/l
 import { RegistrarPagoButton } from "./RegistrarPagoButton";
 import { ConfigurarSuscripcionButton } from "./ConfigurarSuscripcionButton";
 import { RenovarContratoButton } from "./RenovarContratoButton";
-import { estadoContrato } from "@/lib/planes";
+import { ALZA_TARIFA_DESDE, estadoContrato, precioConIva, TARIFA_NETA_DESDE_2027 } from "@/lib/planes";
 import { ETIQUETA_METODO } from "@/lib/payments/metodos";
+import { DIA_SOLO_LECTURA, DIAS_GRACIA_CORRIDO, etiquetaFaseCobranza, faseCobranza } from "@/lib/payments/mora";
+import { debitoAutorizado, mapPreapprovalStatus } from "@/lib/payments/debito";
+
+function etiquetaDebito(suscripcion: {
+  modo_cobro: string | null;
+  mp_preapproval_status: string | null;
+} | null) {
+  if (!suscripcion) return null;
+  if (debitoAutorizado({ modoCobro: suscripcion.modo_cobro, preapprovalStatus: suscripcion.mp_preapproval_status })) {
+    return "Débito automático";
+  }
+  if (mapPreapprovalStatus(suscripcion.mp_preapproval_status) === "pending") {
+    return "Débito por autorizar";
+  }
+  return null;
+}
 
 export default async function AdminPagosPage() {
   const periodo = getCurrentPeriodo();
+  const ahora = new Date();
   const caller = await getCaller();
   const locales = await caller.pagos.adminResumen({ periodo }).catch(() => []);
 
-  const pagados = locales.filter((l) => l.pagoPeriodo?.estado === "pagado").length;
-  const pendientes = locales.length - pagados;
+  const cobros = locales.map((local) =>
+    faseCobranza({
+      pagadoEstePeriodo: local.pagoPeriodo?.estado === "pagado",
+      diaCobro: local.suscripcion?.dia_cobro ?? 5,
+      ahora,
+    })
+  );
+  const pagados = cobros.filter((item) => item.fase === "pagado").length;
+  const enGracia = cobros.filter((item) => item.fase === "gracia").length;
+  const enCorte = cobros.filter((item) => item.fase === "corte").length;
   const recaudado = locales
     .filter((l) => l.pagoPeriodo?.estado === "pagado")
     .reduce((sum, l) => sum + (l.pagoPeriodo?.monto_clp ?? 0), 0);
+  const muestraAlza = ahora < ALZA_TARIFA_DESDE;
 
   return (
     <div className="space-y-6">
@@ -26,19 +52,29 @@ export default async function AdminPagosPage() {
           Pagos y Cobranza
         </h1>
         <p className="text-sm text-[#5B6980] mt-1 capitalize">
-          {formatPeriodo(periodo)} — registro de pagos por transferencia y estado de suscripciones
+          {formatPeriodo(periodo)} — transferencia, Mercado Pago y débito automático
+        </p>
+        <p className="text-xs text-[#5B6980] mt-2">
+          {DIAS_GRACIA_CORRIDO} días corridos de gracia tras el vencimiento. El día {DIA_SOLO_LECTURA} la cuenta
+          pasa a solo lectura y el sello público se oculta.
+          {muestraAlza
+            ? ` Desde marzo 2027 el Plan Calidad pasa a ${formatCLP(precioConIva(TARIFA_NETA_DESDE_2027))} al mes.`
+            : ""}
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-[#2F6B2A]">{pagados}</p>
           <p className="text-xs text-[#5B6980]">Pagados</p>
         </div>
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-[#D97706]">{pendientes}</p>
-          <p className="text-xs text-[#5B6980]">Por cobrar</p>
+          <p className={`text-2xl font-bold ${enGracia > 0 ? "text-[#D97706]" : "text-[#0B1B33]"}`}>{enGracia}</p>
+          <p className="text-xs text-[#5B6980]">En gracia</p>
+        </div>
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-4 text-center">
+          <p className={`text-2xl font-bold ${enCorte > 0 ? "text-[#B42318]" : "text-[#0B1B33]"}`}>{enCorte}</p>
+          <p className="text-xs text-[#5B6980]">Solo lectura</p>
         </div>
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-[#0B1B33]">{formatCLP(recaudado)}</p>
@@ -46,7 +82,6 @@ export default async function AdminPagosPage() {
         </div>
       </div>
 
-      {/* Tabla */}
       {locales.length === 0 ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-[#DDE3EA] p-12 text-center">
           <IconBuildingStore size={32} className="mx-auto text-[#DDE3EA] mb-3" />
@@ -66,10 +101,13 @@ export default async function AdminPagosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#DDE3EA]">
-              {locales.map((local) => {
+              {locales.map((local, indice) => {
                 const pago = local.pagoPeriodo;
                 const pagado = pago?.estado === "pagado";
                 const contrato = estadoContrato(local.suscripcion?.hasta);
+                const cobro = cobros[indice];
+                const etiquetaMora = etiquetaFaseCobranza(cobro.fase, cobro.dias);
+                const debito = etiquetaDebito(local.suscripcion);
                 return (
                   <tr key={local.id} className="hover:bg-[#F4F6F3] transition-colors">
                     <td className="px-4 py-3">
@@ -85,8 +123,10 @@ export default async function AdminPagosPage() {
                                 Suscripción {local.suscripcion.estado}
                               </p>
                             )}
-                          {local.suscripcion?.modo_cobro === "debito" && (
-                            <p className="text-xs text-[#255620]">Débito automático</p>
+                          {debito && (
+                            <p className={cn("text-xs", debito === "Débito por autorizar" ? "text-[#8A5A00]" : "text-[#255620]")}>
+                              {debito}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -139,9 +179,26 @@ export default async function AdminPagosPage() {
                           </p>
                         </div>
                       ) : (
-                        <span className="text-xs rounded-full px-2 py-0.5 font-medium bg-yellow-100 text-yellow-800">
-                          Pendiente
-                        </span>
+                        <div>
+                          <span
+                            className={cn(
+                              "text-xs rounded-full px-2 py-0.5 font-medium",
+                              cobro.fase === "corte"
+                                ? "bg-red-100 text-red-800"
+                                : cobro.fase === "gracia"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                            )}
+                          >
+                            {cobro.fase === "corte" ? "Solo lectura" : cobro.fase === "gracia" ? "En gracia" : "Pendiente"}
+                          </span>
+                          {etiquetaMora && (
+                            <p className="text-xs text-[#5B6980] mt-1">{etiquetaMora}</p>
+                          )}
+                          {local.suscripcion?.dia_cobro && cobro.fase === "vigente" && (
+                            <p className="text-xs text-[#5B6980] mt-1">Cobro el día {local.suscripcion.dia_cobro}</p>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">

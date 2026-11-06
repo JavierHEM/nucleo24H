@@ -10,11 +10,7 @@ import {
   IconMedal,
   IconUser,
   IconBuildingStore,
-  IconUserCheck,
-  IconShield,
-  IconSettings,
   IconChecklist,
-  IconChartBar,
   IconUsers,
   IconDots,
   IconMapPin,
@@ -22,7 +18,6 @@ import {
   IconMessage2,
   IconCreditCard,
   IconX,
-  IconClipboardCheck,
   IconCalendarEvent,
   IconLeaf,
   IconGavel,
@@ -82,48 +77,11 @@ const BOTTOM_ITEMS: BottomNavItem[] = [
 ];
 
 const ADMIN_BOTTOM_ITEMS: BottomNavItem[] = [
-  {
-    href: "/admin",
-    label: "Resumen",
-    icon: IconLayoutDashboard,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/locales",
-    label: "Locales",
-    icon: IconBuildingStore,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/programa",
-    label: "Programa",
-    icon: IconClipboardCheck,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/asesores",
-    label: "Asesores",
-    icon: IconUserCheck,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/arsopb",
-    label: "ARSOPB",
-    icon: IconShield,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/informes",
-    label: "Informes",
-    icon: IconChartBar,
-    roles: ["admin_nucleo"],
-  },
-  {
-    href: "/admin/configuracion",
-    label: "Config.",
-    icon: IconSettings,
-    roles: ["admin_nucleo"],
-  },
+  { href: "/admin", label: "Resumen", icon: IconLayoutDashboard, roles: ["admin_nucleo"] },
+  { href: "/admin/locales", label: "Locales", icon: IconBuildingStore, roles: ["admin_nucleo"] },
+  { href: "/calendario", label: "Agenda", icon: IconCalendarEvent, roles: ["admin_nucleo"] },
+  { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["admin_nucleo"] },
+  { href: "/admin/pagos", label: "Pagos", icon: IconCreditCard, roles: ["admin_nucleo"] },
 ];
 
 const ASESOR_BOTTOM_ITEMS: BottomNavItem[] = [

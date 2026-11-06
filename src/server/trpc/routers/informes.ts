@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/trpc/trpc";
 import { requireRole } from "@/server/middleware/rbac";
+import { ESTADOS_HALLAZGO_ABIERTOS, ESTADOS_QUE_BLOQUEAN_SELLO } from "@/lib/hallazgos/ciclo";
 
 // Los informes consultan múltiples tenants a la vez — no requieren tenantActivo
 const asesorProcedure = publicProcedure.use(requireRole("asesor", "admin_nucleo"));
@@ -9,7 +10,7 @@ const asesorProcedure = publicProcedure.use(requireRole("asesor", "admin_nucleo"
 export const informesRouter = router({
   /**
    * Devuelve todos los locales asignados al asesor autenticado con
-   * el último sello emitido, conteo de registros del mes y NCs abiertas.
+   * el último sello emitido, conteo de registros del mes y hallazgos abiertos.
    */
   resumenLocales: asesorProcedure
     .input(z.object({ periodo: z.string().regex(/^\d{4}-\d{2}$/).optional() }))
@@ -34,7 +35,7 @@ export const informesRouter = router({
 
       if (tenantIds.length === 0) return [];
 
-      const [tenants, sellos, registros, ncs] = await Promise.all([
+      const [tenants, sellos, registros, hallazgos, criticos] = await Promise.all([
         ctx.prisma.tenant.findMany({
           where: { id: { in: tenantIds } },
           select: { id: true, nombre: true, ciudad: true, plan: true, estado: true },
@@ -71,45 +72,42 @@ export const informesRouter = router({
           },
           _count: { id: true },
         }),
-        ctx.prisma.noConformidad.groupBy({
-          by: ["visita_id"],
+        ctx.prisma.hallazgo.groupBy({
+          by: ["tenant_id"],
           where: {
-            cerrada_at: null,
-            visita: { tenant_id: { in: tenantIds } },
+            tenant_id: { in: tenantIds },
+            estado: { in: [...ESTADOS_HALLAZGO_ABIERTOS] },
+          },
+          _count: { id: true },
+        }),
+        ctx.prisma.hallazgo.groupBy({
+          by: ["tenant_id"],
+          where: {
+            tenant_id: { in: tenantIds },
+            gravedad: "critico",
+            estado: { in: [...ESTADOS_QUE_BLOQUEAN_SELLO] },
           },
           _count: { id: true },
         }),
       ]);
 
-      // Para NCs necesitamos mapear visita_id → tenant_id
-      const visitaIds = ncs.map((n) => n.visita_id);
-      const visitasTenantMap =
-        visitaIds.length > 0
-          ? await ctx.prisma.visita.findMany({
-              where: { id: { in: visitaIds } },
-              select: { id: true, tenant_id: true },
-            })
-          : [];
-
-      const ncsPorTenant: Record<string, number> = {};
-      for (const nc of ncs) {
-        const visita = visitasTenantMap.find((v) => v.id === nc.visita_id);
-        if (visita) {
-          ncsPorTenant[visita.tenant_id] =
-            (ncsPorTenant[visita.tenant_id] ?? 0) + nc._count.id;
-        }
-      }
-
       const selloMap = Object.fromEntries(sellos.map((s) => [s.tenant_id, s]));
       const registrosMap = Object.fromEntries(
         registros.map((r) => [r.tenant_id, r._count.id])
+      );
+      const hallazgosMap = Object.fromEntries(
+        hallazgos.map((h) => [h.tenant_id, h._count.id])
+      );
+      const criticosMap = Object.fromEntries(
+        criticos.map((h) => [h.tenant_id, h._count.id])
       );
 
       return tenants.map((t) => ({
         tenant: t,
         sello: selloMap[t.id] ?? null,
         registros_mes: registrosMap[t.id] ?? 0,
-        ncs_abiertas: ncsPorTenant[t.id] ?? 0,
+        hallazgos_abiertos: hallazgosMap[t.id] ?? 0,
+        hallazgos_criticos: criticosMap[t.id] ?? 0,
       }));
     }),
 
@@ -167,7 +165,7 @@ export const informesRouter = router({
     }),
 
   /**
-   * Detalle de un local específico: historial de sellos + NCs + registros.
+   * Detalle de un local específico: historial de sellos + hallazgos + visitas.
    */
   detalleLocal: asesorProcedure
     .input(z.object({ tenant_id: z.string().uuid() }))
@@ -190,7 +188,7 @@ export const informesRouter = router({
         }
       }
 
-      const [tenant, sellosHistorial, visitas, tareas] = await Promise.all([
+      const [tenant, sellosHistorial, visitas, hallazgos, tareas] = await Promise.all([
         ctx.prisma.tenant.findUnique({
           where: { id: input.tenant_id },
           select: { id: true, nombre: true, ciudad: true, plan: true, estado: true, created_at: true },
@@ -201,14 +199,32 @@ export const informesRouter = router({
           take: 12,
         }),
         ctx.prisma.visita.findMany({
-          where: { tenant_id: input.tenant_id, estado: "realizada" },
+          where: { tenant_id: input.tenant_id, estado: { in: ["agendada", "realizada"] } },
           include: {
-            no_conformidades: {
-              select: { id: true, descripcion: true, severidad: true, cerrada_at: true },
+            hallazgo_origen: { select: { id: true } },
+            hallazgos_v2: {
+              select: { id: true, gravedad: true, estado: true, descripcion: true },
+              take: 8,
             },
           },
           orderBy: { fecha: "desc" },
           take: 10,
+        }),
+        ctx.prisma.hallazgo.findMany({
+          where: {
+            tenant_id: input.tenant_id,
+            estado: { in: [...ESTADOS_HALLAZGO_ABIERTOS] },
+          },
+          orderBy: [{ gravedad: "asc" }, { created_at: "desc" }],
+          take: 12,
+          select: {
+            id: true,
+            gravedad: true,
+            estado: true,
+            descripcion: true,
+            plazo: true,
+            visita_id: true,
+          },
         }),
         ctx.prisma.tarea.findMany({
           where: { tenant_id: input.tenant_id, activa: true },
@@ -216,6 +232,6 @@ export const informesRouter = router({
         }),
       ]);
 
-      return { tenant, sellosHistorial, visitas, tareas };
+      return { tenant, sellosHistorial, visitas, hallazgos, tareas };
     }),
 });

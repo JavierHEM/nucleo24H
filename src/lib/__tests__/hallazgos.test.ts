@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hallazgoBloqueaSello, transicionHallazgo } from "@/lib/hallazgos/ciclo";
+import { ESTADOS_HALLAZGO_ABIERTOS, hallazgoBloqueaSello, transicionHallazgo } from "@/lib/hallazgos/ciclo";
 import { codigoHallazgo, coincideCodigoHallazgo, hallazgoPorCodigo } from "@/lib/hallazgos/codigo";
 
 describe("hallazgoBloqueaSello", () => {
@@ -22,6 +22,14 @@ describe("transicionHallazgo", () => {
     expect(transicionHallazgo("abierto", "evidencia_en_revision", "admin_local")).toBe(false);
     expect(transicionHallazgo("abierto", "medida_inmediata", "admin_local")).toBe(true);
     expect(transicionHallazgo("abierto", "cerrado_validado", "asesor")).toBe(false);
+  });
+});
+
+describe("ESTADOS_HALLAZGO_ABIERTOS", () => {
+  it("excluye el cierre validado y deja el seguimiento en el radar", () => {
+    expect(ESTADOS_HALLAZGO_ABIERTOS).not.toContain("cerrado_validado");
+    expect(ESTADOS_HALLAZGO_ABIERTOS).toContain("seguimiento_eficacia");
+    expect(ESTADOS_HALLAZGO_ABIERTOS).toContain("pendiente_verificacion_presencial");
   });
 });
 

@@ -3,6 +3,7 @@ import { PROTOCOLOS } from "@/lib/bpm/biblioteca";
 
 export const TIPOS_VISITA = ["programada", "sorpresa"] as const;
 export const MOTIVOS_VISITA = ["rutina", "hallazgo", "seguimiento"] as const;
+export const ESTADOS_VISITA_COBERTURA = ["agendada", "realizada"] as const;
 export const RESULTADOS_PAUTA = ["cumple", "observacion", "no_cumple", "no_aplica", "no_revisada"] as const;
 
 export type TipoVisita = (typeof TIPOS_VISITA)[number];

@@ -1,5 +1,6 @@
 export const TICKET_ESTADOS = ["abierta", "en_atencion", "resuelta"] as const;
 export type TicketEstado = (typeof TICKET_ESTADOS)[number];
+export const TICKET_ESTADOS_ABIERTOS = ["abierta", "en_atencion"] as const satisfies readonly TicketEstado[];
 
 export const TICKET_CATEGORIAS = ["consulta", "incidencia", "documentos", "visita", "otro"] as const;
 export type TicketCategoria = (typeof TICKET_CATEGORIAS)[number];

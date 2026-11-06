@@ -9,6 +9,26 @@ export function diasTrasVencimiento(diaCobro: number, ahora: Date = new Date()):
   return ahora.getDate() - diaCobro;
 }
 
+export type FaseCobranza = "pagado" | "vigente" | "gracia" | "corte";
+
+export function faseCobranza(args: {
+  pagadoEstePeriodo: boolean;
+  diaCobro: number;
+  ahora?: Date;
+}): { fase: FaseCobranza; dias: number } {
+  const dias = diasTrasVencimiento(args.diaCobro, args.ahora ?? new Date());
+  if (args.pagadoEstePeriodo) return { fase: "pagado", dias };
+  if (dias >= DIA_SOLO_LECTURA) return { fase: "corte", dias };
+  if (dias >= 1) return { fase: "gracia", dias };
+  return { fase: "vigente", dias };
+}
+
+export function etiquetaFaseCobranza(fase: FaseCobranza, dias: number): string | null {
+  if (fase === "pagado" || fase === "vigente") return null;
+  if (fase === "gracia") return `Gracia: día ${dias} de ${DIAS_GRACIA_CORRIDO}`;
+  return `Solo lectura desde el día ${DIA_SOLO_LECTURA}`;
+}
+
 export function estadoTrasImpago(args: {
   estadoActual: EstadoSuscripcionMora;
   diaCobro: number;

@@ -3,6 +3,8 @@ import {
   DIA_SOLO_LECTURA,
   DIAS_GRACIA_CORRIDO,
   estadoTrasImpago,
+  etiquetaFaseCobranza,
+  faseCobranza,
   selloPublicoVisible,
   suscripcionEscribible,
 } from "@/lib/payments/mora";
@@ -58,6 +60,37 @@ describe("suscripcionEscribible", () => {
         ahora: new Date(2026, 10, 10),
       })
     ).toBe(false);
+  });
+});
+
+describe("faseCobranza", () => {
+  it("pagado queda al día aunque ya pasó el vencimiento", () => {
+    expect(
+      faseCobranza({
+        pagadoEstePeriodo: true,
+        diaCobro: 5,
+        ahora: new Date(2026, 10, 12),
+      })
+    ).toEqual({ fase: "pagado", dias: 7 });
+  });
+
+  it("días 1–5 son gracia y el 6 es corte", () => {
+    expect(
+      faseCobranza({
+        pagadoEstePeriodo: false,
+        diaCobro: 5,
+        ahora: new Date(2026, 10, 8),
+      })
+    ).toEqual({ fase: "gracia", dias: 3 });
+    expect(
+      faseCobranza({
+        pagadoEstePeriodo: false,
+        diaCobro: 5,
+        ahora: new Date(2026, 10, 11),
+      })
+    ).toEqual({ fase: "corte", dias: 6 });
+    expect(etiquetaFaseCobranza("gracia", 3)).toBe("Gracia: día 3 de 10");
+    expect(etiquetaFaseCobranza("corte", 6)).toBe("Solo lectura desde el día 6");
   });
 });
 

@@ -12,6 +12,16 @@ export const ESTADOS_HALLAZGO = [
 ] as const;
 export type EstadoHallazgo = (typeof ESTADOS_HALLAZGO)[number];
 
+/** Todo el ciclo salvo el cierre validado: sigue en el radar del local y de Núcleo. */
+export const ESTADOS_HALLAZGO_ABIERTOS = [
+  "abierto",
+  "medida_inmediata",
+  "accion_informada",
+  "evidencia_en_revision",
+  "seguimiento_eficacia",
+  "pendiente_verificacion_presencial",
+] as const satisfies readonly EstadoHallazgo[];
+
 export const ESTADOS_EVIDENCIA = ["declarado_cliente", "revisado_documental", "verificado_visita"] as const;
 export type EstadoEvidencia = (typeof ESTADOS_EVIDENCIA)[number];
 

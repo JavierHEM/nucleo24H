@@ -9,7 +9,11 @@ import {
   IconClipboardList,
   IconChevronRight,
   IconCalendar,
+  IconMapPin,
 } from "@tabler/icons-react";
+import { codigoHallazgo } from "@/lib/hallazgos/codigo";
+import { ETIQUETA_ESTADO_HALLAZGO, ETIQUETA_GRAVEDAD, type EstadoHallazgo, type GravedadHallazgo } from "@/lib/hallazgos/ciclo";
+import { ETIQUETA_MOTIVO_VISITA, type MotivoVisita } from "@/lib/bpm/visita";
 
 const NIVEL_COLORS: Record<string, string> = {
   inicial: "bg-red-100 text-red-700",
@@ -64,10 +68,11 @@ type LocalRow = {
     emitido_at: string | Date | null;
   } | null;
   registros_mes: number;
-  ncs_abiertas: number;
+  hallazgos_abiertos: number;
+  hallazgos_criticos: number;
 };
 
-export function InformesClient() {
+export function InformesClient({ alcance = "cartera" }: { alcance?: "red" | "cartera" }) {
   const periodos = getPeriodosPrevios(6);
   const [periodo, setPeriodo] = useState(periodos[0]);
   const [selectedTenant, setSelectedTenant] = useState<string | null>(null);
@@ -80,7 +85,8 @@ export function InformesClient() {
 
   const totalLocales = locales?.length ?? 0;
   const conSello = locales?.filter((l) => l.sello).length ?? 0;
-  const totalNCs = locales?.reduce((s, l) => s + l.ncs_abiertas, 0) ?? 0;
+  const totalHallazgos = locales?.reduce((s, l) => s + l.hallazgos_abiertos, 0) ?? 0;
+  const totalCriticos = locales?.reduce((s, l) => s + l.hallazgos_criticos, 0) ?? 0;
   const avgScore =
     locales && locales.length > 0
       ? Math.round(
@@ -126,7 +132,6 @@ export function InformesClient() {
           </div>
         </div>
 
-        {/* Historial de sellos */}
         <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5 mb-4">
           <h3 className="font-semibold text-[#0B1B33] mb-4 flex items-center gap-2">
             <IconChartBar size={18} className="text-[#2F6B2A]" />
@@ -172,51 +177,63 @@ export function InformesClient() {
           )}
         </div>
 
-        {/* Visitas y NCs */}
-        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5">
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5 mb-4">
           <h3 className="font-semibold text-[#0B1B33] mb-4 flex items-center gap-2">
             <IconAlertTriangle size={18} className="text-amber-500" />
-            Visitas recientes y No Conformidades
+            Hallazgos abiertos
+          </h3>
+          {detalle.hallazgos.length === 0 ? (
+            <p className="text-sm text-[#94A3B8]">Sin hallazgos abiertos.</p>
+          ) : (
+            <div className="space-y-2">
+              {detalle.hallazgos.map((h) => (
+                <div key={h.id} className="border border-[#F1F5F9] rounded-xl p-3">
+                  <p className="text-sm text-[#0B1B33]">{h.descripcion}</p>
+                  <p className="text-xs text-[#5B6980] mt-1 font-mono">
+                    {codigoHallazgo(h.id)} · {ETIQUETA_GRAVEDAD[h.gravedad as GravedadHallazgo] ?? h.gravedad} ·{" "}
+                    {ETIQUETA_ESTADO_HALLAZGO[h.estado as EstadoHallazgo] ?? h.estado}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[#DDE3EA] p-5">
+          <h3 className="font-semibold text-[#0B1B33] mb-4 flex items-center gap-2">
+            <IconMapPin size={18} className="text-[#16294A]" />
+            Visitas recientes
           </h3>
           {detalle.visitas.length === 0 ? (
             <p className="text-sm text-[#94A3B8]">Sin visitas registradas.</p>
           ) : (
             <div className="space-y-3">
-              {detalle.visitas.map((v) => {
-                const ncsAbiertas = v.no_conformidades.filter((nc) => !nc.cerrada_at).length;
-                const ncsCerradas = v.no_conformidades.filter((nc) => nc.cerrada_at).length;
-                return (
-                  <div key={v.id} className="border border-[#F1F5F9] rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-[#334155]">
-                        {new Date(v.fecha).toLocaleDateString("es-CL", {
-                          day: "numeric", month: "long", year: "numeric",
-                        })}
-                      </span>
-                      <div className="flex gap-2 text-xs">
-                        {ncsAbiertas > 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">
-                            {ncsAbiertas} NC abiertas
-                          </span>
-                        )}
-                        {ncsCerradas > 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                            {ncsCerradas} resueltas
-                          </span>
-                        )}
-                        {v.no_conformidades.length === 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#5B6980]">
-                            Sin NC
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {v.hallazgos && (
-                      <p className="text-xs text-[#5B6980]">{v.hallazgos}</p>
-                    )}
+              {detalle.visitas.map((v) => (
+                <div key={v.id} className="border border-[#F1F5F9] rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2 gap-2">
+                    <span className="text-sm font-medium text-[#334155]">
+                      {new Date(v.fecha).toLocaleDateString("es-CL", {
+                        day: "numeric", month: "long", year: "numeric",
+                      })}
+                    </span>
+                    <span className="text-xs text-[#5B6980]">
+                      {v.estado === "agendada" ? "Agendada" : "Realizada"} ·{" "}
+                      {ETIQUETA_MOTIVO_VISITA[v.motivo as MotivoVisita] ?? v.motivo}
+                    </span>
                   </div>
-                );
-              })}
+                  {v.hallazgo_origen && (
+                    <p className="text-xs text-[#5B6980] mb-1">
+                      Por hallazgo {codigoHallazgo(v.hallazgo_origen.id)}
+                    </p>
+                  )}
+                  {v.hallazgos_v2.length > 0 && (
+                    <p className="text-xs text-[#5B6980]">
+                      {v.hallazgos_v2.length} hallazgo{v.hallazgos_v2.length !== 1 ? "s" : ""} de esta visita
+                    </p>
+                  )}
+                  {v.hallazgos && <p className="text-xs text-[#5B6980] mt-1">{v.hallazgos}</p>}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -226,11 +243,12 @@ export function InformesClient() {
 
   return (
     <div>
-      {/* Header con selector de período */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#0B1B33]">Informes mensuales</h1>
-          <p className="text-sm text-[#5B6980] mt-0.5">Resumen de tus locales asignados</p>
+          <p className="text-sm text-[#5B6980] mt-0.5">
+            {alcance === "red" ? "Resumen de todos los locales de la red" : "Resumen de tus locales asignados"}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <IconCalendar size={16} className="text-[#5B6980]" />
@@ -248,7 +266,6 @@ export function InformesClient() {
         </div>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-2xl border border-[#DDE3EA] p-4">
           <p className="text-xs text-[#94A3B8] mb-1">Locales activos</p>
@@ -266,14 +283,16 @@ export function InformesClient() {
           </p>
         </div>
         <div className="bg-white rounded-2xl border border-[#DDE3EA] p-4">
-          <p className="text-xs text-[#94A3B8] mb-1">NCs abiertas</p>
-          <p className={`text-2xl font-bold ${totalNCs > 0 ? "text-red-600" : "text-[#0B1B33]"}`}>
-            {totalNCs}
+          <p className="text-xs text-[#94A3B8] mb-1">Hallazgos abiertos</p>
+          <p className={`text-2xl font-bold ${totalHallazgos > 0 ? "text-red-600" : "text-[#0B1B33]"}`}>
+            {totalHallazgos}
           </p>
+          {totalCriticos > 0 && (
+            <p className="text-xs text-red-600">{totalCriticos} crítico{totalCriticos !== 1 ? "s" : ""}</p>
+          )}
         </div>
       </div>
 
-      {/* Tabla de locales */}
       <div className="bg-white rounded-2xl border border-[#DDE3EA] overflow-hidden">
         <div className="p-5 border-b border-[#F1F5F9]">
           <h2 className="font-semibold text-[#0B1B33] flex items-center gap-2">
@@ -289,7 +308,9 @@ export function InformesClient() {
         ) : !locales || locales.length === 0 ? (
           <div className="p-12 text-center text-[#94A3B8]">
             <IconBuilding size={32} className="mx-auto mb-3 opacity-40" />
-            <p className="text-sm">No tienes locales asignados aún.</p>
+            <p className="text-sm">
+              {alcance === "red" ? "Sin locales activos." : "No tienes locales asignados aún."}
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-[#F8FAFC]">
@@ -320,10 +341,11 @@ export function InformesClient() {
                         <IconClipboardList size={12} />
                         {row.registros_mes} registros
                       </span>
-                      {row.ncs_abiertas > 0 && (
+                      {row.hallazgos_abiertos > 0 && (
                         <span className="flex items-center gap-1 text-red-500">
                           <IconAlertTriangle size={12} />
-                          {row.ncs_abiertas} NC abiertas
+                          {row.hallazgos_abiertos} hallazgo{row.hallazgos_abiertos !== 1 ? "s" : ""}
+                          {row.hallazgos_criticos > 0 ? ` · ${row.hallazgos_criticos} crítico${row.hallazgos_criticos !== 1 ? "s" : ""}` : ""}
                         </span>
                       )}
                     </div>

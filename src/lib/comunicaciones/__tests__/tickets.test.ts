@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  TICKET_ESTADOS_ABIERTOS,
   destinatariosNuevaPeticion,
   destinatariosRespuesta,
   esLocalComunicaciones,
@@ -7,6 +8,12 @@ import {
   estadoTrasRespuesta,
   transicionTicket,
 } from "@/lib/comunicaciones/tickets";
+
+describe("TICKET_ESTADOS_ABIERTOS", () => {
+  it("deja fuera las resueltas", () => {
+    expect(TICKET_ESTADOS_ABIERTOS).toEqual(["abierta", "en_atencion"]);
+  });
+});
 
 describe("transicionTicket", () => {
   it("atiende solo si está abierta", () => {

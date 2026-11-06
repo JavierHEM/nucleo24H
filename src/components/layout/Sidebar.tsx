@@ -132,8 +132,12 @@ const GRUPOS_ADMIN: NavGrupo[] = [
   {
     etiqueta: "Operación",
     items: [
-      { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
+      { href: "/calendario", label: "Calendario", icon: IconCalendarEvent, roles: ["admin_nucleo"] },
+      { href: "/hallazgos", label: "Hallazgos", icon: IconAlertTriangle, roles: ["admin_nucleo"] },
+      { href: "/visitas", label: "Visitas", icon: IconMapPin, roles: ["admin_nucleo"] },
       { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["admin_nucleo"] },
+      { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["admin_nucleo"] },
+      { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
       { href: "/admin/leads", label: "Diagnósticos", icon: IconMail, roles: ["admin_nucleo"] },
       { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
     ],

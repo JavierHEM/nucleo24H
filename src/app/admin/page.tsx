@@ -10,13 +10,17 @@ import {
   IconCreditCard,
   IconAlertTriangle,
   IconMapPin,
-  IconThermometer,
   IconMail,
+  IconMessage2,
+  IconCalendarEvent,
 } from "@tabler/icons-react";
 import { formatCLP, formatDate } from "@/lib/utils";
 import { cargarPanelOperativo } from "@/server/admin/panelOperativo";
 import { PanelOperativo } from "./PanelOperativo";
 import { ColaPropuestos } from "@/app/(dashboard)/sellos/ColaPropuestos";
+import { codigoHallazgo } from "@/lib/hallazgos/codigo";
+import { ETIQUETA_GRAVEDAD, type GravedadHallazgo } from "@/lib/hallazgos/ciclo";
+import { ETIQUETA_MOTIVO_VISITA, type MotivoVisita } from "@/lib/bpm/visita";
 
 export default async function AdminPage() {
   const hoy = new Date();
@@ -46,7 +50,6 @@ export default async function AdminPage() {
     }),
     prisma.revisionSello.count({ where: { estado: "pendiente" } }),
     prisma.lead.count({ where: { atendido: false } }),
-    // Actividad reciente: últimos sellos + visitas
     Promise.all([
       prisma.sello.findMany({
         take: 5,
@@ -57,14 +60,26 @@ export default async function AdminPage() {
         where: { estado: "realizada" },
         take: 5,
         orderBy: { fecha: "desc" },
+        include: {
+          tenant: { select: { nombre: true } },
+          hallazgo_origen: { select: { id: true } },
+        },
+      }),
+      prisma.hallazgo.findMany({
+        take: 5,
+        orderBy: { created_at: "desc" },
         include: { tenant: { select: { nombre: true } } },
       }),
     ]),
   ]);
 
-  const [sellosRecientes, visitasRecientes] = actividadReciente;
+  const [sellosRecientes, visitasRecientes, hallazgosRecientes] = actividadReciente;
   const panelOperativo = await cargarPanelOperativo(prisma);
   const ingresosMes = pagosMes._sum.monto_clp ?? 0;
+  const hallazgosAbiertos = panelOperativo.hallazgosAbiertos.length;
+  const criticos = panelOperativo.hallazgosAbiertos.filter((item) => item.gravedad === "critico").length;
+  const peticionesAbiertas = panelOperativo.peticionesAbiertas.length;
+  const visitasMes = panelOperativo.visitasMes.realizadas + panelOperativo.visitasMes.agendadas;
 
   const kpis = [
     {
@@ -74,43 +89,38 @@ export default async function AdminPage() {
       value: totalLocales,
       color: "text-[#2F6B2A]",
       bg: "bg-[#E5F1E3]",
+      hint: `${totalAsesores} asesor${totalAsesores !== 1 ? "es" : ""}`,
       badge: null,
     },
     {
-      href: "/admin/asesores",
-      icon: IconUserCheck,
-      title: "Asesores",
-      value: totalAsesores,
-      color: "text-[#16294A]",
-      bg: "bg-blue-50",
+      href: "/hallazgos",
+      icon: IconAlertTriangle,
+      title: "Hallazgos abiertos",
+      value: hallazgosAbiertos,
+      color: criticos > 0 ? "text-[#B42318]" : "text-[#2F6B2A]",
+      bg: criticos > 0 ? "bg-red-100" : "bg-[#E5F1E3]",
+      hint: null,
+      badge: criticos > 0 ? `${criticos} crítico${criticos !== 1 ? "s" : ""}` : null,
+    },
+    {
+      href: "/comunicaciones",
+      icon: IconMessage2,
+      title: "Peticiones abiertas",
+      value: peticionesAbiertas,
+      color: peticionesAbiertas > 0 ? "text-amber-600" : "text-[#2F6B2A]",
+      bg: peticionesAbiertas > 0 ? "bg-amber-50" : "bg-[#E5F1E3]",
+      hint: null,
       badge: null,
     },
     {
       href: "/admin/pagos",
-      icon: IconAlertTriangle,
+      icon: IconCreditCard,
       title: "Suscripciones morosas",
       value: morosos,
       color: morosos > 0 ? "text-[#B42318]" : "text-[#2F6B2A]",
       bg: morosos > 0 ? "bg-red-100" : "bg-[#E5F1E3]",
+      hint: null,
       badge: morosos > 0 ? `${morosos} pendiente${morosos > 1 ? "s" : ""}` : null,
-    },
-    {
-      href: "/admin/arsopb",
-      icon: IconShield,
-      title: "ARSOPB pendientes",
-      value: solicitudesPendientes,
-      color: solicitudesPendientes > 0 ? "text-amber-600" : "text-[#2F6B2A]",
-      bg: solicitudesPendientes > 0 ? "bg-amber-50" : "bg-[#E5F1E3]",
-      badge: null,
-    },
-    {
-      href: "/admin/leads",
-      icon: IconMail,
-      title: "Diagnósticos pendientes",
-      value: leadsPendientes,
-      color: leadsPendientes > 0 ? "text-amber-600" : "text-[#2F6B2A]",
-      bg: leadsPendientes > 0 ? "bg-amber-50" : "bg-[#E5F1E3]",
-      badge: leadsPendientes > 0 ? `${leadsPendientes} nueva${leadsPendientes > 1 ? "s" : ""}` : null,
     },
   ];
 
@@ -118,12 +128,11 @@ export default async function AdminPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#0B1B33]">Panel Administración</h1>
-        <p className="text-sm text-[#5B6980] mt-1">Gestión global de Núcleo 24H</p>
+        <p className="text-sm text-[#5B6980] mt-1">Operación, cumplimiento y cobro de toda la red.</p>
       </div>
 
       <ColaPropuestos />
 
-      {/* KPI cards principales */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
@@ -141,6 +150,7 @@ export default async function AdminPage() {
               </div>
               <p className="text-2xl font-bold text-[#0B1B33]">{kpi.value}</p>
               <p className="text-xs text-[#5B6980] mt-1">{kpi.title}</p>
+              {kpi.hint && <p className="text-[10px] text-[#5B6980] mt-1">{kpi.hint}</p>}
               {kpi.badge && (
                 <span className="mt-2 inline-block text-[10px] font-medium bg-red-100 text-red-700 rounded-full px-2 py-0.5">
                   {kpi.badge}
@@ -151,8 +161,7 @@ export default async function AdminPage() {
         })}
       </div>
 
-      {/* KPIs secundarios: sellos y pagos del mes */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
             <IconMedal size={18} className="text-[#2F6B2A]" />
@@ -172,6 +181,18 @@ export default async function AdminPage() {
 
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
+            <IconMapPin size={18} className="text-[#16294A]" />
+            <p className="text-sm font-semibold text-[#0B1B33]">Visitas del mes</p>
+          </div>
+          <p className="text-3xl font-bold text-[#0B1B33]">{visitasMes}</p>
+          <p className="text-xs text-[#5B6980] mt-1">
+            {panelOperativo.visitasMes.realizadas} realizada{panelOperativo.visitasMes.realizadas !== 1 ? "s" : ""} ·{" "}
+            {panelOperativo.visitasMes.agendadas} agendada{panelOperativo.visitasMes.agendadas !== 1 ? "s" : ""}
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+          <div className="flex items-center gap-2 mb-3">
             <IconCreditCard size={18} className="text-[#16294A]" />
             <p className="text-sm font-semibold text-[#0B1B33]">Ingresos este mes</p>
           </div>
@@ -187,10 +208,7 @@ export default async function AdminPage() {
           <p className="text-3xl font-bold text-[#0B1B33]">{revisionesPendientes}</p>
           <p className="text-xs text-[#5B6980] mt-1">pendiente{revisionesPendientes !== 1 ? "s" : ""} de responder</p>
           {revisionesPendientes > 0 && (
-            <Link
-              href="/sellos"
-              className="mt-3 text-xs text-amber-600 hover:underline font-medium"
-            >
+            <Link href="/sellos" className="mt-3 text-xs text-amber-600 hover:underline font-medium">
               Ir a responder →
             </Link>
           )}
@@ -199,14 +217,12 @@ export default async function AdminPage() {
 
       <PanelOperativo panel={panelOperativo} />
 
-      {/* Actividad reciente */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Últimos sellos */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <IconMedal size={16} className="text-[#2F6B2A]" />
-              <p className="text-sm font-semibold text-[#0B1B33]">Últimos sellos emitidos</p>
+              <p className="text-sm font-semibold text-[#0B1B33]">Últimos sellos</p>
             </div>
             <Link href="/admin/informes" className="text-xs text-[#2F6B2A] hover:underline font-medium">
               Ver todos →
@@ -232,7 +248,6 @@ export default async function AdminPage() {
           )}
         </div>
 
-        {/* Últimas visitas */}
         <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -249,14 +264,43 @@ export default async function AdminPage() {
             <div className="divide-y divide-[#F1F5F9]">
               {visitasRecientes.map((v) => (
                 <div key={v.id} className="flex items-center justify-between py-2.5 text-sm">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <IconThermometer size={13} className="text-[#5B6980] shrink-0" />
-                    <span className="text-[#334155] truncate">{v.tenant.nombre}</span>
+                  <div className="min-w-0">
+                    <p className="text-[#334155] truncate">{v.tenant.nombre}</p>
+                    <p className="text-xs text-[#5B6980] truncate">
+                      {ETIQUETA_MOTIVO_VISITA[v.motivo as MotivoVisita] ?? v.motivo}
+                      {v.hallazgo_origen ? ` · ${codigoHallazgo(v.hallazgo_origen.id)}` : ""}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <span className="text-xs capitalize text-[#5B6980]">{v.tipo}</span>
-                    <span className="text-xs text-[#94A3B8]">{formatDate(v.fecha)}</span>
+                  <span className="text-xs text-[#94A3B8] shrink-0 ml-2">{formatDate(v.fecha)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <IconAlertTriangle size={16} className="text-amber-600" />
+              <p className="text-sm font-semibold text-[#0B1B33]">Últimos hallazgos</p>
+            </div>
+            <Link href="/hallazgos" className="text-xs text-[#2F6B2A] hover:underline font-medium">
+              Ver todos →
+            </Link>
+          </div>
+          {hallazgosRecientes.length === 0 ? (
+            <p className="text-xs text-[#94A3B8] text-center py-4">Sin hallazgos registrados aún.</p>
+          ) : (
+            <div className="divide-y divide-[#F1F5F9]">
+              {hallazgosRecientes.map((h) => (
+                <div key={h.id} className="flex items-center justify-between py-2.5 text-sm">
+                  <div className="min-w-0">
+                    <p className="text-[#334155] truncate">{h.tenant.nombre}</p>
+                    <p className="text-xs text-[#5B6980] truncate">
+                      {codigoHallazgo(h.id)} · {ETIQUETA_GRAVEDAD[h.gravedad as GravedadHallazgo] ?? h.gravedad}
+                    </p>
                   </div>
+                  <span className="text-xs text-[#94A3B8] shrink-0 ml-2">{formatDate(h.created_at)}</span>
                 </div>
               ))}
             </div>
@@ -264,12 +308,14 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      {/* Accesos rápidos secundarios */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
+          { href: "/calendario", icon: IconCalendarEvent, label: "Calendario", desc: "Mes de la red" },
           { href: "/admin/informes", icon: IconUserCheck, label: "Informes", desc: "Resumen por local" },
-          { href: "/admin/pagos", icon: IconCreditCard, label: "Pagos", desc: "Historial y gestión" },
-          { href: "/admin/configuracion", icon: IconSettings, label: "Configuración", desc: "Pesos del sello" },
+          { href: "/admin/pagos", icon: IconCreditCard, label: "Pagos", desc: "Débito, MP y transferencia" },
+          { href: "/admin/leads", icon: IconMail, label: "Diagnósticos", desc: leadsPendientes > 0 ? `${leadsPendientes} pendiente${leadsPendientes !== 1 ? "s" : ""}` : "Entrada comercial" },
+          { href: "/admin/arsopb", icon: IconShield, label: "ARSOPB", desc: solicitudesPendientes > 0 ? `${solicitudesPendientes} pendiente${solicitudesPendientes !== 1 ? "s" : ""}` : "Solicitudes" },
+          { href: "/admin/configuracion", icon: IconSettings, label: "Configuración", desc: "Equipo y sello" },
         ].map((item) => {
           const Icon = item.icon;
           return (

@@ -1,5 +1,9 @@
 import { AVISO_RENOVACION_DIAS, PLAN_IDS, PLANES, diasParaFecha } from "@/lib/planes";
 import { formatCLP, formatDate } from "@/lib/utils";
+import { codigoHallazgo } from "@/lib/hallazgos/codigo";
+import { ETIQUETA_ESTADO_HALLAZGO, ETIQUETA_GRAVEDAD, type GravedadHallazgo, type EstadoHallazgo } from "@/lib/hallazgos/ciclo";
+import { ETIQUETA_ESTADO, ETIQUETA_PRIORIDAD, type TicketEstado, type TicketPrioridad } from "@/lib/comunicaciones/tickets";
+import { ETIQUETA_MOTIVO_VISITA, type MotivoVisita } from "@/lib/bpm/visita";
 import { VerLocalButton } from "./locales/VerLocalButton";
 import type { cargarPanelOperativo } from "@/server/admin/panelOperativo";
 
@@ -32,7 +36,19 @@ function Tarjeta({
   );
 }
 
-function Fila({ nombre, detalle, tenantId, destino, etiqueta }: { nombre: string; detalle?: string; tenantId: string; destino: string; etiqueta: string }) {
+function Fila({
+  nombre,
+  detalle,
+  tenantId,
+  destino,
+  etiqueta,
+}: {
+  nombre: string;
+  detalle?: string;
+  tenantId: string;
+  destino: string;
+  etiqueta: string;
+}) {
   return (
     <li className="flex items-center justify-between gap-3 py-2">
       <div className="min-w-0">
@@ -46,6 +62,7 @@ function Fila({ nombre, detalle, tenantId, destino, etiqueta }: { nombre: string
 
 export function PanelOperativo({ panel }: { panel: Panel }) {
   const ahora = new Date();
+  const criticos = panel.hallazgosAbiertos.filter((item) => item.gravedad === "critico").length;
   return (
     <div className="space-y-4">
       <h2 className="font-mono text-xs uppercase tracking-wide text-[#5B6980]">Operación</h2>
@@ -63,6 +80,63 @@ export function PanelOperativo({ panel }: { panel: Panel }) {
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Tarjeta
+          titulo="Hallazgos abiertos"
+          total={panel.hallazgosAbiertos.length}
+          alerta={criticos > 0}
+          vacio="No hay hallazgos abiertos en la red."
+        >
+          {panel.hallazgosAbiertos.slice(0, MAX_FILAS).map((hallazgo) => (
+            <Fila
+              key={hallazgo.id}
+              nombre={`${hallazgo.nombre} · ${codigoHallazgo(hallazgo.id)}`}
+              detalle={`${ETIQUETA_GRAVEDAD[hallazgo.gravedad as GravedadHallazgo] ?? hallazgo.gravedad} · ${ETIQUETA_ESTADO_HALLAZGO[hallazgo.estado as EstadoHallazgo] ?? hallazgo.estado} · ${hallazgo.descripcion}`}
+              tenantId={hallazgo.tenantId}
+              destino={`/hallazgos/${hallazgo.id}`}
+              etiqueta="Abrir"
+            />
+          ))}
+        </Tarjeta>
+
+        <Tarjeta titulo="Peticiones abiertas" total={panel.peticionesAbiertas.length} alerta vacio="No hay peticiones pendientes.">
+          {panel.peticionesAbiertas.slice(0, MAX_FILAS).map((ticket) => (
+            <Fila
+              key={ticket.id}
+              nombre={ticket.nombre}
+              detalle={`${ETIQUETA_PRIORIDAD[ticket.prioridad as TicketPrioridad] ?? ticket.prioridad} · ${ETIQUETA_ESTADO[ticket.estado as TicketEstado] ?? ticket.estado} · ${ticket.asunto}`}
+              tenantId={ticket.tenantId}
+              destino={`/comunicaciones/${ticket.id}`}
+              etiqueta="Responder"
+            />
+          ))}
+        </Tarjeta>
+
+        <Tarjeta titulo="Visitas agendadas" total={panel.visitasAgendadas.length} alerta={false} vacio="No hay visitas agendadas a futuro.">
+          {panel.visitasAgendadas.slice(0, MAX_FILAS).map((visita) => (
+            <Fila
+              key={visita.id}
+              nombre={visita.nombre}
+              detalle={`${formatDate(visita.fecha)} · ${ETIQUETA_MOTIVO_VISITA[visita.motivo as MotivoVisita] ?? visita.motivo}`}
+              tenantId={visita.tenantId}
+              destino="/calendario"
+              etiqueta="Agenda"
+            />
+          ))}
+        </Tarjeta>
+
+        <Tarjeta titulo="Descargos abiertos" total={panel.descargosAbiertos.length} alerta vacio="No hay descargos abiertos.">
+          {panel.descargosAbiertos.slice(0, MAX_FILAS).map((descargo) => (
+            <Fila
+              key={descargo.id}
+              nombre={descargo.nombre}
+              detalle={descargo.titulo}
+              tenantId={descargo.tenantId}
+              destino="/fiscalizaciones"
+              etiqueta="Abrir"
+            />
+          ))}
+        </Tarjeta>
+
         <Tarjeta
           titulo={`Contratos por vencer (${AVISO_RENOVACION_DIAS} días)`}
           total={panel.contratosPorVencer.length}
@@ -84,20 +158,7 @@ export function PanelOperativo({ panel }: { panel: Panel }) {
           })}
         </Tarjeta>
 
-        <Tarjeta titulo="Descargos abiertos" total={panel.descargosAbiertos.length} alerta vacio="No hay descargos abiertos.">
-          {panel.descargosAbiertos.slice(0, MAX_FILAS).map((descargo) => (
-            <Fila
-              key={descargo.id}
-              nombre={descargo.nombre}
-              detalle={descargo.titulo}
-              tenantId={descargo.tenantId}
-              destino="/fiscalizaciones"
-              etiqueta="Abrir"
-            />
-          ))}
-        </Tarjeta>
-
-        <Tarjeta titulo="Locales sin visita este mes" total={panel.sinVisitaEsteMes.length} alerta vacio="Todos los locales tienen visita este mes.">
+        <Tarjeta titulo="Locales sin visita este mes" total={panel.sinVisitaEsteMes.length} alerta vacio="Todos los locales tienen visita agendada o realizada este mes.">
           {panel.sinVisitaEsteMes.slice(0, MAX_FILAS).map((local) => (
             <Fila key={local.id} nombre={local.nombre} tenantId={local.id} destino="/calendario" etiqueta="Agendar" />
           ))}
