@@ -7,10 +7,12 @@ import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionNucleo } from "@/lib/email/sendInvitacion";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { normalizarEmail } from "@/lib/auth/email";
+import { idCuentaPorEmail } from "@/server/usuarios/porEmail";
 
 const bodySchema = z.object({
   nombre: z.string().min(2),
-  email: z.string().email(),
+  email: z.string().email().transform((valor) => normalizarEmail(valor)),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,14 +41,12 @@ export async function POST(req: NextRequest) {
   }
 
   const nombre = parsed.data.nombre.trim();
-  const email = parsed.data.email.toLowerCase();
+  const email = parsed.data.email;
 
-  const existing = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id::text AS id FROM auth.users WHERE lower(email) = ${email} LIMIT 1
-  `;
-  if (existing[0]) {
+  const existingId = await idCuentaPorEmail(prisma, email);
+  if (existingId) {
     const cuenta = await prisma.user.findUnique({
-      where: { id: existing[0].id },
+      where: { id: existingId },
       select: { rol: true },
     });
     if (cuenta?.rol === "admin_nucleo") {

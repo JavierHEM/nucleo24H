@@ -24,20 +24,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  const tenant = await prisma.tenant.findFirst({
-    where: { id: parsed.data.tenantId, estado: { not: "baja" } },
-    select: { id: true },
-  });
-  if (!tenant) {
-    return NextResponse.json({ error: "Local no encontrado." }, { status: 404 });
-  }
-
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
     select: { rol: true },
   });
 
-  if (dbUser?.rol !== "admin_nucleo") {
+  const esNucleo = dbUser?.rol === "admin_nucleo";
+  const tenant = await prisma.tenant.findFirst({
+    where: esNucleo
+      ? { id: parsed.data.tenantId, estado: { in: ["activo", "suspendido"] } }
+      : { id: parsed.data.tenantId, estado: "activo" },
+    select: { id: true },
+  });
+  if (!tenant) {
+    return NextResponse.json(
+      { error: "Este local no está habilitado. Se activa cuando se registra el pago de la suscripción." },
+      { status: 404 }
+    );
+  }
+
+  if (!esNucleo) {
     const tenants = (user.app_metadata?.tenants as string[]) ?? [];
     const enJwt = tenants.includes(parsed.data.tenantId);
     const membership = enJwt

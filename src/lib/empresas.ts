@@ -2,11 +2,16 @@ export function claveRut(rut: string): string {
   return rut.replace(/[.\s]/g, "").toUpperCase();
 }
 
+export function mismoRut(a: string, b: string): boolean {
+  return claveRut(a) === claveRut(b);
+}
+
 type LocalAgrupable = {
   id: string;
   nombre: string;
   rut: string;
   created_at: Date | string;
+  empresa_id?: string | null;
 };
 
 export type GrupoEmpresa<T extends LocalAgrupable> = {
@@ -22,7 +27,7 @@ export function agruparPorEmpresa<T extends LocalAgrupable>(
   const porRut = new Map<string, T[]>();
 
   for (const local of locales) {
-    const clave = claveRut(local.rut);
+    const clave = local.empresa_id || claveRut(local.rut);
     const grupo = porRut.get(clave) ?? [];
     grupo.push(local);
     porRut.set(clave, grupo);

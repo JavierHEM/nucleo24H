@@ -40,7 +40,8 @@ export function AsignarAsesorButton({
 
   const asignar = trpc.locales.asignarAsesor.useMutation({
     onSuccess: () => {
-      utils.locales.list.invalidate();
+      void utils.locales.list.invalidate();
+      void utils.locales.porRut.invalidate();
       setOpen(false);
       router.refresh();
     },

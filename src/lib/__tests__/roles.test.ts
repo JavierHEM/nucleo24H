@@ -5,6 +5,7 @@ import {
   puedeAdjuntarProveedor,
   puedeAsignarCargos,
   puedeInvitarConRol,
+  puedeGestionarTutoriales,
   puedeRemoverMiembro,
 } from "@/lib/roles";
 
@@ -42,6 +43,12 @@ describe("jefe_local", () => {
     expect(puedeAdjuntarProveedor("trabajador_local")).toBe(true);
     expect(puedeAdjuntarProveedor("asesor")).toBe(true);
     expect(puedeAdjuntarProveedor("admin_nucleo")).toBe(true);
+  });
+
+  it("solo Núcleo gestiona tutoriales", () => {
+    expect(puedeGestionarTutoriales("admin_nucleo")).toBe(true);
+    expect(puedeGestionarTutoriales("asesor")).toBe(false);
+    expect(puedeGestionarTutoriales("admin_local")).toBe(false);
   });
 
   it("el jefe solo remueve trabajadores, y nadie se remueve a sí mismo", () => {

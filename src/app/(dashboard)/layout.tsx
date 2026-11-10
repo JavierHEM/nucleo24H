@@ -48,6 +48,14 @@ export default async function DashboardLayout({
   const userName = dbUserEarly?.nombre ?? user.email?.split("@")[0] ?? "Usuario";
 
   const locales = await localesVisibles(user.id, userRole);
+  const localesPendientes =
+    locales.length === 0 && userRole && userRole !== "admin_nucleo"
+      ? await prisma.userTenant.findMany({
+          where: { user_id: user.id, tenant: { estado: "pendiente" } },
+          include: { tenant: { select: { nombre: true } } },
+          take: 3,
+        })
+      : [];
 
   const tenantActivo =
     tenantActivoCookie && locales.some((l) => l.id === tenantActivoCookie)
@@ -93,7 +101,15 @@ export default async function DashboardLayout({
             userRole={userRole}
           />
         </div>
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-6 print:overflow-visible print:pb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 md:pb-6 print:overflow-visible print:pb-0">
+          {localesPendientes.length > 0 && (
+            <div className="print:hidden px-4 md:px-6 pt-4 md:pt-6">
+              <p className="rounded-xl bg-[#E8EEF5] px-4 py-3 text-sm text-[#16294A]">
+                {localesPendientes[0].tenant.nombre} está creado. Se habilita cuando Núcleo registre el pago de la
+                suscripción.
+              </p>
+            </div>
+          )}
           {tenantActivo && userRole && (
             <div className="print:hidden px-4 md:px-6 pt-4 md:pt-6">
               <BannerMora tenantId={tenantActivo} userRole={userRole} />

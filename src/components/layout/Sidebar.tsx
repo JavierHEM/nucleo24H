@@ -30,6 +30,7 @@ import {
   IconBadge,
   IconMail,
   IconAlertTriangle,
+  IconVideo,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 import { PlanBadge } from "@/components/plan/PlanBadge";
@@ -85,6 +86,7 @@ const GRUPOS_LOCAL: NavGrupo[] = [
       { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ROLES_JEFE },
       { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ROLES_JEFE },
       { href: "/suscripcion", label: "Suscripción", icon: IconCreditCard, roles: ["admin_local", "admin_nucleo"] },
+      { href: "/tutoriales", label: "Tutoriales", icon: IconVideo, roles: ROLES_LOCAL },
       { href: "/soporte", label: "Soporte", icon: IconLifebuoy, roles: ROLES_LOCAL },
       { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ROLES_LOCAL },
     ],
@@ -113,6 +115,7 @@ const GRUPOS_ASESOR: NavGrupo[] = [
     etiqueta: "Cuenta",
     items: [
       { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ROLES_STAFF },
+      { href: "/tutoriales", label: "Tutoriales", icon: IconVideo, roles: ROLES_STAFF },
       { href: "/mi-cuenta", label: "Mi cuenta", icon: IconUser, roles: ROLES_STAFF },
     ],
   },
@@ -137,6 +140,7 @@ const GRUPOS_ADMIN: NavGrupo[] = [
       { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel, roles: ["admin_nucleo"] },
       { href: "/programa", label: "Programa", icon: IconClipboardCheck, roles: ["admin_nucleo"] },
       { href: "/admin/leads", label: "Diagnósticos", icon: IconMail, roles: ["admin_nucleo"] },
+      { href: "/admin/tutoriales", label: "Tutoriales", icon: IconVideo, roles: ["admin_nucleo"] },
       { href: "/admin/arsopb", label: "ARSOPB", icon: IconShield, roles: ["admin_nucleo"] },
     ],
   },

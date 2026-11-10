@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
-import { puedeAdjuntarHallazgo, puedeAdjuntarProveedor, puedeCargarPlanilla, puedeOperarLocal } from "@/lib/roles";
+import { puedeAdjuntarHallazgo, puedeAdjuntarProveedor, puedeCargarPlanilla, puedeGestionarTutoriales, puedeOperarLocal } from "@/lib/roles";
 import { crearUrlDeCarga } from "@/lib/storage/archivos";
 import { construirRuta, type BucketArchivo } from "@/lib/storage/rutas";
+import { esTipoVideoTutorial, MAX_VIDEO_TUTORIAL_MB } from "@/lib/tutoriales";
 
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 const MAX_MB = 10;
@@ -12,8 +13,9 @@ const MAX_MB = 10;
 const bodySchema = z.object({
   filename: z.string().min(1).max(200),
   contentType: z.string().min(1),
-  sizeMb: z.number().positive().max(MAX_MB),
-  bucket: z.enum(["registros", "documentos", "hallazgos"]),
+  sizeMb: z.number().positive(),
+  bucket: z.enum(["registros", "documentos", "hallazgos", "tutoriales"]),
+  tutorialId: z.string().uuid().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -39,10 +41,12 @@ export async function POST(req: NextRequest) {
 
   const bucketPedido = parsed.success ? parsed.data.bucket : null;
   const puedeSubir =
-    puedeOperarLocal(dbUser.rol) ||
-    (bucketPedido === "registros" && puedeCargarPlanilla(dbUser.rol)) ||
-    (bucketPedido === "hallazgos" && puedeAdjuntarHallazgo(dbUser.rol)) ||
-    (bucketPedido === "documentos" && puedeAdjuntarProveedor(dbUser.rol));
+    (bucketPedido === "tutoriales" && puedeGestionarTutoriales(dbUser.rol)) ||
+    (bucketPedido !== "tutoriales" &&
+      (puedeOperarLocal(dbUser.rol) ||
+        (bucketPedido === "registros" && puedeCargarPlanilla(dbUser.rol)) ||
+        (bucketPedido === "hallazgos" && puedeAdjuntarHallazgo(dbUser.rol)) ||
+        (bucketPedido === "documentos" && puedeAdjuntarProveedor(dbUser.rol))));
   if (!puedeSubir) {
     return NextResponse.json({ error: "Sin permisos para subir archivos" }, { status: 403 });
   }
@@ -51,12 +55,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
   }
 
-  const { filename, contentType, bucket } = parsed.data;
+  const { filename, contentType, bucket, sizeMb, tutorialId } = parsed.data;
+
+  if (bucket === "tutoriales") {
+    if (!esTipoVideoTutorial(contentType)) {
+      return NextResponse.json(
+        { error: "El tutorial tiene que ser un video MP4, WebM o MOV." },
+        { status: 400 }
+      );
+    }
+    if (sizeMb > MAX_VIDEO_TUTORIAL_MB) {
+      return NextResponse.json(
+        { error: `El video no puede superar ${MAX_VIDEO_TUTORIAL_MB} MB.` },
+        { status: 400 }
+      );
+    }
+    const carpeta = tutorialId ?? crypto.randomUUID();
+    const { path, ruta } = construirRuta(bucket, carpeta, filename);
+    try {
+      const uploadUrl = await crearUrlDeCarga(bucket, path);
+      return NextResponse.json({ uploadUrl, ruta });
+    } catch (error) {
+      console.error("[upload] Error preparando la carga:", error);
+      return NextResponse.json({ error: "No se pudo preparar la carga del archivo." }, { status: 500 });
+    }
+  }
+
   if (!ALLOWED_TYPES.includes(contentType)) {
     return NextResponse.json(
       { error: "Tipo de archivo no permitido. Usa PDF, JPG, PNG o WebP." },
       { status: 400 }
     );
+  }
+  if (sizeMb > MAX_MB) {
+    return NextResponse.json({ error: `El archivo no puede superar ${MAX_MB} MB.` }, { status: 400 });
   }
 
   const cookieTenantId = req.cookies.get("tenant_activo")?.value;

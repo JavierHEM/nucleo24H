@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
+import { normalizarEmail } from "@/lib/auth/email";
 
 const bodySchema = z.object({
   nombre: z.string().min(2).max(100),
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
     update: { nombre: parsed.data.nombre },
     create: {
       id: user.id,
-      email: user.email ?? "",
+      email: user.email ? normalizarEmail(user.email) : "",
       nombre: parsed.data.nombre,
       rol: (user.app_metadata?.rol as string | undefined) ?? "trabajador_local",
     },

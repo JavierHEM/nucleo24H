@@ -80,6 +80,10 @@ export function puedeRemoverMiembro(
   return false;
 }
 
+export function puedeGestionarTutoriales(rol: string | null | undefined): boolean {
+  return rol === "admin_nucleo";
+}
+
 export function esRolGestion(rol: string | null | undefined): boolean {
   return (
     rol === "jefe_local" ||

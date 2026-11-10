@@ -6,11 +6,13 @@ import { prisma } from "@/server/db/prisma";
 import { sendInvitacionAsesor } from "@/lib/email/sendInvitacion";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { normalizarEmail } from "@/lib/auth/email";
+import { idCuentaPorEmail } from "@/server/usuarios/porEmail";
 import { syncUserClaims } from "@/lib/supabase/claims";
 
 const bodySchema = z.object({
   nombre: z.string().min(2),
-  email: z.string().email(),
+  email: z.string().email().transform((valor) => normalizarEmail(valor)),
 });
 
 export async function POST(req: NextRequest) {
@@ -38,16 +40,13 @@ export async function POST(req: NextRequest) {
   }
 
   const { nombre, email } = parsed.data;
-  const emailNormalizado = email.toLowerCase();
   const adminSupabase = createAdminClient();
   const appUrl = getAppUrl();
 
-  const existing = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id::text AS id FROM auth.users WHERE lower(email) = ${emailNormalizado} LIMIT 1
-  `;
-  if (existing[0]) {
+  const existingId = await idCuentaPorEmail(prisma, email);
+  if (existingId) {
     const cuenta = await prisma.user.findUnique({
-      where: { id: existing[0].id },
+      where: { id: existingId },
       select: { rol: true },
     });
     if (cuenta?.rol === "asesor") {
@@ -61,7 +60,7 @@ export async function POST(req: NextRequest) {
 
   const { data: linkData, error: linkError } = await adminSupabase.auth.admin.generateLink({
     type: "invite",
-    email: emailNormalizado,
+    email,
     options: { data: { nombre } },
   });
 
@@ -75,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   await prisma.user.upsert({
     where: { id: linkData.user.id },
-    create: { id: linkData.user.id, email: emailNormalizado, nombre, rol: "asesor" },
+    create: { id: linkData.user.id, email, nombre, rol: "asesor" },
     update: { nombre, rol: "asesor" },
   });
   await prisma.userTenant.deleteMany({ where: { user_id: linkData.user.id } });
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No se pudo armar el enlace de invitación." }, { status: 500 });
   }
 
-  void sendInvitacionAsesor({ to: emailNormalizado, nombre, invitadoPor, linkAcceso }).catch((err) =>
+  void sendInvitacionAsesor({ to: email, nombre, invitadoPor, linkAcceso }).catch((err) =>
     console.error("[invitar-asesor] Error Resend:", err)
   );
 

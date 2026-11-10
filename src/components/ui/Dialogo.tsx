@@ -1,20 +1,28 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { IconX } from "@tabler/icons-react";
+
+const ANCHO = {
+  md: "max-w-md",
+  xl: "max-w-xl",
+  lg: "max-w-3xl",
+} as const;
 
 export function Dialogo({
   abierto,
   titulo,
   onCerrar,
   children,
+  pie,
   ancho = "md",
 }: {
   abierto: boolean;
   titulo: string;
   onCerrar: () => void;
-  children: React.ReactNode;
-  ancho?: "md" | "lg";
+  children: ReactNode;
+  pie?: ReactNode;
+  ancho?: keyof typeof ANCHO;
 }) {
   const tituloId = useId();
   const contenedor = useRef<HTMLDivElement>(null);
@@ -42,7 +50,7 @@ export function Dialogo({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onCerrar}
     >
       <div
@@ -52,9 +60,9 @@ export function Dialogo({
         aria-labelledby={tituloId}
         tabIndex={-1}
         onClick={(evento) => evento.stopPropagation()}
-        className={`bg-white rounded-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto focus:outline-none ${ancho === "lg" ? "max-w-3xl" : "max-w-md"}`}
+        className={`bg-white rounded-t-2xl sm:rounded-2xl w-full shadow-xl max-h-[95dvh] sm:max-h-[90vh] flex flex-col focus:outline-none ${ANCHO[ancho]}`}
       >
-        <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA] sticky top-0 bg-white rounded-t-2xl">
+        <div className="flex items-center justify-between p-5 border-b border-[#DDE3EA] shrink-0 bg-white rounded-t-2xl">
           <p id={tituloId} className="font-semibold text-[#0B1B33]">
             {titulo}
           </p>
@@ -67,7 +75,10 @@ export function Dialogo({
             <IconX size={20} />
           </button>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="p-5 overflow-y-auto flex-1">{children}</div>
+        {pie ? (
+          <div className="p-5 border-t border-[#DDE3EA] shrink-0 bg-white rounded-b-2xl">{pie}</div>
+        ) : null}
       </div>
     </div>
   );

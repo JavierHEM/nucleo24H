@@ -8,10 +8,12 @@ import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { normalizarEmail } from "@/lib/auth/email";
+import { idCuentaPorEmail } from "@/server/usuarios/porEmail";
 import { debePromoverRol, puedeGestionarEquipo, puedeInvitarConRol } from "@/lib/roles";
 
 const bodySchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: z.string().email("Email inválido").transform((valor) => normalizarEmail(valor)),
   nombre: z.string().min(2, "Ingresa el nombre").optional(),
   rol: z.enum(["trabajador_local", "jefe_local", "admin_local"]).default("trabajador_local"),
 });
@@ -64,7 +66,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { email, nombre, rol } = parsed.data;
+  const { nombre, rol } = parsed.data;
+  const email = parsed.data.email;
 
   if (!puedeInvitarConRol(dbUser?.rol, rol)) {
     return NextResponse.json(
@@ -86,11 +89,7 @@ export async function POST(req: NextRequest) {
     message: `Listo. ${email} queda en el equipo de "${tenant.nombre}".`,
   };
 
-  // ¿El email ya tiene cuenta en auth.users?
-  const existing = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id FROM auth.users WHERE email = ${email.toLowerCase()} LIMIT 1
-  `;
-  const existingUserId = existing[0]?.id ?? null;
+  const existingUserId = await idCuentaPorEmail(prisma, email);
 
   // Caso 1: usuario ya existe → vincular al tenant si no está
   if (existingUserId) {

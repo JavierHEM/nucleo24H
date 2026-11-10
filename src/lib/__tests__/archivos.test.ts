@@ -28,6 +28,12 @@ describe("rutas de storage", () => {
     expect(esImagenRuta(ruta)).toBe(true);
   });
 
+  it("arma la ruta de un video de tutorial", () => {
+    const { ruta } = construirRuta("tutoriales", TENANT, "como-cargar-sello.mp4");
+    expect(parseRuta(ruta)?.bucket).toBe("tutoriales");
+    expect(rutaPertenece(ruta, "tutoriales", TENANT)).toBe(true);
+  });
+
   it("acepta autorización o informe del proveedor del mismo local", () => {
     const { ruta } = construirRuta("documentos", TENANT, "autorizacion-seremi.pdf");
     expect(sonRutasDocumentoDelLocal([ruta], TENANT)).toBe(true);

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const periodo = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`;
 
   const suscripciones = await prisma.suscripcion.findMany({
-    where: { estado: { in: ["activa", "morosa"] } },
+    where: { estado: { in: ["activa", "morosa"] }, tenant: { estado: "activo" } },
     select: { id: true, tenant_id: true, estado: true, dia_cobro: true, monto_clp: true },
   });
 

@@ -11,6 +11,7 @@ import {
   IconClipboardCheck,
   IconGavel,
   IconAlertTriangle,
+  IconVideo,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 import { planIncluye } from "@/lib/planes";
@@ -31,6 +32,7 @@ function accesosPara(rol: UserRole, plan: unknown): Acceso[] {
       { href: "/programa", label: "Programa", icon: IconClipboardCheck },
       { href: "/sellos", label: "Sellos", icon: IconMedal },
       { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2 },
+      { href: "/tutoriales", label: "Tutoriales", icon: IconVideo },
     ];
   }
 
@@ -42,6 +44,7 @@ function accesosPara(rol: UserRole, plan: unknown): Acceso[] {
     { href: "/calendario", label: "Calendario", icon: IconCalendarEvent },
     { href: "/fiscalizaciones", label: "Fiscalizaciones", icon: IconGavel },
     { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2 },
+    { href: "/tutoriales", label: "Tutoriales", icon: IconVideo },
   ];
   if (planIncluye(plan, "ambiental")) {
     accesos.push({ href: "/ambiental", label: "Ambiental", icon: IconLeaf });

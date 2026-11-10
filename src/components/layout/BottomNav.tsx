@@ -23,6 +23,7 @@ import {
   IconGavel,
   IconLifebuoy,
   IconBadge,
+  IconVideo,
 } from "@tabler/icons-react";
 import type { UserRole } from "@/server/trpc/context";
 import { planIncluye, type ModuloPlan, type PlanId } from "@/lib/planes";
@@ -40,6 +41,7 @@ const TRABAJADOR_ITEMS: BottomNavItem[] = [
   { href: "/registros", label: "Registros", icon: IconThermometer, roles: ["trabajador_local"] },
   { href: "/tareas", label: "Tareas", icon: IconChecklist, roles: ["trabajador_local"] },
   { href: "/capacitaciones", label: "Capac.", icon: IconSchool, roles: ["trabajador_local"] },
+  { href: "/tutoriales", label: "Tutoriales", icon: IconVideo, roles: ["trabajador_local"] },
 ];
 
 const DUENO_ITEMS: BottomNavItem[] = [
@@ -58,6 +60,7 @@ const MAS_LOCAL: BottomNavItem[] = [
   { href: "/capacitaciones", label: "Capacitaciones", icon: IconSchool, roles: ["jefe_local", "admin_local"] },
   { href: "/proveedores", label: "Proveedores", icon: IconBuildingStore, roles: ["jefe_local", "admin_local"] },
   { href: "/ambiental", label: "Ambiental", icon: IconLeaf, roles: ["jefe_local", "admin_local"], modulo: "ambiental" },
+  { href: "/tutoriales", label: "Tutoriales", icon: IconVideo, roles: ["jefe_local", "admin_local"] },
   { href: "/comunicaciones", label: "Peticiones", icon: IconMessage2, roles: ["jefe_local", "admin_local"] },
   { href: "/equipo", label: "Equipo", icon: IconUsers, roles: ["jefe_local", "admin_local"] },
   { href: "/plan", label: "Mi plan", icon: IconBadge, roles: ["jefe_local", "admin_local"] },
@@ -105,12 +108,12 @@ function Tab({ item, pathname }: { item: BottomNavItem; pathname: string }) {
     <Link
       href={item.href}
       aria-current={isActive ? "page" : undefined}
-      className={`tab flex-1 flex flex-col items-center justify-center gap-0.5 min-h-14 text-[11px] font-bold ${
+      className={`tab flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 min-h-14 text-[11px] font-bold ${
         isActive ? "text-[#2F6B2A]" : "text-[#5B6980]"
       }`}
     >
       <Icon size={24} />
-      {item.label}
+      <span className="max-w-full truncate px-0.5">{item.label}</span>
     </Link>
   );
 }

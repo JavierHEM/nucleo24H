@@ -6,7 +6,7 @@ const SELECT_LOCAL = { id: true, nombre: true, rut: true, created_at: true } as 
 export async function localesVisibles(userId: string, userRole: UserRole | null) {
   if (userRole === "admin_nucleo") {
     return prisma.tenant.findMany({
-      where: { estado: { not: "baja" } },
+      where: { estado: { in: ["activo", "suspendido"] } },
       select: SELECT_LOCAL,
       orderBy: { nombre: "asc" },
     });
@@ -14,7 +14,7 @@ export async function localesVisibles(userId: string, userRole: UserRole | null)
 
   if (userRole === "asesor") {
     const asignaciones = await prisma.asignacionAsesor.findMany({
-      where: { asesor_id: userId, activo: true },
+      where: { asesor_id: userId, activo: true, tenant: { estado: "activo" } },
       include: { tenant: { select: SELECT_LOCAL } },
     });
     return asignaciones
@@ -24,7 +24,7 @@ export async function localesVisibles(userId: string, userRole: UserRole | null)
   }
 
   const vinculos = await prisma.userTenant.findMany({
-    where: { user_id: userId },
+    where: { user_id: userId, tenant: { estado: "activo" } },
     include: { tenant: { select: SELECT_LOCAL } },
   });
   return vinculos

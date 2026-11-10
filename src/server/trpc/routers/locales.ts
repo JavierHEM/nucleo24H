@@ -4,9 +4,29 @@ import { router, publicProcedure } from "@/server/trpc/trpc";
 import { withTenant } from "@/server/middleware/tenant";
 import { requireNucleo, requireAsesor, requireRole } from "@/server/middleware/rbac";
 import { puedeRemoverMiembro } from "@/lib/roles";
-import { PLAN_IDS, TIPOS_LOCAL } from "@/lib/planes";
+import { PLAN_IDS, TIPOS_LOCAL, normalizarPlan } from "@/lib/planes";
+import { altaSuscripcionLocal } from "@/lib/locales/altaSuscripcion";
+import { emailOpcional, emailOpcionalSchema, telefonoSchema } from "@/lib/locales/ficha";
+import { invitarAdminLocal } from "@/server/locales/invitarAdminLocal";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { agruparEquipoPorEmpresa, type VinculoEquipo } from "@/lib/equipo";
+import { claveRut } from "@/lib/empresas";
+
+const INCLUDE_LOCAL = {
+  _count: { select: { registros: true, sellos: true } },
+  suscripcion: { select: { plan: true, hasta: true, estado: true, monto_clp: true } },
+  empresa: {
+    select: {
+      id: true,
+      razon_social: true,
+      rut: true,
+      telefono: true,
+      email: true,
+      giro: true,
+      representante_legal_nombre: true,
+    },
+  },
+} as const;
 
 const nucleoProcedure = publicProcedure.use(requireNucleo);
 const asesorProcedure = publicProcedure.use(withTenant).use(requireAsesor);
@@ -16,10 +36,10 @@ export const localesRouter = router({
   list: nucleoProcedure
     .input(
       z.object({
-        estado: z.enum(["activo", "suspendido", "baja"]).optional(),
+        estado: z.enum(["pendiente", "activo", "suspendido", "baja"]).optional(),
         plan: z.enum(PLAN_IDS).optional(),
         search: z.string().optional(),
-        limit: z.number().min(1).max(100).default(20),
+        limit: z.number().min(1).max(500).default(20),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -38,11 +58,19 @@ export const localesRouter = router({
         },
         orderBy: { nombre: "asc" },
         take: input.limit,
-        include: {
-          _count: { select: { registros: true, sellos: true } },
-          suscripcion: { select: { plan: true, hasta: true, estado: true } },
-        },
+        include: INCLUDE_LOCAL,
       });
+    }),
+
+  porRut: nucleoProcedure
+    .input(z.object({ rut: z.string().min(3).max(40) }))
+    .query(async ({ ctx, input }) => {
+      const clave = claveRut(input.rut);
+      const locales = await ctx.prisma.tenant.findMany({
+        include: INCLUDE_LOCAL,
+        orderBy: { created_at: "asc" },
+      });
+      return locales.filter((local) => claveRut(local.rut) === clave);
     }),
 
   getById: nucleoProcedure
@@ -67,15 +95,31 @@ export const localesRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().min(2).optional(),
+        nombre: z.string().trim().min(2, "Ingresa el nombre del local").max(120).optional(),
         plan: z.enum(PLAN_IDS).optional(),
         tipo_local: z.enum(TIPOS_LOCAL).optional(),
         estado: z.enum(["activo", "suspendido", "baja"]).optional(),
-        direccion: z.string().optional(),
+        direccion: z.string().trim().max(200).optional(),
+        ciudad: z.string().trim().min(2, "Ingresa la ciudad").max(80).optional(),
+        telefono: z.string().trim().max(30).optional(),
+        encargado_nombre: z.string().trim().max(120).nullable().optional(),
+        encargado_telefono: z.string().trim().max(30).nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
+      if (data.estado === "activo") {
+        const pagado = await ctx.prisma.pago.findFirst({
+          where: { tenant_id: id, estado: "pagado" },
+          select: { id: true },
+        });
+        if (!pagado) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "Este local se habilita cuando se registra el pago de la suscripción.",
+          });
+        }
+      }
       const local = await ctx.prisma.tenant.update({ where: { id }, data });
       if (data.plan) {
         await ctx.prisma.suscripcion.updateMany({ where: { tenant_id: id }, data: { plan: data.plan } });
@@ -84,8 +128,8 @@ export const localesRouter = router({
     }),
 
   /**
-   * Crea una sucursal a partir de un local existente (casa central):
-   * hereda RUT, plan y ciudad, y vincula a los mismos dueños (admin_local).
+   * Crea una sucursal: mismo RUT que la casa matriz, plan y suscripción propios.
+   * Vincula a los dueños (admin_local) de la casa matriz.
    */
   crearSucursal: nucleoProcedure
     .input(
@@ -93,56 +137,99 @@ export const localesRouter = router({
         casa_central_id: z.string().uuid(),
         nombre: z.string().min(2, "Ingresa el nombre de la sucursal"),
         direccion: z.string().min(3, "Ingresa la dirección"),
-        plan: z.enum(PLAN_IDS).optional(),
+        ciudad: z.string().trim().min(2, "Ingresa la ciudad").max(80),
+        telefono: telefonoSchema,
         tipo_local: z.enum(TIPOS_LOCAL).optional(),
+        encargado_nombre: z.string().trim().max(120).optional(),
+        encargado_telefono: z.string().trim().max(30).optional(),
+        plan: z.enum(PLAN_IDS),
+        email_admin: emailOpcionalSchema,
       })
     )
     .mutation(async ({ ctx, input }) => {
       const casaCentral = await ctx.prisma.tenant.findUnique({
         where: { id: input.casa_central_id },
         include: {
+          empresa: { select: { id: true, rut: true } },
           user_tenants: {
             include: { user: { select: { id: true, rol: true } } },
           },
+          suscripcion: { select: { dia_cobro: true } },
         },
       });
       if (!casaCentral) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Local de origen no encontrado." });
       }
 
-      const sucursal = await ctx.prisma.tenant.create({
-        data: {
-          nombre: input.nombre,
-          rut: casaCentral.rut,
-          direccion: input.direccion,
-          ciudad: casaCentral.ciudad,
-          plan: input.plan ?? casaCentral.plan,
-          tipo_local: input.tipo_local ?? casaCentral.tipo_local,
-          estado: "activo",
-        },
+      const plan = normalizarPlan(input.plan);
+      const alta = altaSuscripcionLocal({
+        plan,
+        diaCobro: casaCentral.suscripcion?.dia_cobro,
       });
 
-      // Vincular a los dueños de la casa central
-      const duenos = casaCentral.user_tenants.filter(
-        (ut) => ut.user.rol === "admin_local"
-      );
-      if (duenos.length > 0) {
-        await ctx.prisma.userTenant.createMany({
-          data: duenos.map((ut) => ({
-            user_id: ut.user_id,
-            tenant_id: sucursal.id,
-          })),
-          skipDuplicates: true,
+      const sucursal = await ctx.prisma.$transaction(async (tx) => {
+        const creada = await tx.tenant.create({
+          data: {
+            empresa_id: casaCentral.empresa_id,
+            nombre: input.nombre,
+            rut: casaCentral.empresa.rut,
+            direccion: input.direccion,
+            ciudad: input.ciudad,
+            telefono: input.telefono,
+            encargado_nombre: input.encargado_nombre,
+            encargado_telefono: input.encargado_telefono,
+            plan,
+            tipo_local: input.tipo_local ?? casaCentral.tipo_local,
+            estado: "pendiente",
+          },
         });
-        // Actualizar claims del JWT de cada dueño (fire & forget)
-        for (const ut of duenos) {
-          void syncUserClaims(ut.user_id).catch((err) => {
-            console.error("[crearSucursal] Error sincronizando claims:", err);
+        await tx.suscripcion.create({
+          data: {
+            tenant_id: creada.id,
+            ...alta,
+          },
+        });
+        const duenos = casaCentral.user_tenants.filter((ut) => ut.user.rol === "admin_local");
+        if (duenos.length > 0) {
+          await tx.userTenant.createMany({
+            data: duenos.map((ut) => ({
+              user_id: ut.user_id,
+              tenant_id: creada.id,
+            })),
+            skipDuplicates: true,
           });
+        }
+        return creada;
+      });
+
+      const duenos = casaCentral.user_tenants.filter((ut) => ut.user.rol === "admin_local");
+      for (const ut of duenos) {
+        void syncUserClaims(ut.user_id).catch((err) => {
+          console.error("[crearSucursal] Error sincronizando claims:", err);
+        });
+      }
+
+      let invitacion: { message: string } | null = null;
+      const emailAdmin = emailOpcional(input.email_admin);
+      if (emailAdmin) {
+        try {
+          invitacion = await invitarAdminLocal({
+            tenantId: sucursal.id,
+            tenantNombre: sucursal.nombre,
+            email: emailAdmin,
+            invitadorId: ctx.userId,
+          });
+        } catch (error) {
+          invitacion = {
+            message:
+              error instanceof Error
+                ? `Sucursal creada. No se pudo invitar: ${error.message}`
+                : "Sucursal creada. No se pudo enviar la invitación.",
+          };
         }
       }
 
-      return sucursal;
+      return { sucursal, invitacion };
     }),
 
   asignarAsesor: nucleoProcedure

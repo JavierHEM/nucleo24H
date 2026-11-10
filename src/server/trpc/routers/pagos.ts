@@ -20,6 +20,7 @@ import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { PLAN_IDS, finDeContrato } from "@/lib/planes";
 import { debitoAutorizado, mapPreapprovalStatus } from "@/lib/payments/debito";
 import { getCurrentPeriodo } from "@/lib/utils";
+import { habilitarLocalTrasPago } from "@/server/locales/habilitarTrasPago";
 import {
   cancelarPreapprovalDeSuscripcion,
   desactivarDebitoAutomatico,
@@ -507,6 +508,8 @@ export const pagosRouter = router({
           data: { estado: "activa" },
         });
       }
+
+      await habilitarLocalTrasPago(input.tenant_id);
 
       return pago;
     }),

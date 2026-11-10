@@ -176,8 +176,10 @@ export function LocalSelector({ locales, tenantActivo, isAdmin = false, align = 
                           <IconBuildingStore size={14} className="text-[#5B6980] shrink-0" />
                           <span className="flex-1 min-w-0">
                             <span className="block truncate text-[#0B1B33]">{local.nombre}</span>
-                            {grupo.sucursales.length > 0 && local.id !== grupo.casaCentral.id && (
-                              <span className="block text-[11px] text-[#94A3B8]">Sucursal</span>
+                            {grupo.sucursales.length > 0 && (
+                              <span className="block text-[11px] text-[#94A3B8]">
+                                {local.id === grupo.casaCentral.id ? "Casa matriz" : "Sucursal"}
+                              </span>
                             )}
                           </span>
                           {seleccionado && <IconCheck size={14} className="text-[#2F6B2A] shrink-0" />}

@@ -1,12 +1,18 @@
 import { z } from "zod";
+import { normalizarEmail } from "@/lib/auth/email";
+
+const emailUnico = z
+  .string()
+  .email("Email inválido")
+  .transform((valor) => normalizarEmail(valor));
 
 export const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: emailUnico,
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
 
 export const registerSchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: emailUnico,
   password: z
     .string()
     .min(8, "La contraseña debe tener al menos 8 caracteres")

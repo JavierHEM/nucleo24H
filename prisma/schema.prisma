@@ -8,17 +8,41 @@ datasource db {
 
 // ── Core ──────────────────────────────────────────────────────────────
 
-model Tenant {
-  id         String   @id @default(uuid())
-  nombre     String
-  rut        String   // RUT de la empresa — compartido entre casa central y sucursales
-  direccion  String
-  ciudad     String   @default("Osorno")
-  plan       String   // 'calidad' | 'integral'
-  tipo_local String   @default("restaurante") // 'restaurante' | 'cafeteria' | 'cocineria' | 'food_truck'
-  estado     String   @default("activo") // 'activo' | 'suspendido' | 'baja'
-  created_at DateTime @default(now())
+model Empresa {
+  id                           String   @id @default(uuid())
+  razon_social                 String
+  rut                          String   @unique
+  giro                         String?
+  domicilio_legal              String?
+  telefono                     String   @default("")
+  email                        String?
+  representante_legal_nombre   String   @default("")
+  representante_legal_rut      String   @default("")
+  representante_legal_telefono String?
+  notas_internas               String?
+  created_at                   DateTime @default(now())
 
+  locales Tenant[]
+
+  @@index([razon_social])
+}
+
+model Tenant {
+  id                 String   @id @default(uuid())
+  empresa_id         String
+  nombre             String
+  rut                String   // copia del RUT de Empresa — sello, selector y PDFs
+  direccion          String
+  ciudad             String   @default("Osorno")
+  telefono           String   @default("")
+  encargado_nombre   String?
+  encargado_telefono String?
+  plan               String   // 'calidad' | 'integral'
+  tipo_local         String   @default("restaurante") // 'restaurante' | 'cafeteria' | 'cocineria' | 'food_truck'
+  estado             String   @default("pendiente") // 'pendiente' | 'activo' | 'suspendido' | 'baja'
+  created_at         DateTime @default(now())
+
+  empresa           Empresa            @relation(fields: [empresa_id], references: [id])
   user_tenants      UserTenant[]
   gestion_ambiental GestionAmbiental[]
   fiscalizaciones   Fiscalizacion[]
@@ -43,6 +67,7 @@ model Tenant {
   capacitacion_registros CapacitacionRegistro[]
 
   @@index([rut])
+  @@index([empresa_id])
 }
 
 model User {
@@ -680,4 +705,19 @@ model Lead {
 
   @@index([created_at])
   @@index([telefono, created_at])
+}
+
+model Tutorial {
+  id           String   @id @default(uuid())
+  titulo       String
+  descripcion  String   @default("")
+  ruta_video   String
+  duracion_s   Int?
+  activo       Boolean  @default(true)
+  roles_acceso String[] @default([])
+  creado_por   String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([activo, created_at])
 }

@@ -35,4 +35,34 @@ describe("agruparPorEmpresa", () => {
     expect(grupos[0].casaCentral.nombre).toBe("Local de Prueba");
     expect(grupos[0].sucursales).toHaveLength(0);
   });
+
+  it("agrupa por empresa_id aunque el RUT esté escrito distinto", () => {
+    const grupos = agruparPorEmpresa([
+      {
+        id: "s1",
+        nombre: "Sucursal",
+        rut: "22.222.222-2",
+        empresa_id: "emp-1",
+        created_at: "2026-10-01T00:00:00.000Z",
+      },
+      {
+        id: "c1",
+        nombre: "Casa",
+        rut: "22222222-2",
+        empresa_id: "emp-1",
+        created_at: "2026-09-01T00:00:00.000Z",
+      },
+      {
+        id: "otra",
+        nombre: "Otra",
+        rut: "22222222-2",
+        empresa_id: "emp-2",
+        created_at: "2026-08-01T00:00:00.000Z",
+      },
+    ]);
+
+    expect(grupos).toHaveLength(2);
+    const emp1 = grupos.find((g) => g.casaCentral.id === "c1");
+    expect(emp1?.sucursales.map((s) => s.id)).toEqual(["s1"]);
+  });
 });

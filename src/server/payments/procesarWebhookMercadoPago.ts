@@ -370,5 +370,10 @@ async function persistirTransicionPago(args: {
     });
   }
 
+  if (args.estado === "pagado") {
+    const { habilitarLocalTrasPago } = await import("@/server/locales/habilitarTrasPago");
+    await habilitarLocalTrasPago(args.pago.tenant_id);
+  }
+
   return NextResponse.json({ ok: true, estado: args.estado });
 }

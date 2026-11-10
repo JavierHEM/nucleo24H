@@ -21,8 +21,8 @@ export function ScoreCards({ items }: { items: ScoreItem[] }) {
             <p
               className={`mt-1.5 font-semibold break-words ${TONO[item.tone ?? "neutral"]} ${
                 typeof item.value === "number"
-                  ? "font-mono text-4xl leading-none tabular-nums"
-                  : "text-xl leading-snug tracking-tight"
+                  ? "font-mono text-3xl sm:text-4xl leading-none tabular-nums"
+                  : "text-lg sm:text-xl leading-snug tracking-tight"
               }`}
             >
               {item.value}

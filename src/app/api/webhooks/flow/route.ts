@@ -72,6 +72,8 @@ export async function POST(req: NextRequest) {
         where: { id: pago.suscripcion_id },
         data: { estado: "activa" },
       });
+      const { habilitarLocalTrasPago } = await import("@/server/locales/habilitarTrasPago");
+      await habilitarLocalTrasPago(pago.tenant_id);
     }
 
     return NextResponse.json({ ok: true, estado });

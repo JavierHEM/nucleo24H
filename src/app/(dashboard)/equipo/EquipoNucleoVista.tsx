@@ -253,7 +253,7 @@ function EmpresaFilas({ empresa }: { empresa: EmpresaEquipo }) {
               <p className="text-xs text-[#5B6980]">
                 {empresa.miembros.length} persona{empresa.miembros.length === 1 ? "" : "s"} ·{" "}
                 {empresa.locales.length === 1
-                  ? "1 local, sin sucursales"
+                  ? "1 local · casa matriz"
                   : `${empresa.locales.length} locales · ${sucursales} sucursal${sucursales === 1 ? "" : "es"}`}
               </p>
             </div>

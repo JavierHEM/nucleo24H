@@ -1,8 +1,8 @@
-export const BUCKETS = ["registros", "documentos", "hallazgos"] as const;
+export const BUCKETS = ["registros", "documentos", "hallazgos", "tutoriales"] as const;
 export type BucketArchivo = (typeof BUCKETS)[number];
 
 const RUTA =
-  /^(registros|documentos|hallazgos)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/[^/]+$/i;
+  /^(registros|documentos|hallazgos|tutoriales)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/[^/]+$/i;
 
 export function parseRuta(ruta: string) {
   const match = RUTA.exec(ruta);
@@ -39,6 +39,14 @@ export function hrefArchivo(valor: string) {
 
 export function esImagenRuta(ruta: string) {
   return /\.(jpe?g|png|webp)$/i.test(ruta);
+}
+
+export function esVideoRuta(ruta: string) {
+  return /\.(mp4|webm|mov)$/i.test(ruta);
+}
+
+export function esRutaTutorial(ruta: string) {
+  return parseRuta(ruta)?.bucket === "tutoriales";
 }
 
 export function sonRutasHallazgoDelLocal(rutas: string[], tenantId: string) {

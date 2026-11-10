@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { crearUrlDeLectura } from "@/lib/storage/archivos";
 import { parseRuta } from "@/lib/storage/rutas";
+import { puedeVerTutorial } from "@/lib/tutoriales";
 
 export async function GET(req: NextRequest) {
   const ruta = req.nextUrl.searchParams.get("ruta") ?? "";
@@ -19,17 +20,36 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const permitido = await puedeLeer(user.id, parsed.tenantId);
+  const permitido =
+    parsed.bucket === "tutoriales"
+      ? await puedeLeerTutorial(user.id, parsed.tenantId)
+      : await puedeLeer(user.id, parsed.tenantId);
   if (!permitido) {
     return NextResponse.json({ error: "Sin permisos para ver este archivo" }, { status: 403 });
   }
 
-  const signedUrl = await crearUrlDeLectura(ruta);
+  const signedUrl = await crearUrlDeLectura(ruta, parsed.bucket === "tutoriales" ? 3600 : 120);
   if (!signedUrl) {
     return NextResponse.json({ error: "No se pudo abrir el archivo" }, { status: 404 });
   }
 
   return NextResponse.redirect(signedUrl);
+}
+
+async function puedeLeerTutorial(userId: string, tutorialId: string) {
+  const [dbUser, tutorial] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { rol: true, activo: true } }),
+    prisma.tutorial.findUnique({
+      where: { id: tutorialId },
+      select: { activo: true, roles_acceso: true },
+    }),
+  ]);
+  if (!dbUser?.activo || !tutorial) return false;
+  return puedeVerTutorial({
+    rol: dbUser.rol,
+    activo: tutorial.activo,
+    roles: tutorial.roles_acceso,
+  });
 }
 
 async function puedeLeer(userId: string, tenantId: string) {

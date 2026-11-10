@@ -6,6 +6,7 @@ import { arsopbRouter } from "./routers/arsopb";
 import { visitasRouter } from "./routers/visitas";
 import { comunicacionesRouter } from "./routers/comunicaciones";
 import { localesRouter } from "./routers/locales";
+import { empresasRouter } from "./routers/empresas";
 import { tareasRouter } from "./routers/tareas";
 import { informesRouter } from "./routers/informes";
 import { pagosRouter } from "./routers/pagos";
@@ -20,6 +21,7 @@ import { proveedoresRouter } from "./routers/proveedores";
 import { capacitacionesLmsRouter } from "./routers/capacitacionesLms";
 import { declaracionesRouter } from "./routers/declaraciones";
 import { alertasRouter } from "./routers/alertas";
+import { tutorialesRouter } from "./routers/tutoriales";
 
 export const appRouter = router({
   sellos: sellosRouter,
@@ -29,6 +31,7 @@ export const appRouter = router({
   visitas: visitasRouter,
   comunicaciones: comunicacionesRouter,
   locales: localesRouter,
+  empresas: empresasRouter,
   tareas: tareasRouter,
   informes: informesRouter,
   pagos: pagosRouter,
@@ -43,6 +46,7 @@ export const appRouter = router({
   capacitacionesLms: capacitacionesLmsRouter,
   declaraciones: declaracionesRouter,
   alertas: alertasRouter,
+  tutoriales: tutorialesRouter,
 });
 
 export type AppRouter = typeof appRouter;

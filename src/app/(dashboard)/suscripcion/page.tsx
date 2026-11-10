@@ -203,7 +203,7 @@ export default async function SuscripcionPage() {
       <div className="bg-white rounded-xl border border-[#DDE3EA] shadow-sm p-5">
         <p className="text-sm font-semibold text-[#0B1B33]">Contrato anual</p>
         {contrato.estado === "sin_definir" ? (
-          <p className="text-sm text-[#5B6980] mt-1">Casa central aún no define las fechas de tu contrato.</p>
+          <p className="text-sm text-[#5B6980] mt-1">Núcleo aún no define las fechas de tu contrato.</p>
         ) : (
           <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
             <div>

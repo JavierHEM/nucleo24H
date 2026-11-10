@@ -103,6 +103,8 @@ describe("rbac – restricciones de rol en rutas /admin y /asesor", () => {
   it("admin_nucleo puede acceder a /admin", () => {
     expect(canAccess("/admin", "admin_nucleo")).toBe(true);
     expect(canAccess("/admin/locales", "admin_nucleo")).toBe(true);
+    expect(canAccess("/admin/locales/26103807-8", "admin_nucleo")).toBe(true);
+    expect(canAccess("/admin/tutoriales", "admin_nucleo")).toBe(true);
   });
 
   it("admin_local NO puede acceder a /admin", () =>

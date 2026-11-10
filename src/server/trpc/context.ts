@@ -25,7 +25,7 @@ async function resolveAdminNucleoTenant(
 ): Promise<string | null> {
   if (tenantActivoCookie) {
     const fromCookie = await prisma.tenant.findFirst({
-      where: { id: tenantActivoCookie, estado: { not: "baja" } },
+      where: { id: tenantActivoCookie, estado: { in: ["activo", "suspendido"] } },
       select: { id: true },
     });
     if (fromCookie) return fromCookie.id;
