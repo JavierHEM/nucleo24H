@@ -21,6 +21,11 @@ export function destinoTrasOnboarding(valor: string | null | undefined, rol?: st
   return limpio;
 }
 
+/** redirectTo de generateLink: tiene que estar en Authentication → URL Configuration. */
+export function redirectInvitacion(appUrl: string) {
+  return `${appUrl.replace(/\/$/, "")}/api/auth/callback`;
+}
+
 /** Link propio de la app. El de Supabase deja la sesión en el fragmento y el servidor nunca la ve. */
 export function enlaceDeAcceso(
   appUrl: string,

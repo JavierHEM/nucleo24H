@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
-import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { enlaceDeAcceso, redirectInvitacion } from "@/lib/auth/enlaceInvitacion";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
 
 const bodySchema = z.object({
@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email: dueño.email,
+    options: { redirectTo: redirectInvitacion(appUrl) },
   });
   const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/");
   if (linkError || !linkAcceso) {

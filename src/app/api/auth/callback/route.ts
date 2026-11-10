@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
@@ -33,7 +35,12 @@ export async function GET(req: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            res.cookies.set(name, value, options);
+            res.cookies.set(name, value, {
+              ...options,
+              path: "/",
+              sameSite: "lax",
+              secure: origin.startsWith("https"),
+            });
           });
         },
       },
@@ -47,7 +54,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${origin}/login?error=auth_callback`);
     }
 
-    if (data.user?.id) await syncUserClaims(data.user.id);
+    if (data.user?.id) {
+      await syncUserClaims(data.user.id).catch((err) =>
+        console.error("[auth/callback] syncUserClaims:", err)
+      );
+    }
 
     const invitado = type === "invite" || Boolean(data.user?.invited_at);
     const rol = typeof data.user?.app_metadata?.rol === "string" ? data.user.app_metadata.rol : null;
@@ -69,7 +80,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=auth_callback`);
   }
 
-  if (data.user?.id) await syncUserClaims(data.user.id);
+  if (data.user?.id) {
+    await syncUserClaims(data.user.id).catch((err) =>
+      console.error("[auth/callback] syncUserClaims:", err)
+    );
+  }
 
   if (type === "invite" || data.user?.invited_at || data.user?.user_metadata?.invited_at) {
     const rol = typeof data.user?.app_metadata?.rol === "string" ? data.user.app_metadata.rol : null;

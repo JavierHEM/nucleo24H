@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -126,13 +126,5 @@ function RecuperarForm() {
 }
 
 export default function RecuperarPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#F4F6F3]">
-        <div className="w-8 h-8 border-2 border-[#2F6B2A] border-t-transparent rounded-full animate-spin" />
-      </div>
-    }>
-      <RecuperarForm />
-    </Suspense>
-  );
+  return <RecuperarForm />;
 }

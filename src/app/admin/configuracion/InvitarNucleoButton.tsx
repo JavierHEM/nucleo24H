@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +15,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function InvitarNucleoButton() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [serverError, setServerError] = useState("");
@@ -41,6 +43,7 @@ export function InvitarNucleoButton() {
     }
     setSuccess(data.email);
     reset();
+    router.refresh();
   }
 
   function close() {

@@ -9,6 +9,7 @@ import {
   Heading,
   Hr,
   Button,
+  Link,
 } from "@react-email/components";
 import { APP_NAME, APP_FOOTER, LOGO_PATHS, absoluteAssetUrl } from "@/lib/branding";
 
@@ -97,6 +98,12 @@ export function InvitacionAsesorEmail({ nombre, invitadoPor, linkAcceso }: Props
                 Crear cuenta y acceder
               </Button>
             </Section>
+            <Text style={{ fontSize: 12, color: "#5B6980", margin: "16px 0 0 0", wordBreak: "break-all" }}>
+              Si el botón no abre, copia este enlace:{" "}
+              <Link href={linkAcceso} style={{ color: "#2F6B2A" }}>
+                {linkAcceso}
+              </Link>
+            </Text>
 
             <Hr style={{ borderColor: "#DDE3EA", margin: "24px 0" }} />
 

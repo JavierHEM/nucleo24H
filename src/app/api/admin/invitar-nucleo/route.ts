@@ -6,7 +6,7 @@ import { prisma } from "@/server/db/prisma";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionNucleo } from "@/lib/email/sendInvitacion";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
-import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { enlaceDeAcceso, redirectInvitacion } from "@/lib/auth/enlaceInvitacion";
 import { normalizarEmail } from "@/lib/auth/email";
 import { idCuentaPorEmail } from "@/server/usuarios/porEmail";
 
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
   const { data: linkData, error: linkError } = await adminSupabase.auth.admin.generateLink({
     type: "invite",
     email,
-    options: { data: { nombre } },
+    options: { data: { nombre }, redirectTo: redirectInvitacion(appUrl) },
   });
 
   if (linkError || !linkData.user) {

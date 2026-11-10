@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { syncUserClaims } from "@/lib/supabase/claims";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
-import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { enlaceDeAcceso, redirectInvitacion } from "@/lib/auth/enlaceInvitacion";
 import { normalizarEmail } from "@/lib/auth/email";
 import { idCuentaPorEmail } from "@/server/usuarios/porEmail";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
@@ -39,6 +39,7 @@ export async function invitarAdminLocal(args: {
     email,
     options: {
       data: { nombre: email.split("@")[0] ?? email },
+      redirectTo: redirectInvitacion(appUrl),
     },
   });
 

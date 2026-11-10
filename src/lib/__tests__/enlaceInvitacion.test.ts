@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { destinoTrasOnboarding, enlaceDeAcceso, nextSeguro } from "@/lib/auth/enlaceInvitacion";
+import { destinoTrasOnboarding, enlaceDeAcceso, nextSeguro, redirectInvitacion } from "@/lib/auth/enlaceInvitacion";
 
 describe("enlace de invitación", () => {
   it("apunta al callback con el token, no al verificador de Supabase", () => {
@@ -19,6 +19,10 @@ describe("enlace de invitación", () => {
     expect(enlaceDeAcceso("https://nucleo-mu.vercel.app", { hashed_token: "abc" }, "https://otro.cl")).toContain(
       "next=%2F"
     );
+  });
+
+  it("el redirectTo de generateLink apunta al callback de la app", () => {
+    expect(redirectInvitacion("https://nucleo24h.cl")).toBe("https://nucleo24h.cl/api/auth/callback");
   });
 
   it("no deja a Núcleo en /onboarding después de crear la clave", () => {
