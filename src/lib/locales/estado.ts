@@ -1,6 +1,9 @@
 export const ESTADOS_LOCAL = ["pendiente", "activo", "suspendido", "baja"] as const;
 export type EstadoLocal = (typeof ESTADOS_LOCAL)[number];
 
+/** Núcleo puede seleccionar un local pendiente para cobrar o probar el pago. */
+export const ESTADOS_LOCAL_NUCLEO = ["pendiente", "activo", "suspendido"] as const;
+
 export const ETIQUETA_ESTADO_LOCAL: Record<
   EstadoLocal,
   { label: string; className: string }

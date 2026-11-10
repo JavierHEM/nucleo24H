@@ -2,6 +2,8 @@ import { IconCreditCard, IconBuildingStore } from "@tabler/icons-react";
 import { getCaller } from "@/lib/trpc/server";
 import { formatCLP, formatDate, formatPeriodo, getCurrentPeriodo, cn } from "@/lib/utils";
 import { RegistrarPagoButton } from "./RegistrarPagoButton";
+import { PagarPruebaMpButton } from "./PagarPruebaMpButton";
+import { pruebaMpNucleoActiva } from "@/lib/payments/pruebaNucleo";
 import { ConfigurarSuscripcionButton } from "./ConfigurarSuscripcionButton";
 import { RenovarContratoButton } from "./RenovarContratoButton";
 import { ALZA_TARIFA_DESDE, estadoContrato, precioConIva, TARIFA_NETA_DESDE_2027 } from "@/lib/planes";
@@ -204,12 +206,17 @@ export default async function AdminPagosPage() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-3">
                         {!pagado && (
-                          <RegistrarPagoButton
-                            tenantId={local.id}
-                            tenantNombre={local.nombre}
-                            periodo={periodo}
-                            montoSugerido={local.montoMensual}
-                          />
+                          <>
+                            {pruebaMpNucleoActiva() && (
+                              <PagarPruebaMpButton tenantId={local.id} periodo={periodo} />
+                            )}
+                            <RegistrarPagoButton
+                              tenantId={local.id}
+                              tenantNombre={local.nombre}
+                              periodo={periodo}
+                              montoSugerido={local.montoMensual}
+                            />
+                          </>
                         )}
                         {local.suscripcion && (contrato.estado === "por_vencer" || contrato.estado === "vencido") && (
                           <RenovarContratoButton tenantId={local.id} tenantNombre={local.nombre} />

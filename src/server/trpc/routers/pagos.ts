@@ -9,13 +9,9 @@ import {
   PLAN_PRECIOS_CLP,
   FlowNotConfiguredError,
 } from "@/lib/payments/flow";
-import {
-  createMercadoPagoPreference,
-  isMercadoPagoConfigured,
-  modoMercadoPago,
-  urlCheckoutMercadoPago,
-  MercadoPagoNotConfiguredError,
-} from "@/lib/payments/mercadopago";
+import { isMercadoPagoConfigured, modoMercadoPago } from "@/lib/payments/mercadopago";
+import { montoMercadoPagoParaRol, pruebaMpNucleoActiva } from "@/lib/payments/pruebaNucleo";
+import { iniciarPagoMercadoPago } from "@/server/payments/iniciarPagoMercadoPago";
 import { APP_NAME, getAppUrl } from "@/lib/branding";
 import { PLAN_IDS, finDeContrato } from "@/lib/planes";
 import { debitoAutorizado, mapPreapprovalStatus } from "@/lib/payments/debito";
@@ -61,14 +57,18 @@ export const pagosRouter = router({
       }),
     ]);
 
+    const montoMensual =
+      suscripcion?.monto_clp ??
+      PLAN_PRECIOS_CLP[tenant?.plan ?? "calidad"] ??
+      PLAN_PRECIOS_CLP.calidad;
+
     return {
       suscripcion,
       pagos,
       plan: suscripcion?.plan ?? tenant?.plan ?? "calidad",
-      montoMensual:
-        suscripcion?.monto_clp ??
-        PLAN_PRECIOS_CLP[tenant?.plan ?? "calidad"] ??
-        PLAN_PRECIOS_CLP.calidad,
+      montoMensual,
+      montoCheckout: montoMercadoPagoParaRol(ctx.userRole, montoMensual),
+      cargoPruebaNucleo: ctx.userRole === "admin_nucleo" && pruebaMpNucleoActiva(),
       pagosEnLineaDisponibles: isMercadoPagoConfigured() || isFlowConfigured(),
       medioPagoEnLinea: isMercadoPagoConfigured()
         ? "mercadopago"
@@ -222,77 +222,41 @@ export const pagosRouter = router({
       }
     }),
 
-  /** Inicia un pago en línea vía Mercado Pago — retorna URL de checkout. Inactivo hasta tener credenciales. */
+  /** Inicia un pago en línea vía Mercado Pago — retorna URL de checkout. */
   pagarMercadoPago: adminLocalProcedure
     .input(z.object({ periodo: z.string().regex(PERIODO_REGEX) }))
     .mutation(async ({ ctx, input }) => {
-      const tenantId = ctx.tenantActivo!;
+      return iniciarPagoMercadoPago({
+        prisma: ctx.prisma,
+        tenantId: ctx.tenantActivo!,
+        userId: ctx.userId!,
+        userRole: ctx.userRole,
+        periodo: input.periodo,
+      });
+    }),
 
-      if (!isMercadoPagoConfigured()) {
+  /** Núcleo: checkout de prueba (100 CLP) contra un local, incluso si está pendiente. */
+  pagarMercadoPagoNucleo: nucleoProcedure
+    .input(
+      z.object({
+        tenant_id: z.string().uuid(),
+        periodo: z.string().regex(PERIODO_REGEX),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!pruebaMpNucleoActiva()) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: "Los pagos con Mercado Pago aún no están disponibles.",
+          message: "El cargo de prueba de Mercado Pago no está habilitado.",
         });
       }
-
-      const yaPagado = await ctx.prisma.pago.findFirst({
-        where: { tenant_id: tenantId, periodo: input.periodo, estado: "pagado" },
+      return iniciarPagoMercadoPago({
+        prisma: ctx.prisma,
+        tenantId: input.tenant_id,
+        userId: ctx.userId!,
+        userRole: ctx.userRole,
+        periodo: input.periodo,
       });
-      if (yaPagado) {
-        throw new TRPCError({ code: "CONFLICT", message: `El período ${input.periodo} ya está pagado.` });
-      }
-
-      const [suscripcion, tenant, user] = await Promise.all([
-        ctx.prisma.suscripcion.findUnique({ where: { tenant_id: tenantId } }),
-        ctx.prisma.tenant.findUnique({ where: { id: tenantId }, select: { nombre: true, plan: true } }),
-        ctx.prisma.user.findUnique({ where: { id: ctx.userId! }, select: { email: true } }),
-      ]);
-      if (!tenant || !user?.email) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontró el local o tu email de contacto." });
-      }
-
-      const monto = suscripcion?.monto_clp ?? PLAN_PRECIOS_CLP[tenant.plan] ?? PLAN_PRECIOS_CLP.calidad;
-
-      await ctx.prisma.pago.updateMany({
-        where: { tenant_id: tenantId, periodo: input.periodo, metodo: "mercadopago", estado: "pendiente" },
-        data: { estado: "anulado" },
-      });
-
-      const pago = await ctx.prisma.pago.create({
-        data: {
-          tenant_id: tenantId,
-          suscripcion_id: suscripcion?.id ?? null,
-          periodo: input.periodo,
-          monto_clp: monto,
-          metodo: "mercadopago",
-          estado: "pendiente",
-        },
-      });
-
-      const appUrl = getAppUrl();
-      const modo = modoMercadoPago();
-
-      try {
-        const preferencia = await createMercadoPagoPreference({
-          pagoId: pago.id,
-          titulo: `${APP_NAME} — ${tenant.nombre} — ${input.periodo}`,
-          monto,
-          email: user.email,
-          urlRetorno: `${appUrl}/api/pagos/retorno`,
-          urlNotificacion: `${appUrl}/api/webhooks/mercadopago/${modo}`,
-        });
-        return { redirectUrl: urlCheckoutMercadoPago(preferencia) };
-      } catch (err) {
-        await ctx.prisma.pago.update({ where: { id: pago.id }, data: { estado: "anulado" } });
-        if (err instanceof MercadoPagoNotConfiguredError) {
-          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Los pagos con Mercado Pago aún no están disponibles." });
-        }
-        console.error("[pagos.pagarMercadoPago] Error creando preferencia:", err, { pagoId: pago.id, tenantId });
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "No pudimos iniciar el pago. Intenta de nuevo en unos minutos.",
-        });
-      }
     }),
 
   cancelar: adminLocalProcedure.mutation(async ({ ctx }) => {

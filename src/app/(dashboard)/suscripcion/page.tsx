@@ -104,6 +104,12 @@ export default async function SuscripcionPage() {
         ]}
       />
 
+      {data.cargoPruebaNucleo && (
+        <div className="rounded-xl border border-[#E3B341] bg-[#FFF8E6] px-4 py-3 text-sm text-[#5B3B00]">
+          Cargo temporal de Núcleo: Mercado Pago cobrará {formatCLP(data.montoCheckout)} en vez de la
+          tarifa del plan. El débito automático sigue usando el monto real y queda deshabilitado acá.
+        </div>
+      )}
       {data.modoMercadoPago === "prueba" && (
         <div className="rounded-xl border border-[#E3B341] bg-[#FFF8E6] px-4 py-3 text-sm text-[#5B3B00]">
           Los pagos están en <span className="font-medium">modo prueba</span>. Cuando cambien las
@@ -153,7 +159,7 @@ export default async function SuscripcionPage() {
             {!pagoPeriodoActual && (
               <PagarButton
                 periodo={periodoActual}
-                monto={data.montoMensual}
+                monto={data.montoCheckout}
                 disponible={data.pagosEnLineaDisponibles}
               />
             )}
@@ -186,7 +192,7 @@ export default async function SuscripcionPage() {
                 ? "Quedó pendiente autorizar el débito en Mercado Pago."
                 : "Hoy pagas cada mes a mano. Si activas el débito, autorizas una vez y el cargo se repite solo."}
             </p>
-            {data.pagosEnLineaDisponibles && data.suscripcion?.estado !== "cancelada" && data.suscripcion?.estado !== "suspendida" && (
+            {data.pagosEnLineaDisponibles && !data.cargoPruebaNucleo && data.suscripcion?.estado !== "cancelada" && data.suscripcion?.estado !== "suspendida" && (
               <div className="mt-4">
                 <ActivarDebitoButton
                   monto={data.montoMensual}

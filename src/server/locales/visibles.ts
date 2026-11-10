@@ -1,12 +1,13 @@
 import { prisma } from "@/server/db/prisma";
 import type { UserRole } from "@/server/trpc/context";
+import { ESTADOS_LOCAL_NUCLEO } from "@/lib/locales/estado";
 
 const SELECT_LOCAL = { id: true, nombre: true, rut: true, created_at: true } as const;
 
 export async function localesVisibles(userId: string, userRole: UserRole | null) {
   if (userRole === "admin_nucleo") {
     return prisma.tenant.findMany({
-      where: { estado: { in: ["activo", "suspendido"] } },
+      where: { estado: { in: [...ESTADOS_LOCAL_NUCLEO] } },
       select: SELECT_LOCAL,
       orderBy: { nombre: "asc" },
     });

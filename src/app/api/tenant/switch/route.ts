@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
+import { ESTADOS_LOCAL_NUCLEO } from "@/lib/locales/estado";
 
 const bodySchema = z.object({
   tenantId: z.string().uuid(),
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
   const esNucleo = dbUser?.rol === "admin_nucleo";
   const tenant = await prisma.tenant.findFirst({
     where: esNucleo
-      ? { id: parsed.data.tenantId, estado: { in: ["activo", "suspendido"] } }
+      ? { id: parsed.data.tenantId, estado: { in: [...ESTADOS_LOCAL_NUCLEO] } }
       : { id: parsed.data.tenantId, estado: "activo" },
     select: { id: true },
   });

@@ -17,12 +17,14 @@ export const LOGO_SIZE = { width: 1320, height: 508 } as const;
 
 export const PRODUCTION_URL = "https://nucleo24h.cl";
 
-/** QR, PDFs y enlaces públicos nunca deben apuntar a un deploy de Vercel (pide login). */
+/** QR, PDFs e invitaciones nunca deben apuntar a localhost ni a un deploy de Vercel. */
 export function esUrlPublicaDeLaApp(url: string): boolean {
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
-    if (parsed.hostname.endsWith(".vercel.app")) return false;
+    if (parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    if (host === "localhost" || host === "127.0.0.1" || host === "[::1]") return false;
+    if (host.endsWith(".local") || host.endsWith(".vercel.app")) return false;
     return true;
   } catch {
     return false;
@@ -32,7 +34,7 @@ export function esUrlPublicaDeLaApp(url: string): boolean {
 export function getAppUrl(): string {
   const candidata = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
   if (candidata && esUrlPublicaDeLaApp(candidata)) return candidata;
-  return process.env.NODE_ENV === "production" ? PRODUCTION_URL : "http://localhost:3000";
+  return PRODUCTION_URL;
 }
 
 export function absoluteAssetUrl(path: string): string {

@@ -17,6 +17,8 @@ import { EditarEmpresaButton } from "../EditarEmpresaButton";
 import { InvitarDueñoButton } from "../InvitarDueñoButton";
 import { EstadoLocalButton } from "../EstadoLocalButton";
 import { RegistrarPagoButton } from "../../pagos/RegistrarPagoButton";
+import { PagarPruebaMpButton } from "../../pagos/PagarPruebaMpButton";
+import { pruebaMpNucleoActiva } from "@/lib/payments/pruebaNucleo";
 
 export default async function EmpresaLocalesPage({
   params,
@@ -251,12 +253,17 @@ export default async function EmpresaLocalesPage({
                   encargadoTelefono={local.encargado_telefono}
                 />
                 {local.estado === "pendiente" && (
-                  <RegistrarPagoButton
-                    tenantId={local.id}
-                    tenantNombre={local.nombre}
-                    periodo={getCurrentPeriodo()}
-                    montoSugerido={local.suscripcion?.monto_clp ?? PLANES[normalizarPlan(local.plan)].precio}
-                  />
+                  <>
+                    {pruebaMpNucleoActiva() && (
+                      <PagarPruebaMpButton tenantId={local.id} periodo={getCurrentPeriodo()} />
+                    )}
+                    <RegistrarPagoButton
+                      tenantId={local.id}
+                      tenantNombre={local.nombre}
+                      periodo={getCurrentPeriodo()}
+                      montoSugerido={local.suscripcion?.monto_clp ?? PLANES[normalizarPlan(local.plan)].precio}
+                    />
+                  </>
                 )}
                 {esCasa && local.estado !== "baja" && !tieneDueño.has(local.id) && (
                   <InvitarDueñoButton tenantId={local.id} />

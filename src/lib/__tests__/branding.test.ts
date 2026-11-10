@@ -12,6 +12,12 @@ describe("esUrlPublicaDeLaApp", () => {
     expect(esUrlPublicaDeLaApp("https://nucleo-mu.vercel.app")).toBe(false);
   });
 
+  it("rechaza localhost aunque esté en NEXT_PUBLIC_APP_URL", () => {
+    expect(esUrlPublicaDeLaApp("http://localhost:3000")).toBe(false);
+    expect(esUrlPublicaDeLaApp("https://localhost:3000")).toBe(false);
+    expect(esUrlPublicaDeLaApp("http://127.0.0.1:3000")).toBe(false);
+  });
+
   it("rechaza basura", () => {
     expect(esUrlPublicaDeLaApp("")).toBe(false);
     expect(esUrlPublicaDeLaApp("nucleo24h.cl")).toBe(false);
@@ -25,7 +31,12 @@ describe("getAppUrl", () => {
 
   it("ignora NEXT_PUBLIC_APP_URL si es un *.vercel.app", () => {
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://nucleo-javiers-projects-701ba2d1.vercel.app");
-    vi.stubEnv("NODE_ENV", "production");
+    expect(getAppUrl()).toBe(PRODUCTION_URL);
+  });
+
+  it("ignora localhost para que las invitaciones no salgan con el servidor local", () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    vi.stubEnv("NODE_ENV", "development");
     expect(getAppUrl()).toBe(PRODUCTION_URL);
   });
 

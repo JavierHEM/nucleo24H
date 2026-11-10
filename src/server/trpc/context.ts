@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { prisma } from "@/server/db/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { leerCookieTenantActivo } from "@/server/trpc/tenantCookie";
+import { ESTADOS_LOCAL_NUCLEO } from "@/lib/locales/estado";
 
 export type UserRole =
   | "trabajador_local"
@@ -25,14 +26,14 @@ async function resolveAdminNucleoTenant(
 ): Promise<string | null> {
   if (tenantActivoCookie) {
     const fromCookie = await prisma.tenant.findFirst({
-      where: { id: tenantActivoCookie, estado: { in: ["activo", "suspendido"] } },
+      where: { id: tenantActivoCookie, estado: { in: [...ESTADOS_LOCAL_NUCLEO] } },
       select: { id: true },
     });
     if (fromCookie) return fromCookie.id;
   }
 
   const first = await prisma.tenant.findFirst({
-    where: { estado: "activo" },
+    where: { estado: { in: [...ESTADOS_LOCAL_NUCLEO] } },
     select: { id: true },
     orderBy: { nombre: "asc" },
   });
