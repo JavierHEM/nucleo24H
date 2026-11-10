@@ -4,6 +4,7 @@ import {
   nextReenvioInvitacion,
   puedeReenviarInvitacion,
   tenantInvitacionLocal,
+  tipoLinkAcceso,
 } from "@/lib/auth/reenviarInvitacion";
 
 describe("reenviar invitación", () => {
@@ -27,6 +28,11 @@ describe("reenviar invitación", () => {
     expect(tenantInvitacionLocal("suc", vinculos)?.id).toBe("suc");
     expect(tenantInvitacionLocal("otro", vinculos)?.id).toBe("casa");
     expect(tenantInvitacionLocal(null, [])).toBeNull();
+  });
+
+  it("regenera invite si el correo aún no está confirmado", () => {
+    expect(tipoLinkAcceso(false)).toBe("invite");
+    expect(tipoLinkAcceso(true)).toBe("magiclink");
   });
 
   it("reconoce los roles que reciben invitación", () => {

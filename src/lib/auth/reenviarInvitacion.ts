@@ -23,6 +23,11 @@ export function puedeReenviarInvitacion(args: { activo: boolean; claveDefinida: 
   return args.activo && !args.claveDefinida;
 }
 
+/** Cuenta invitadas sin confirmar el correo no aceptan magiclink; hay que regenerar invite. */
+export function tipoLinkAcceso(emailConfirmado: boolean): "invite" | "magiclink" {
+  return emailConfirmado ? "magiclink" : "invite";
+}
+
 export function nextReenvioInvitacion(rol: RolInvitacion) {
   return destinoTrasOnboarding("/", rol);
 }

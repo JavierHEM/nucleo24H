@@ -1,7 +1,23 @@
+import type { EmailOtpType } from "@supabase/supabase-js";
+
 type PropiedadesLink = {
   hashed_token?: string | null;
   verification_type?: string | null;
 };
+
+export const TIPOS_OTP: EmailOtpType[] = ["invite", "magiclink", "recovery", "signup", "email"];
+
+export function esTipoOtp(valor: string | null): valor is EmailOtpType {
+  return TIPOS_OTP.includes(valor as EmailOtpType);
+}
+
+const OTP_RESPALDO: EmailOtpType[] = ["recovery", "invite", "magiclink", "email", "signup"];
+
+/** GoTrue a veces emite recovery aunque generateLink pida magiclink. Probamos el tipo del URL primero. */
+export function tiposOtpAProbar(preferido: string | null): EmailOtpType[] {
+  const primero = esTipoOtp(preferido) ? [preferido] : [];
+  return [...primero, ...OTP_RESPALDO.filter((tipo) => tipo !== primero[0])];
+}
 
 const RUTAS_QUE_NO_SON_DESTINO = new Set(["/onboarding", "/login", "/register", "/api/auth/callback"]);
 

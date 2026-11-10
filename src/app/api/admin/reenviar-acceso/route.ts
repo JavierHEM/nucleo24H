@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/server/db/prisma";
 import { sendInvitacionLocal } from "@/lib/email/sendInvitacion";
-import { enlaceDeAcceso, redirectInvitacion } from "@/lib/auth/enlaceInvitacion";
-import { APP_NAME, getAppUrl } from "@/lib/branding";
+import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
+import { APP_NAME } from "@/lib/branding";
+import { generarLinkAcceso } from "@/server/usuarios/generarLinkAcceso";
 
 const bodySchema = z.object({
   tenantId: z.string().uuid(),
@@ -43,8 +43,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Local no encontrado" }, { status: 404 });
   }
 
-  const pendientes = await prisma.$queryRaw<Array<{ id: string; email: string }>>`
-    SELECT au.id::text, au.email
+  const pendientes = await prisma.$queryRaw<
+    Array<{ id: string; email: string; email_confirmado: boolean }>
+  >`
+    SELECT
+      au.id::text,
+      au.email,
+      au.email_confirmed_at IS NOT NULL AS email_confirmado
     FROM auth.users au
     WHERE (
       au.raw_user_meta_data->>'tenant_id' = ${tenantId}
@@ -67,14 +72,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const admin = createAdminClient();
-  const appUrl = getAppUrl();
-  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-    type: "magiclink",
+  const { appUrl, properties, error: linkError } = await generarLinkAcceso({
     email: dueño.email,
-    options: { redirectTo: redirectInvitacion(appUrl) },
+    emailConfirmado: Boolean(dueño.email_confirmado),
   });
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/");
+  const linkAcceso = enlaceDeAcceso(appUrl, properties, "/");
   if (linkError || !linkAcceso) {
     console.error("[reenviar-acceso] Error generando link:", linkError);
     return NextResponse.json(

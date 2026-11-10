@@ -1,5 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
-import { enlaceDeAcceso, redirectInvitacion } from "@/lib/auth/enlaceInvitacion";
+import { enlaceDeAcceso } from "@/lib/auth/enlaceInvitacion";
 import { normalizarEmail } from "@/lib/auth/email";
 import {
   esRolInvitacion,
@@ -13,8 +12,9 @@ import {
   sendInvitacionLocal,
   sendInvitacionNucleo,
 } from "@/lib/email/sendInvitacion";
-import { APP_NAME, getAppUrl } from "@/lib/branding";
+import { APP_NAME } from "@/lib/branding";
 import { prisma } from "@/server/db/prisma";
+import { generarLinkAcceso } from "@/server/usuarios/generarLinkAcceso";
 import { idCuentaPorEmail } from "@/server/usuarios/porEmail";
 
 export class ErrorReenvio extends Error {
@@ -34,6 +34,7 @@ type CuentaAuth = {
   rol: string;
   activo: boolean;
   claveDefinida: boolean;
+  emailConfirmado: boolean;
   metadataTenantId: string | null;
 };
 
@@ -46,6 +47,7 @@ async function cuentaPorId(id: string): Promise<CuentaAuth | null> {
       rol: string;
       activo: boolean;
       clave_definida: boolean;
+      email_confirmado: boolean;
       metadataTenantId: string | null;
     }>
   >`
@@ -56,6 +58,7 @@ async function cuentaPorId(id: string): Promise<CuentaAuth | null> {
       u.rol,
       u.activo,
       COALESCE(au.raw_user_meta_data->>'clave_definida', '') = 'true' AS clave_definida,
+      au.email_confirmed_at IS NOT NULL AS email_confirmado,
       au.raw_user_meta_data->>'tenant_id' AS "metadataTenantId"
     FROM "User" u
     LEFT JOIN auth.users au ON au.id = u.id
@@ -71,6 +74,7 @@ async function cuentaPorId(id: string): Promise<CuentaAuth | null> {
     rol: fila.rol,
     activo: fila.activo,
     claveDefinida: Boolean(fila.clave_definida),
+    emailConfirmado: Boolean(fila.email_confirmado),
     metadataTenantId: fila.metadataTenantId,
   };
 }
@@ -159,15 +163,14 @@ export async function reenviarInvitacion(args: {
     nombreLocal = local.nombre;
   }
 
-  const admin = createAdminClient();
-  const appUrl = getAppUrl();
   const next = nextReenvioInvitacion(cuenta.rol);
-  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-    type: "magiclink",
+  const nombre = cuenta.nombre || cuenta.email.split("@")[0] || cuenta.email;
+  const { appUrl, properties, error: linkError } = await generarLinkAcceso({
     email: cuenta.email,
-    options: { redirectTo: redirectInvitacion(appUrl) },
+    nombre,
+    emailConfirmado: cuenta.emailConfirmado,
   });
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, next);
+  const linkAcceso = enlaceDeAcceso(appUrl, properties, next);
   if (linkError || !linkAcceso) {
     console.error("[reenviar-invitacion] Error generando link:", linkError);
     throw new ErrorReenvio(linkError?.message ?? "No se pudo reenviar la invitación.", 500);
@@ -176,7 +179,7 @@ export async function reenviarInvitacion(args: {
   await enviarCorreo({
     rol: cuenta.rol,
     to: cuenta.email,
-    nombre: cuenta.nombre || cuenta.email.split("@")[0] || cuenta.email,
+    nombre,
     invitadoPor: args.invitadorNombre || APP_NAME,
     linkAcceso,
     nombreLocal,
