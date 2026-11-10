@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc/client";
 import { localOperativoSchema, type LocalOperativoInput } from "@/lib/locales/ficha";
 import { TIPOS_LOCAL, TIPO_LOCAL_LABEL, normalizarTipoLocal } from "@/lib/planes";
+import { CasillasDocumentosLocal } from "./CasillasDocumentosLocal";
 
 const CAMPO =
   "mt-1 w-full min-h-12 rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm text-[#0B1B33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]";
@@ -24,6 +25,8 @@ export function EditarLocalButton({
   tipoLocal,
   encargadoNombre,
   encargadoTelefono,
+  resolucionSanitaria,
+  patenteComercial,
 }: {
   tenantId: string;
   nombre: string;
@@ -33,6 +36,8 @@ export function EditarLocalButton({
   tipoLocal: string;
   encargadoNombre: string | null;
   encargadoTelefono: string | null;
+  resolucionSanitaria: boolean;
+  patenteComercial: boolean;
 }) {
   const [abierto, setAbierto] = useState(false);
   const router = useRouter();
@@ -43,6 +48,8 @@ export function EditarLocalButton({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<LocalOperativoInput>({
     resolver: zodResolver(localOperativoSchema),
@@ -54,6 +61,8 @@ export function EditarLocalButton({
       tipo_local: normalizarTipoLocal(tipoLocal),
       encargado_nombre: encargadoNombre ?? "",
       encargado_telefono: encargadoTelefono ?? "",
+      resolucion_sanitaria_presentada: resolucionSanitaria,
+      patente_comercial_al_dia: patenteComercial,
     },
   });
 
@@ -72,6 +81,8 @@ export function EditarLocalButton({
       tipo_local: data.tipo_local,
       encargado_nombre: data.encargado_nombre ?? null,
       encargado_telefono: data.encargado_telefono ?? null,
+      resolucion_sanitaria_presentada: data.resolucion_sanitaria_presentada,
+      patente_comercial_al_dia: data.patente_comercial_al_dia,
     });
     void utils.locales.list.invalidate();
     void utils.locales.porRut.invalidate();
@@ -95,6 +106,7 @@ export function EditarLocalButton({
         abierto={abierto}
         titulo="Editar local"
         onCerrar={cerrar}
+        ancho="lg"
         pie={
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
             <Button type="button" variant="outline" className="min-h-12 rounded-xl" onClick={cerrar} disabled={actualizar.isPending}>
@@ -113,6 +125,14 @@ export function EditarLocalButton({
         }
       >
         <form id={`editar-local-${tenantId}`} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <CasillasDocumentosLocal
+            resolucionSanitaria={Boolean(watch("resolucion_sanitaria_presentada"))}
+            patenteComercial={Boolean(watch("patente_comercial_al_dia"))}
+            onResolucionSanitaria={(valor) =>
+              setValue("resolucion_sanitaria_presentada", valor, { shouldDirty: true })
+            }
+            onPatenteComercial={(valor) => setValue("patente_comercial_al_dia", valor, { shouldDirty: true })}
+          />
           <div>
             <Label htmlFor={`nombre-${tenantId}`}>Nombre</Label>
             <input id={`nombre-${tenantId}`} className={CAMPO} {...register("nombre")} />

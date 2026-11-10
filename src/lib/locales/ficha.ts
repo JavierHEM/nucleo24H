@@ -66,6 +66,8 @@ export const localOperativoSchema = z.object({
   tipo_local: z.enum(TIPOS_LOCAL),
   encargado_nombre: z.string().trim().max(120),
   encargado_telefono: telefonoOpcionalSchema,
+  resolucion_sanitaria_presentada: z.boolean(),
+  patente_comercial_al_dia: z.boolean(),
 });
 
 export const altaEmpresaSchema = z.object({

@@ -23,6 +23,8 @@ const localBase = {
   tipo_local: "cocineria" as const,
   encargado_nombre: "",
   encargado_telefono: "",
+  resolucion_sanitaria_presentada: false,
+  patente_comercial_al_dia: false,
 };
 
 describe("alta de empresa", () => {
@@ -39,7 +41,21 @@ describe("alta de empresa", () => {
     expect(alta.empresa.domicilio_legal).toBe("Freire 100");
     expect(alta.tenant.estado).toBe("pendiente");
     expect(alta.tenant.rut).toBe(alta.empresa.rut);
+    expect(alta.tenant.resolucion_sanitaria_presentada).toBe(false);
+    expect(alta.tenant.patente_comercial_al_dia).toBe(false);
     expect(alta.emailAdmin).toBeUndefined();
+  });
+
+  it("persiste resolución sanitaria y patente comercial del local", () => {
+    const parsed = altaEmpresaSchema.parse({
+      empresa: empresaBase,
+      local: { ...localBase, resolucion_sanitaria_presentada: true, patente_comercial_al_dia: true },
+      plan: "calidad",
+      email_admin: "",
+    });
+    const alta = construirAltaEmpresa(parsed);
+    expect(alta.tenant.resolucion_sanitaria_presentada).toBe(true);
+    expect(alta.tenant.patente_comercial_al_dia).toBe(true);
   });
 
   it("guarda el email del dueño solo si viene", () => {
@@ -70,6 +86,8 @@ describe("alta de sucursal", () => {
     expect(alta.tenant.empresa_id).toBe("emp-1");
     expect(alta.tenant.rut).toBe("76111111-1");
     expect(alta.tenant.estado).toBe("pendiente");
+    expect(alta.tenant.resolucion_sanitaria_presentada).toBe(false);
+    expect(alta.tenant.patente_comercial_al_dia).toBe(false);
     expect(alta.emailAdmin).toBeUndefined();
   });
 });

@@ -104,6 +104,8 @@ export const localesRouter = router({
         telefono: z.string().trim().max(30).optional(),
         encargado_nombre: z.string().trim().max(120).nullable().optional(),
         encargado_telefono: z.string().trim().max(30).nullable().optional(),
+        resolucion_sanitaria_presentada: z.boolean().optional(),
+        patente_comercial_al_dia: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -142,6 +144,8 @@ export const localesRouter = router({
         tipo_local: z.enum(TIPOS_LOCAL).optional(),
         encargado_nombre: z.string().trim().max(120).optional(),
         encargado_telefono: z.string().trim().max(30).optional(),
+        resolucion_sanitaria_presentada: z.boolean().default(false),
+        patente_comercial_al_dia: z.boolean().default(false),
         plan: z.enum(PLAN_IDS),
         email_admin: emailOpcionalSchema,
       })
@@ -178,6 +182,8 @@ export const localesRouter = router({
             telefono: input.telefono,
             encargado_nombre: input.encargado_nombre,
             encargado_telefono: input.encargado_telefono,
+            resolucion_sanitaria_presentada: input.resolucion_sanitaria_presentada,
+            patente_comercial_al_dia: input.patente_comercial_al_dia,
             plan,
             tipo_local: input.tipo_local ?? casaCentral.tipo_local,
             estado: "pendiente",

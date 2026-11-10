@@ -1,7 +1,18 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import { sendSelloEmitido } from "@/lib/email/sendSelloEmitido";
 import { recolectarSelloV2 } from "./recolectar";
 import type { ResultadoSelloV2 } from "@/lib/sellos/v2";
+
+function exigirDocumentosParaSello(resultado: ResultadoSelloV2) {
+  if (!resultado.bloqueo_documentos) return;
+  throw new TRPCError({
+    code: "PRECONDITION_FAILED",
+    message:
+      resultado.plan_mejoras[0] ??
+      "Este local no puede obtener el sello de Núcleo: falta resolución sanitaria y/o patente comercial al día.",
+  });
+}
 
 function datosV2(resultado: ResultadoSelloV2, snapshot: Prisma.InputJsonValue, propuestoPor: string) {
   return {
@@ -32,6 +43,7 @@ export async function proponerSelloV2(args: {
   userId: string;
 }) {
   const { resultado, detalle } = await recolectarSelloV2(args.prisma, args.tenantId, args.periodo);
+  exigirDocumentosParaSello(resultado);
   const existente = await args.prisma.sello.findUnique({
     where: { tenant_id_periodo: { tenant_id: args.tenantId, periodo: args.periodo } },
   });
@@ -60,6 +72,7 @@ export async function aprobarSelloV2(args: {
   userId: string;
 }) {
   const { resultado, detalle } = await recolectarSelloV2(args.prisma, args.tenantId, args.periodo);
+  exigirDocumentosParaSello(resultado);
   const datos = {
     ...datosV2(resultado, detalle as Prisma.InputJsonValue, args.userId),
     estado: "emitido",

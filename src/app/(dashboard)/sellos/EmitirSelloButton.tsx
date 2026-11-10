@@ -73,6 +73,12 @@ export function EmitirSelloButton({ tenantId, puedeAprobar = false }: Props) {
                 Seguimiento {resultado.score_seguimiento} · Visita {resultado.score_visita}
                 {resultado.bloqueo_critico ? " · Bloqueado por hallazgo crítico abierto" : ""}
               </p>
+              {resultado.bloqueo_documentos ? (
+                <p className="text-sm text-[#16294A] bg-[#E8EEF5] rounded-xl px-3 py-2">
+                  {resultado.plan_mejoras[0] ??
+                    "Sin resolución sanitaria y patente comercial al día no se emite sello de Núcleo."}
+                </p>
+              ) : null}
               <p className="text-xs text-[#5B6980]">{LEYENDA_ALCANCE_SELLO}</p>
             </div>
           )}
@@ -82,7 +88,7 @@ export function EmitirSelloButton({ tenantId, puedeAprobar = false }: Props) {
           <div className="flex flex-col gap-2">
             <button
               type="button"
-              disabled={proponer.isPending || !resultado}
+              disabled={proponer.isPending || !resultado || resultado.bloqueo_documentos}
               onClick={() => proponer.mutate({ tenant_id: tenantId, periodo })}
               className="min-h-12 rounded-lg bg-[#2F6B2A] text-white text-sm font-medium disabled:opacity-60"
             >
@@ -92,7 +98,7 @@ export function EmitirSelloButton({ tenantId, puedeAprobar = false }: Props) {
               <>
                 <button
                   type="button"
-                  disabled={aprobar.isPending || !resultado}
+                  disabled={aprobar.isPending || !resultado || resultado.bloqueo_documentos}
                   onClick={() => aprobar.mutate({ tenant_id: tenantId, periodo })}
                   className="min-h-12 rounded-lg bg-[#0B1B33] text-white text-sm font-medium disabled:opacity-60"
                 >

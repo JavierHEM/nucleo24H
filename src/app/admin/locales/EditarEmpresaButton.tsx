@@ -11,12 +11,14 @@ import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc/client";
 import { claveRut } from "@/lib/empresas";
 import { empresaFichaSchema, type EmpresaFichaInput } from "@/lib/locales/ficha";
+import { CasillasDocumentosLocal } from "./CasillasDocumentosLocal";
 
 const CAMPO =
   "mt-1 w-full min-h-12 rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm text-[#0B1B33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]";
 
 export function EditarEmpresaButton({
   empresa,
+  casaMatriz,
 }: {
   empresa: {
     id: string;
@@ -31,12 +33,21 @@ export function EditarEmpresaButton({
     representante_legal_telefono: string | null;
     notas_internas: string | null;
   };
+  casaMatriz: {
+    id: string;
+    resolucionSanitaria: boolean;
+    patenteComercial: boolean;
+  };
 }) {
   const [abierto, setAbierto] = useState(false);
+  const [resolucionSanitaria, setResolucionSanitaria] = useState(casaMatriz.resolucionSanitaria);
+  const [patenteComercial, setPatenteComercial] = useState(casaMatriz.patenteComercial);
   const router = useRouter();
   const utils = trpc.useUtils();
   const actualizar = trpc.empresas.actualizar.useMutation();
+  const actualizarLocal = trpc.locales.actualizar.useMutation();
   const rutOriginal = claveRut(empresa.rut);
+  const guardando = actualizar.isPending || actualizarLocal.isPending;
 
   const {
     register,
@@ -59,15 +70,31 @@ export function EditarEmpresaButton({
     },
   });
 
+  function abrir() {
+    setResolucionSanitaria(casaMatriz.resolucionSanitaria);
+    setPatenteComercial(casaMatriz.patenteComercial);
+    setAbierto(true);
+  }
+
   function cerrar() {
     reset();
+    setResolucionSanitaria(casaMatriz.resolucionSanitaria);
+    setPatenteComercial(casaMatriz.patenteComercial);
     setAbierto(false);
   }
 
   async function onSubmit(data: EmpresaFichaInput) {
-    const actualizada = await actualizar.mutateAsync({ id: empresa.id, ...data });
+    const [actualizada] = await Promise.all([
+      actualizar.mutateAsync({ id: empresa.id, ...data }),
+      actualizarLocal.mutateAsync({
+        id: casaMatriz.id,
+        resolucion_sanitaria_presentada: resolucionSanitaria,
+        patente_comercial_al_dia: patenteComercial,
+      }),
+    ]);
     void utils.empresas.porRut.invalidate();
     void utils.locales.list.invalidate();
+    void utils.locales.porRut.invalidate();
     cerrar();
     const rutNuevo = claveRut(actualizada.rut);
     if (rutNuevo !== rutOriginal) {
@@ -81,7 +108,7 @@ export function EditarEmpresaButton({
     <>
       <button
         type="button"
-        onClick={() => setAbierto(true)}
+        onClick={abrir}
         className="inline-flex items-center gap-1 min-h-11 px-3 rounded-lg text-xs font-medium text-[#16294A] border border-[#DDE3EA] hover:bg-[#F4F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]"
       >
         <IconPencil size={13} />
@@ -95,22 +122,28 @@ export function EditarEmpresaButton({
         ancho="lg"
         pie={
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <Button type="button" variant="outline" className="min-h-12 rounded-xl" onClick={cerrar} disabled={actualizar.isPending}>
+            <Button type="button" variant="outline" className="min-h-12 rounded-xl" onClick={cerrar} disabled={guardando}>
               Cancelar
             </Button>
             <Button
               type="submit"
               form={`editar-empresa-${empresa.id}`}
-              disabled={actualizar.isPending}
+              disabled={guardando}
               className="min-h-12 rounded-xl bg-[#2F6B2A] hover:bg-[#255620] text-white"
             >
-              {actualizar.isPending && <IconLoader2 size={16} className="animate-spin" />}
+              {guardando && <IconLoader2 size={16} className="animate-spin" />}
               Guardar ficha
             </Button>
           </div>
         }
       >
         <form id={`editar-empresa-${empresa.id}`} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <CasillasDocumentosLocal
+            resolucionSanitaria={resolucionSanitaria}
+            patenteComercial={patenteComercial}
+            onResolucionSanitaria={setResolucionSanitaria}
+            onPatenteComercial={setPatenteComercial}
+          />
           <div>
             <Label htmlFor={`razon-${empresa.id}`}>Razón social</Label>
             <input id={`razon-${empresa.id}`} className={CAMPO} {...register("razon_social")} />
@@ -171,9 +204,9 @@ export function EditarEmpresaButton({
             <Label htmlFor={`notas-${empresa.id}`}>Notas internas</Label>
             <textarea id={`notas-${empresa.id}`} rows={3} className={CAMPO} {...register("notas_internas")} />
           </div>
-          {actualizar.error && (
+          {(actualizar.error || actualizarLocal.error) && (
             <p className="text-sm text-[#B42318] bg-red-50 rounded-xl px-3 py-2" role="alert">
-              {actualizar.error.message}
+              {actualizar.error?.message ?? actualizarLocal.error?.message}
             </p>
           )}
         </form>

@@ -4,7 +4,8 @@ import { IconArrowLeft, IconBuildingStore, IconMapPin, IconPhone } from "@tabler
 import { getCaller } from "@/lib/trpc/server";
 import { prisma } from "@/server/db/prisma";
 import { etiquetaEstadoLocal } from "@/lib/locales/estado";
-import { etiquetaSitioEmpresa } from "@/lib/locales/etiquetasEmpresa";
+import { etiquetaSiNo, etiquetaSitioEmpresa } from "@/lib/locales/etiquetasEmpresa";
+import { documentosHabilitanSello, mensajeBloqueoSelloPorDocumentos } from "@/lib/locales/documentosLocal";
 import { PLANES, TIPO_LOCAL_LABEL, contratoPorVencer, diasParaFecha, normalizarPlan, normalizarTipoLocal } from "@/lib/planes";
 import { formatCLP, formatDate, getCurrentPeriodo } from "@/lib/utils";
 import { ScoreCards } from "@/components/dashboard/ScoreCards";
@@ -85,7 +86,14 @@ export default async function EmpresaLocalesPage({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <EditarEmpresaButton empresa={empresa} />
+            <EditarEmpresaButton
+              empresa={empresa}
+              casaMatriz={{
+                id: casaCentral.id,
+                resolucionSanitaria: casaCentral.resolucion_sanitaria_presentada,
+                patenteComercial: casaCentral.patente_comercial_al_dia,
+              }}
+            />
             <AgregarSucursalButton rut={empresa.rut} />
           </div>
         </div>
@@ -208,6 +216,14 @@ export default async function EmpresaLocalesPage({
                   </dd>
                 </div>
                 <div>
+                  <dt className="text-xs font-semibold text-[#5B6980]">Resolución sanitaria</dt>
+                  <dd className="mt-1 text-[#334155]">{etiquetaSiNo(local.resolucion_sanitaria_presentada)}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold text-[#5B6980]">Patente comercial</dt>
+                  <dd className="mt-1 text-[#334155]">{etiquetaSiNo(local.patente_comercial_al_dia)}</dd>
+                </div>
+                <div>
                   <dt className="text-xs font-semibold text-[#5B6980]">Asesor</dt>
                   <dd className="mt-1 text-[#334155]">{asesor?.nombre ?? <span className="text-[#94A3B8] italic">Sin asesor</span>}</dd>
                 </div>
@@ -240,6 +256,11 @@ export default async function EmpresaLocalesPage({
                   El local está creado. Se habilita cuando registres el pago de la suscripción.
                 </p>
               )}
+              {!documentosHabilitanSello(local) && (
+                <p className="mt-3 text-sm text-[#16294A] bg-[#E8EEF5] rounded-xl px-3 py-2">
+                  {mensajeBloqueoSelloPorDocumentos(local)}
+                </p>
+              )}
 
               <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-[#F1F5F9]">
                 <EditarLocalButton
@@ -251,6 +272,8 @@ export default async function EmpresaLocalesPage({
                   tipoLocal={local.tipo_local}
                   encargadoNombre={local.encargado_nombre}
                   encargadoTelefono={local.encargado_telefono}
+                  resolucionSanitaria={local.resolucion_sanitaria_presentada}
+                  patenteComercial={local.patente_comercial_al_dia}
                 />
                 {local.estado === "pendiente" && (
                   <>

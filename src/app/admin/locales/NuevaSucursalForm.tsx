@@ -13,6 +13,7 @@ import { claveRut } from "@/lib/empresas";
 import { altaSucursalSchema, type AltaSucursalInput } from "@/lib/locales/ficha";
 import { PLAN_IDS, PLANES, PLAN_PRECIOS_CLP, TIPOS_LOCAL, TIPO_LOCAL_LABEL, normalizarPlan, normalizarTipoLocal } from "@/lib/planes";
 import { formatCLP } from "@/lib/utils";
+import { CasillasDocumentosLocal } from "./CasillasDocumentosLocal";
 
 const CAMPO =
   "mt-1 w-full min-w-0 min-h-12 rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm text-[#0B1B33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]";
@@ -58,12 +59,16 @@ export function NuevaSucursalForm({
       tipo_local: normalizarTipoLocal(tipoLocalActual),
       encargado_nombre: "",
       encargado_telefono: "",
+      resolucion_sanitaria_presentada: false,
+      patente_comercial_al_dia: false,
       plan: normalizarPlan(planActual),
       email_admin: "",
     },
   });
 
   const plan = watch("plan");
+  const resolucionSanitaria = watch("resolucion_sanitaria_presentada");
+  const patenteComercial = watch("patente_comercial_al_dia");
 
   async function onSubmit(data: AltaSucursalInput) {
     await crear.mutateAsync({
@@ -75,6 +80,8 @@ export function NuevaSucursalForm({
       tipo_local: data.tipo_local,
       encargado_nombre: data.encargado_nombre,
       encargado_telefono: data.encargado_telefono,
+      resolucion_sanitaria_presentada: data.resolucion_sanitaria_presentada,
+      patente_comercial_al_dia: data.patente_comercial_al_dia,
       plan: data.plan,
       email_admin: data.email_admin,
     });
@@ -177,6 +184,12 @@ export function NuevaSucursalForm({
               </button>
             ))}
           </div>
+          <CasillasDocumentosLocal
+            resolucionSanitaria={Boolean(resolucionSanitaria)}
+            patenteComercial={Boolean(patenteComercial)}
+            onResolucionSanitaria={(valor) => setValue("resolucion_sanitaria_presentada", valor)}
+            onPatenteComercial={(valor) => setValue("patente_comercial_al_dia", valor)}
+          />
           <div>
             <Label htmlFor="email-suc">Invitar a otro encargado (opcional)</Label>
             <Input id="email-suc" type="email" className={CAMPO} {...register("email_admin")} />

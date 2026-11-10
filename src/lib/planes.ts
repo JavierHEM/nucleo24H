@@ -34,6 +34,7 @@ const BENEFICIOS_CALIDAD = [
   "Informe mensual de cumplimiento",
   "Plan de mejoras personalizado",
   "Evaluación y entrega de sello mensual",
+  "Asesoría para obtener resolución sanitaria y patente comercial",
   "Orientación técnica permanente",
   "Apoyo ante fiscalizaciones",
   "Sello Bronce, Plata u Oro según evidencia del mes",

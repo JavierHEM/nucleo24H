@@ -37,6 +37,23 @@ describe("nivelDesdePuntaje", () => {
   });
 });
 
+describe("bloqueo por documentos del local", () => {
+  const lleno = (n: number) => [{ id: "x", aplicable: true, logro: 1 as const }];
+
+  it("sin resolución o patente no hay sello aunque el puntaje sea 100", () => {
+    const r = calcularSelloV2({
+      seguimiento: { registros: lleno(1), controles: lleno(1), correctivas: lleno(1), procedimientos: lleno(1) },
+      visita: { higiene: lleno(1), instalaciones: lleno(1), almacenamiento: lleno(1), verificacion: lleno(1) },
+      bloqueoCritico: false,
+      bloqueoDocumentos: true,
+      motivoBloqueoDocumentos: "Este local no puede obtener el sello de Núcleo: falta resolución sanitaria.",
+    });
+    expect(r.nivel).toBe("sin_sello");
+    expect(r.bloqueo_documentos).toBe(true);
+    expect(r.plan_mejoras[0]).toContain("resolución sanitaria");
+  });
+});
+
 describe("calcularSelloV2", () => {
   const lleno = (n: number) => [{ id: "x", aplicable: true, logro: 1 as const }];
 

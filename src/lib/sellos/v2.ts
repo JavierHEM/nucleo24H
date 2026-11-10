@@ -51,6 +51,7 @@ export type ResultadoSelloV2 = {
   score_seguimiento: number;
   score_visita: number;
   bloqueo_critico: boolean;
+  bloqueo_documentos: boolean;
   componentes: Record<string, number>;
   plan_mejoras: string[];
 };
@@ -59,6 +60,8 @@ export function calcularSelloV2(input: {
   seguimiento: Record<IdComponenteSeguimiento, ItemControl[]>;
   visita: Record<IdComponenteVisita, ItemControl[]>;
   bloqueoCritico: boolean;
+  bloqueoDocumentos?: boolean;
+  motivoBloqueoDocumentos?: string;
 }): ResultadoSelloV2 {
   const componentes: Record<string, number> = {};
   let score_seguimiento = 0;
@@ -76,8 +79,15 @@ export function calcularSelloV2(input: {
   score_seguimiento = Math.round(score_seguimiento * 100) / 100;
   score_visita = Math.round(score_visita * 100) / 100;
   const score_general = Math.round((score_seguimiento + score_visita) * 100) / 100;
-  const nivel = nivelDesdePuntaje(score_general, input.bloqueoCritico);
+  const bloqueoDocumentos = Boolean(input.bloqueoDocumentos);
+  const nivel = nivelDesdePuntaje(score_general, input.bloqueoCritico || bloqueoDocumentos);
   const plan_mejoras: string[] = [];
+  if (bloqueoDocumentos) {
+    plan_mejoras.push(
+      input.motivoBloqueoDocumentos ??
+        "Sin resolución sanitaria y patente comercial al día no se emite sello de Núcleo."
+    );
+  }
   if (input.bloqueoCritico) {
     plan_mejoras.push("Hay un hallazgo crítico abierto. No se emite sello hasta cerrarlo con evidencia validada.");
   }
@@ -93,6 +103,7 @@ export function calcularSelloV2(input: {
     score_seguimiento,
     score_visita,
     bloqueo_critico: input.bloqueoCritico,
+    bloqueo_documentos: bloqueoDocumentos,
     componentes,
     plan_mejoras,
   };

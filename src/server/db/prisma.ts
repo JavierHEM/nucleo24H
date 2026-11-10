@@ -26,11 +26,28 @@ function createPrismaClient(): PrismaClient {
   });
 }
 
+function tenantConoceDocumentos(client: PrismaClient): boolean {
+  const runtime = client as PrismaClient & {
+    _runtimeDataModel?: {
+      models?: Record<string, { fields?: Record<string, unknown> | Array<{ name: string }> }>;
+    };
+  };
+  const tenant = runtime._runtimeDataModel?.models?.Tenant ?? runtime._runtimeDataModel?.models?.tenant;
+  if (!tenant?.fields) return true;
+  if (Array.isArray(tenant.fields)) {
+    return tenant.fields.some((campo) => campo.name === "resolucion_sanitaria_presentada");
+  }
+  return "resolucion_sanitaria_presentada" in tenant.fields;
+}
+
 function prismaEstaDesactualizado(client: PrismaClient | undefined): boolean {
   if (!client) return false;
   if (globalForPrisma.prismaConnectionString !== process.env.DATABASE_URL) return true;
   const delegates = client as PrismaClient & { ticket?: { create?: unknown }; notificacion?: { count?: unknown } };
-  return typeof delegates.ticket?.create !== "function" || typeof delegates.notificacion?.count !== "function";
+  if (typeof delegates.ticket?.create !== "function" || typeof delegates.notificacion?.count !== "function") {
+    return true;
+  }
+  return !tenantConoceDocumentos(client);
 }
 
 // En dev, recrear el cliente si cambió DATABASE_URL o el schema (modelos nuevos).

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -12,8 +12,10 @@ import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc/client";
 import { claveRut } from "@/lib/empresas";
 import { altaEmpresaSchema, type AltaEmpresaInput } from "@/lib/locales/ficha";
+import { etiquetaSiNo } from "@/lib/locales/etiquetasEmpresa";
 import { PLAN_IDS, PLANES, PLAN_PRECIOS_CLP, TIPOS_LOCAL, TIPO_LOCAL_LABEL } from "@/lib/planes";
 import { formatCLP } from "@/lib/utils";
+import { CasillasDocumentosLocal } from "./CasillasDocumentosLocal";
 
 const CAMPO =
   "mt-1 w-full min-w-0 min-h-12 rounded-xl border border-[#DDE3EA] px-3 py-2 text-sm text-[#0B1B33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6B2A]";
@@ -23,11 +25,12 @@ const SECCION = "text-xs font-semibold uppercase tracking-wide text-[#5B6980]";
 const PASOS = [
   { id: 1, titulo: "Ficha de la empresa" },
   { id: 2, titulo: "Casa matriz" },
-  { id: 3, titulo: "Plan e invitación" },
+  { id: 3, titulo: "Confirmar alta" },
 ] as const;
 
 export function NuevaEmpresaAsistente() {
   const [paso, setPaso] = useState(1);
+  const [confirmaAlta, setConfirmaAlta] = useState(false);
   const router = useRouter();
   const crear = trpc.empresas.crear.useMutation();
 
@@ -61,6 +64,8 @@ export function NuevaEmpresaAsistente() {
         tipo_local: "restaurante",
         encargado_nombre: "",
         encargado_telefono: "",
+        resolucion_sanitaria_presentada: false,
+        patente_comercial_al_dia: false,
       },
       plan: "calidad",
       email_admin: "",
@@ -68,20 +73,38 @@ export function NuevaEmpresaAsistente() {
   });
 
   const plan = watch("plan");
+  const empresa = watch("empresa");
+  const local = watch("local");
+  const emailAdmin = watch("email_admin");
 
   async function siguiente() {
     const ok = await trigger(paso === 1 ? "empresa" : "local");
     if (ok) setPaso((actual) => actual + 1);
   }
 
-  async function onSubmit(data: AltaEmpresaInput) {
+  function atras() {
+    setConfirmaAlta(false);
+    setPaso((actual) => actual - 1);
+  }
+
+  async function crearEmpresa(data: AltaEmpresaInput) {
     const resultado = await crear.mutateAsync(data);
     router.push(`/admin/locales/${encodeURIComponent(claveRut(resultado.empresa.rut))}`);
     router.refresh();
   }
 
+  function alEnviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    if (paso < 3) {
+      void siguiente();
+      return;
+    }
+    if (!confirmaAlta) return;
+    void handleSubmit(crearEmpresa)(evento);
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto w-full max-w-5xl space-y-6">
+    <form onSubmit={alEnviar} className="mx-auto w-full max-w-5xl space-y-6">
       <div>
         <Link
           href="/admin/locales"
@@ -92,7 +115,7 @@ export function NuevaEmpresaAsistente() {
         </Link>
         <h1 className="text-2xl font-bold text-[#0B1B33] mt-3">Nueva empresa</h1>
         <p className="text-sm text-[#5B6980] mt-1">
-          La casa matriz queda creada ahora y se habilita cuando registres el primer pago.
+          Revisa la ficha y confirma el alta. La casa matriz se habilita cuando registres el primer pago.
         </p>
         <ol className="mt-4 flex flex-wrap gap-2">
           {PASOS.map((item) => (
@@ -238,70 +261,117 @@ export function NuevaEmpresaAsistente() {
                 ))}
               </select>
             </div>
-          </section>
-          <section className="space-y-4 min-w-0 lg:border-l lg:border-[#DDE3EA] lg:pl-8">
-            <h2 className={SECCION}>Encargado del local</h2>
             <div>
-              <Label htmlFor="enc-nombre">Nombre (opcional)</Label>
+              <Label htmlFor="enc-nombre">Encargado (opcional)</Label>
               <Input id="enc-nombre" className={CAMPO} {...register("local.encargado_nombre")} />
             </div>
             <div>
-              <Label htmlFor="enc-tel">Teléfono (opcional)</Label>
+              <Label htmlFor="enc-tel">Teléfono del encargado (opcional)</Label>
               <Input id="enc-tel" className={CAMPO} {...register("local.encargado_telefono")} />
               {errors.local?.encargado_telefono && (
                 <p className="text-xs text-[#B42318] mt-1">{errors.local.encargado_telefono.message}</p>
               )}
             </div>
-            <p className="text-sm text-[#5B6980]">
-              Si aún no hay encargado, déjalo vacío. Puedes completarlo después en la ficha del local.
-            </p>
+          </section>
+          <section className="space-y-4 min-w-0 lg:border-l lg:border-[#DDE3EA] lg:pl-8">
+            <CasillasDocumentosLocal
+              resolucionSanitaria={Boolean(local.resolucion_sanitaria_presentada)}
+              patenteComercial={Boolean(local.patente_comercial_al_dia)}
+              onResolucionSanitaria={(valor) => setValue("local.resolucion_sanitaria_presentada", valor)}
+              onPatenteComercial={(valor) => setValue("local.patente_comercial_al_dia", valor)}
+            />
           </section>
           </div>
         </div>
       )}
 
       {paso === 3 && (
-        <div className="rounded-2xl border border-[#DDE3EA] bg-white p-5 sm:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <section className="space-y-4 min-w-0">
-            <h2 className={SECCION}>Plan de la casa matriz</h2>
-            <p className="text-sm text-[#334155]">
-              Queda creado ahora y se habilita con el primer pago. Cada sucursal posterior tiene su propio plan.
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-[#DDE3EA] bg-white p-5 sm:p-8">
+            <h2 className={SECCION}>Resumen</h2>
+            <p className="mt-1 text-sm text-[#334155]">
+              Revisa los datos. Nada se crea hasta que confirmes al final.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {PLAN_IDS.map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setValue("plan", id)}
-                  className={`rounded-xl border-2 p-4 text-left text-sm font-medium min-h-20 ${
-                    plan === id
-                      ? "border-[#2F6B2A] bg-[#E5F1E3] text-[#255620]"
-                      : "border-[#DDE3EA] text-[#5B6980] hover:border-[#2F6B2A]/50"
-                  }`}
-                >
-                  {PLANES[id].nombre}
-                  <span className="mt-1 block text-[11px] font-normal">
-                    {formatCLP(PLAN_PRECIOS_CLP[id])} / mes
-                  </span>
-                </button>
-              ))}
+            {(!local.resolucion_sanitaria_presentada || !local.patente_comercial_al_dia) && (
+              <p className="mt-3 text-sm text-[#16294A] bg-[#E8EEF5] rounded-xl px-3 py-2">
+                Sin resolución sanitaria y patente comercial al día este local no podrá obtener el sello de Núcleo.
+              </p>
+            )}
+            <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FilaResumen etiqueta="Razón social" valor={empresa.razon_social} />
+                <FilaResumen etiqueta="RUT" valor={empresa.rut} />
+                <FilaResumen etiqueta="Representante" valor={empresa.representante_legal_nombre} />
+                <FilaResumen etiqueta="Teléfono empresa" valor={empresa.telefono} />
+              </dl>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:border-l lg:border-[#DDE3EA] lg:pl-8">
+                <FilaResumen etiqueta="Casa matriz" valor={local.nombre} />
+                <FilaResumen etiqueta="Dirección" valor={`${local.direccion}${local.ciudad ? ` · ${local.ciudad}` : ""}`} />
+                <FilaResumen etiqueta="Resolución sanitaria" valor={etiquetaSiNo(Boolean(local.resolucion_sanitaria_presentada))} />
+                <FilaResumen etiqueta="Patente comercial" valor={etiquetaSiNo(Boolean(local.patente_comercial_al_dia))} />
+              </dl>
             </div>
-          </section>
-          <section className="space-y-4 min-w-0 lg:border-l lg:border-[#DDE3EA] lg:pl-8">
-            <h2 className={SECCION}>Invitación (opcional)</h2>
-            <p className="text-sm text-[#334155]">
-              Puedes cargar la ficha ahora y enviarle el acceso al dueño después.
-            </p>
-            <div>
-              <Label htmlFor="email-admin">Email del administrador del local</Label>
-              <Input id="email-admin" type="email" className={CAMPO} {...register("email_admin")} />
-              {errors.email_admin && (
-                <p className="text-xs text-[#B42318] mt-1">{errors.email_admin.message}</p>
-              )}
-            </div>
-          </section>
           </div>
+
+          <div className="rounded-2xl border border-[#DDE3EA] bg-white p-5 sm:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section className="space-y-4 min-w-0">
+              <h2 className={SECCION}>Plan de la casa matriz</h2>
+              <p className="text-sm text-[#334155]">
+                Queda creado ahora y se habilita con el primer pago. Cada sucursal posterior tiene su propio plan.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {PLAN_IDS.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setValue("plan", id)}
+                    className={`rounded-xl border-2 p-4 text-left text-sm font-medium min-h-20 ${
+                      plan === id
+                        ? "border-[#2F6B2A] bg-[#E5F1E3] text-[#255620]"
+                        : "border-[#DDE3EA] text-[#5B6980] hover:border-[#2F6B2A]/50"
+                    }`}
+                  >
+                    {PLANES[id].nombre}
+                    <span className="mt-1 block text-[11px] font-normal">
+                      {formatCLP(PLAN_PRECIOS_CLP[id])} / mes
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+            <section className="space-y-4 min-w-0 lg:border-l lg:border-[#DDE3EA] lg:pl-8">
+              <h2 className={SECCION}>Invitación (opcional)</h2>
+              <p className="text-sm text-[#334155]">
+                Puedes cargar la ficha ahora y enviarle el acceso al dueño después.
+              </p>
+              <div>
+                <Label htmlFor="email-admin">Email del administrador del local</Label>
+                <Input id="email-admin" type="email" className={CAMPO} {...register("email_admin")} />
+                {errors.email_admin && (
+                  <p className="text-xs text-[#B42318] mt-1">{errors.email_admin.message}</p>
+                )}
+              </div>
+              {(emailAdmin ?? "").trim() ? (
+                <p className="text-xs text-[#5B6980]">Se enviará invitación a {emailAdmin.trim()}.</p>
+              ) : (
+                <p className="text-xs text-[#5B6980]">Sin invitación ahora.</p>
+              )}
+            </section>
+            </div>
+          </div>
+
+          <label className="flex items-start gap-3 cursor-pointer rounded-2xl border border-[#DDE3EA] bg-white p-4">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 rounded border-[#DDE3EA] accent-[#2F6B2A]"
+              checked={confirmaAlta}
+              onChange={(evento) => setConfirmaAlta(evento.target.checked)}
+            />
+            <span className="text-sm text-[#334155]">
+              Revisé los datos y confirmo el alta de esta empresa y su casa matriz.
+            </span>
+          </label>
         </div>
       )}
 
@@ -313,7 +383,7 @@ export function NuevaEmpresaAsistente() {
 
       <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2">
         {paso > 1 ? (
-          <Button type="button" variant="outline" className="min-h-12 rounded-xl" onClick={() => setPaso((p) => p - 1)}>
+          <Button type="button" variant="outline" className="min-h-12 rounded-xl" onClick={atras}>
             Atrás
           </Button>
         ) : (
@@ -332,14 +402,23 @@ export function NuevaEmpresaAsistente() {
         ) : (
           <Button
             type="submit"
-            disabled={crear.isPending}
+            disabled={crear.isPending || !confirmaAlta}
             className="min-h-12 rounded-xl bg-[#2F6B2A] hover:bg-[#255620] text-white"
           >
             {crear.isPending && <IconLoader2 size={16} className="animate-spin" />}
-            Crear empresa
+            Confirmar y crear empresa
           </Button>
         )}
       </div>
     </form>
+  );
+}
+
+function FilaResumen({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  return (
+    <div>
+      <dt className="text-[11px] font-semibold uppercase tracking-wide text-[#5B6980]">{etiqueta}</dt>
+      <dd className="mt-0.5 text-sm text-[#0B1B33]">{valor?.trim() || "—"}</dd>
+    </div>
   );
 }

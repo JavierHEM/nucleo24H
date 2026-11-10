@@ -13,6 +13,10 @@ import {
 } from "@/lib/sellos/v2";
 import { leerEvaluacion } from "@/lib/bpm/visita";
 import type { Hallazgo } from "@/server/sello-engine/tipos";
+import {
+  documentosHabilitanSello,
+  mensajeBloqueoSelloPorDocumentos,
+} from "@/lib/locales/documentosLocal";
 
 /**
  * Deriva los 4 scores del sello desde los datos operativos del período.
@@ -306,7 +310,7 @@ export async function recolectarSelloV2(
   const { inicio, fin } = rangoPeriodo(periodo);
   const desde = new Date(`${inicioSemanaChile(instanteDelDia(`${periodo}-01`))}T00:00:00.000Z`);
 
-  const [config, documentos, registros, visita, hallazgos] = await Promise.all([
+  const [config, documentos, registros, visita, hallazgos, local] = await Promise.all([
     prisma.configuracionBpm.findUnique({
       where: { tenant_id: tenantId },
       select: { programa: true, equipos_frio: true },
@@ -327,6 +331,13 @@ export async function recolectarSelloV2(
     prisma.hallazgo.findMany({
       where: { tenant_id: tenantId, created_at: { lte: fin } },
       select: { gravedad: true, estado: true },
+    }),
+    prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        resolucion_sanitaria_presentada: true,
+        patente_comercial_al_dia: true,
+      },
     }),
   ]);
 
@@ -399,7 +410,18 @@ export async function recolectarSelloV2(
   }
 
   const bloqueoCritico = hallazgos.some((h) => hallazgoBloqueaSello(h.gravedad, h.estado));
-  const resultado = calcularSelloV2({ seguimiento, visita: visitaItems, bloqueoCritico });
+  const documentosLocal = {
+    resolucion_sanitaria_presentada: Boolean(local?.resolucion_sanitaria_presentada),
+    patente_comercial_al_dia: Boolean(local?.patente_comercial_al_dia),
+  };
+  const bloqueoDocumentos = !documentosHabilitanSello(documentosLocal);
+  const resultado = calcularSelloV2({
+    seguimiento,
+    visita: visitaItems,
+    bloqueoCritico,
+    bloqueoDocumentos,
+    motivoBloqueoDocumentos: mensajeBloqueoSelloPorDocumentos(documentosLocal) ?? undefined,
+  });
   return {
     resultado,
     detalle: {
@@ -408,6 +430,7 @@ export async function recolectarSelloV2(
       documentos: documentos.length,
       visita: Boolean(pauta),
       hallazgos: hallazgos.length,
+      documentosLocal,
     },
   };
 }

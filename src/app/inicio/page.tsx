@@ -57,20 +57,21 @@ const SERVICIOS = [
       "Visita presencial en radio urbano",
       "Revisión de registros y procesos",
       "Informe mensual y plan de mejoras",
+      "Asesoría para resolución sanitaria y patente comercial",
       "Evaluación y entrega del sello",
     ],
   },
 ];
 
 const PASOS = [
-  { n: "1", cuando: "Al inicio", titulo: "Diagnóstico y puesta en marcha", texto: "Visitamos tu local, revisamos cómo está hoy y dejamos configurados tus equipos, áreas y registros." },
+  { n: "1", cuando: "Al inicio", titulo: "Diagnóstico y puesta en marcha", texto: "Visitamos tu local, revisamos cómo está hoy y dejamos configurados tus equipos, áreas y registros. Si falta resolución sanitaria o patente comercial, te asesoramos para obtenerlas." },
   { n: "2", cuando: "Cada día", titulo: "Tu equipo registra en el celular", texto: "Una guía del día muestra qué falta: temperaturas, limpieza, residuos. Todo en pocos toques." },
   { n: "3", cuando: "Cada mes", titulo: "Visita y capacitación", texto: "Tu asesor revisa registros y documentos, capacita al equipo y deja un plan de mejoras con plazos." },
   { n: "4", cuando: "Fin de mes", titulo: "Sello e informe", texto: "Calculamos tu sello, generamos el informe y te avisamos por correo. Empieza un nuevo ciclo." },
 ];
 
 const SELLOS = [
-  { nivel: "Sin sello", rango: "Menos de 70%", texto: "Hay brechas abiertas. El mes no alcanza para emitir sello.", bg: "#5B6980", fg: "#FFFFFF" },
+  { nivel: "Sin sello", rango: "Menos de 70% o sin documentos", texto: "Hay brechas abiertas, o falta resolución sanitaria o patente comercial. No se emite sello.", bg: "#5B6980", fg: "#FFFFFF" },
   { nivel: "Bronce", rango: "70% a 84%", texto: "Cumplimiento básico. Hay que cerrar brechas para subir.", bg: "#C17A2B", fg: "#FFFFFF" },
   { nivel: "Plata", rango: "85% a 94%", texto: "Buen cumplimiento. Los procesos y registros están en orden.", bg: "#64748B", fg: "#FFFFFF" },
   { nivel: "Oro", rango: "95% o más", texto: "Cumplimiento sobresaliente en el período evaluado.", bg: "#E3B341", fg: "#0B1B33" },
@@ -114,8 +115,9 @@ const FAQ = [
   { p: "¿Qué zona cubren?", r: "La visita presencial mensual cubre el radio urbano de Osorno. Si tu local está fuera, escríbenos y vemos cómo atenderte." },
   { p: "¿Cuánto dura el contrato?", r: "El servicio es anual: 12 meses, con pago mensual. Incluye todo el año de soporte, capacitación y seguimiento." },
   { p: "¿Necesito saber de computación?", r: "No. La plataforma está pensada para usarse desde el celular, en la cocina, con pocos toques. Tu asesor te acompaña al comenzar." },
+  { p: "¿Puedo obtener el sello sin resolución sanitaria o patente comercial?", r: "No. Sin ambos documentos el local no puede obtener ningún sello de cumplimiento de Núcleo. Al suscribirte, el equipo te asesora en el proceso para obtenerlos. El plan sigue incluyendo visita, capacitación, plataforma e informe." },
   { p: "¿Qué pasa si el sello baja de nivel?", r: "Cada informe trae un plan de mejoras con lo que falta para subir a Plata u Oro. Si crees que hay un error en tu sello, puedes pedir una revisión." },
-  { p: "¿Qué servicios no están incluidos?", r: "La resolución sanitaria e inicio de actividades, la elaboración de HACCP y manuales, el etiquetado nutricional, los proyectos sanitarios y la defensa en sumarios graves se cotizan aparte." },
+  { p: "¿Qué servicios no están incluidos?", r: "La tramitación formal de resolución sanitaria e inicio de actividades, la elaboración de HACCP y manuales, el etiquetado nutricional, los proyectos sanitarios y la defensa en sumarios graves se cotizan aparte. La asesoría para obtener resolución sanitaria y patente comercial sí va incluida en el plan." },
   { p: "¿Cómo protegen los datos de mi local?", r: "Tratamos los datos personales conforme a la Ley 21.719. Puedes ejercer tus derechos de acceso, rectificación y supresión desde tu cuenta." },
 ];
 
@@ -298,6 +300,25 @@ export default function LandingPage() {
             <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-tight tracking-tight">Cumplir tiene recompensa.</h2>
             <p className="text-lg font-medium leading-relaxed text-[#41506A]">Cada mes evaluamos tus registros, documentos, capacitaciones y tareas. El resultado es un sello que puedes mostrar a clientes e inspectores.</p>
           </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <article className="rounded-2xl border-2 border-[#0B1B33] bg-white p-6 sm:p-8 flex flex-col gap-3">
+              <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#2F6B2A]">Requisito</p>
+              <h3 className="text-[22px] font-extrabold leading-tight">Sin resolución sanitaria y patente comercial no hay sello.</h3>
+              <p className="text-[15px] font-medium leading-relaxed text-[#41506A]">
+                Si el local no tiene resolución sanitaria presentada y patente comercial al día, no puede obtener ningún sello de cumplimiento de Núcleo: ni Bronce, ni Plata, ni Oro.
+              </p>
+            </article>
+            <article className="rounded-2xl bg-[#0B1B33] text-white p-6 sm:p-8 flex flex-col gap-3">
+              <p className="text-xs font-extrabold tracking-[0.14em] uppercase text-[#E3B341]">Al suscribirte</p>
+              <h3 className="text-[22px] font-extrabold leading-tight">El equipo de Núcleo te asesora para obtenerlos.</h3>
+              <p className="text-[15px] font-medium leading-relaxed text-[#C9D3E3]">
+                El trámite puede tardar, pero se logra. Tu asesor te guía en el proceso y, además, el plan incluye visita mensual, capacitación, plataforma, informe y sello cuando el local ya está en regla.
+              </p>
+              <a href="#planes" className="self-start mt-1 text-sm font-extrabold text-[#E3B341] underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E3B341]">
+                Ver qué incluye el plan
+              </a>
+            </article>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {SELLOS.map((sello) => (
               <article key={sello.nivel} className="bg-white border border-[#DDE3EA] rounded-2xl p-6 flex flex-col items-start gap-3.5">
@@ -390,6 +411,9 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="flex flex-col gap-3.5">
+            <p className="text-base font-medium leading-relaxed text-[#41506A] max-w-[760px]">
+              El sello se entrega cuando el local tiene resolución sanitaria y patente comercial al día. Si aún no las tiene, te asesoramos para obtenerlas; el resto del plan (visita, capacitación, plataforma e informe) corre desde el primer mes.
+            </p>
             <p className="font-extrabold">Servicios adicionales, con cotización aparte</p>
             <div className="flex flex-wrap gap-2.5">
               {ADICIONALES.map((item) => (

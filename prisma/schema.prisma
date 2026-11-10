@@ -37,6 +37,8 @@ model Tenant {
   telefono           String   @default("")
   encargado_nombre   String?
   encargado_telefono String?
+  resolucion_sanitaria_presentada Boolean @default(false)
+  patente_comercial_al_dia        Boolean @default(false)
   plan               String   // 'calidad' | 'integral'
   tipo_local         String   @default("restaurante") // 'restaurante' | 'cafeteria' | 'cocineria' | 'food_truck'
   estado             String   @default("pendiente") // 'pendiente' | 'activo' | 'suspendido' | 'baja'
