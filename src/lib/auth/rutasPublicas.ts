@@ -3,6 +3,7 @@ export const PUBLIC_PREFIXES = [
   "/login",
   "/register",
   "/onboarding",
+  "/auth",
   "/cuenta/nueva-clave",
   "/politica-de-privacidad",
   "/icon",

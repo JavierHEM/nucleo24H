@@ -41,7 +41,12 @@ describe("getAppUrl", () => {
   });
 
   it("usa el dominio configurado cuando es público", () => {
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://www.nucleo24h.cl/");
+    expect(getAppUrl()).toBe("https://www.nucleo24h.cl");
+  });
+
+  it("el apex no responde: las invitaciones van a www", () => {
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://nucleo24h.cl/");
-    expect(getAppUrl()).toBe("https://nucleo24h.cl");
+    expect(getAppUrl()).toBe("https://www.nucleo24h.cl");
   });
 });

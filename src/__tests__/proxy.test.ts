@@ -52,6 +52,10 @@ describe("isPublic – rutas públicas (sin autenticación)", () => {
     expect(isPublic("/onboarding")).toBe(true);
   });
 
+  it("/auth/callback es público", () => {
+    expect(isPublic("/auth/callback")).toBe(true);
+  });
+
   it("/cuenta/nueva-clave es público", () => {
     expect(isPublic("/cuenta/nueva-clave")).toBe(true);
     expect(isPublic("/cuenta/nueva-clave/confirm")).toBe(true);

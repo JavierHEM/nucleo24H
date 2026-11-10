@@ -15,7 +15,7 @@ export const LOGO_PATHS = {
 
 export const LOGO_SIZE = { width: 1320, height: 508 } as const;
 
-export const PRODUCTION_URL = "https://nucleo24h.cl";
+export const PRODUCTION_URL = "https://www.nucleo24h.cl";
 
 /** QR, PDFs e invitaciones nunca deben apuntar a localhost ni a un deploy de Vercel. */
 export function esUrlPublicaDeLaApp(url: string): boolean {
@@ -31,9 +31,19 @@ export function esUrlPublicaDeLaApp(url: string): boolean {
   }
 }
 
+function urlCanonicoDeLaApp(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === "nucleo24h.cl") parsed.hostname = "www.nucleo24h.cl";
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return PRODUCTION_URL;
+  }
+}
+
 export function getAppUrl(): string {
   const candidata = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-  if (candidata && esUrlPublicaDeLaApp(candidata)) return candidata;
+  if (candidata && esUrlPublicaDeLaApp(candidata)) return urlCanonicoDeLaApp(candidata);
   return PRODUCTION_URL;
 }
 
