@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
     select: { nombre: true, email: true },
   });
   const invitadoPor = invitador?.nombre ?? invitador?.email ?? APP_NAME;
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/onboarding");
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/");
   if (!linkAcceso) {
     return NextResponse.json({ error: "No se pudo armar el enlace de invitación." }, { status: 500 });
   }

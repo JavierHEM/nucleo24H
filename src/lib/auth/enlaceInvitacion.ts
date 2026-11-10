@@ -3,6 +3,8 @@ type PropiedadesLink = {
   verification_type?: string | null;
 };
 
+const RUTAS_QUE_NO_SON_DESTINO = new Set(["/onboarding", "/login", "/register", "/api/auth/callback"]);
+
 export function nextSeguro(valor: string | null | undefined) {
   if (!valor || !valor.startsWith("/") || valor.startsWith("//") || valor.includes("\\")) {
     return "/";
@@ -10,11 +12,20 @@ export function nextSeguro(valor: string | null | undefined) {
   return valor;
 }
 
+/** A dónde ir después de crear la clave. Nunca devolver /onboarding: eso deja el spinner eterno. */
+export function destinoTrasOnboarding(valor: string | null | undefined, rol?: string | null) {
+  if (rol === "admin_nucleo") return "/admin";
+  if (rol === "asesor") return "/asesor/informes";
+  const limpio = nextSeguro(valor);
+  if (RUTAS_QUE_NO_SON_DESTINO.has(limpio)) return "/";
+  return limpio;
+}
+
 /** Link propio de la app. El de Supabase deja la sesión en el fragmento y el servidor nunca la ve. */
 export function enlaceDeAcceso(
   appUrl: string,
   properties: PropiedadesLink | null | undefined,
-  next = "/onboarding"
+  next = "/"
 ) {
   const token = properties?.hashed_token;
   if (!token) return null;

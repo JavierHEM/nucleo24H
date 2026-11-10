@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
-import { nextSeguro } from "@/lib/auth/enlaceInvitacion";
+import { destinoTrasOnboarding, nextSeguro } from "@/lib/auth/enlaceInvitacion";
 
 const TIPOS_OTP: EmailOtpType[] = ["invite", "magiclink", "recovery", "signup", "email"];
 
@@ -47,7 +47,11 @@ export async function GET(req: NextRequest) {
     }
 
     const invitado = type === "invite" || Boolean(data.user?.invited_at);
-    const destino = invitado ? `${origin}/onboarding?next=${encodeURIComponent(next)}` : `${origin}${next}`;
+    const rol = typeof data.user?.app_metadata?.rol === "string" ? data.user.app_metadata.rol : null;
+    const despues = destinoTrasOnboarding(next, rol);
+    const destino = invitado
+      ? `${origin}/onboarding?next=${encodeURIComponent(despues)}`
+      : `${origin}${despues}`;
     res.headers.set("Location", destino);
     return res;
   }
@@ -63,7 +67,9 @@ export async function GET(req: NextRequest) {
   }
 
   if (type === "invite" || data.user?.invited_at || data.user?.user_metadata?.invited_at) {
-    res.headers.set("Location", `${origin}/onboarding?next=${encodeURIComponent(next)}`);
+    const rol = typeof data.user?.app_metadata?.rol === "string" ? data.user.app_metadata.rol : null;
+    const despues = destinoTrasOnboarding(next, rol);
+    res.headers.set("Location", `${origin}/onboarding?next=${encodeURIComponent(despues)}`);
   }
 
   return res;

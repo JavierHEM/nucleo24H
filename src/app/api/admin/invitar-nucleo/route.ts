@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
   await prisma.userTenant.deleteMany({ where: { user_id: linkData.user.id } });
   await syncUserClaims(linkData.user.id);
 
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/onboarding");
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/admin");
   if (!linkAcceso) {
     return NextResponse.json(
       { error: "No se pudo armar el enlace de invitación." },

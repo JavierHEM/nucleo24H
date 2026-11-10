@@ -42,7 +42,7 @@ export async function invitarAdminLocal(args: {
     },
   });
 
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/onboarding");
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/");
   if (linkError && /already|registered|exists/i.test(linkError.message ?? "")) {
     const idExistente = await idCuentaPorEmail(prisma, email);
     if (idExistente) {

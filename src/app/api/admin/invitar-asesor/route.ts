@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
   await syncUserClaims(linkData.user.id);
 
   const invitadoPor = dbUser.nombre ?? dbUser.email ?? APP_NAME;
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/onboarding");
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData.properties, "/asesor/informes");
   if (!linkAcceso) {
     return NextResponse.json({ error: "No se pudo armar el enlace de invitación." }, { status: 500 });
   }

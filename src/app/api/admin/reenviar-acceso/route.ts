@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     type: "magiclink",
     email: dueño.email,
   });
-  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/onboarding");
+  const linkAcceso = enlaceDeAcceso(appUrl, linkData?.properties, "/");
   if (linkError || !linkAcceso) {
     console.error("[reenviar-acceso] Error generando link:", linkError);
     return NextResponse.json(
