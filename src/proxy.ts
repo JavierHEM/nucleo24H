@@ -45,14 +45,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // /admin → solo admin_nucleo
-  // /asesor → solo asesor (o admin_nucleo que también puede verlo)
+  // /admin y /asesor: el JWT a veces llega sin rol (invitación recién aceptada).
+  // Si el claim falta, el layout confirma contra la DB. Si el claim existe y no calza, se corta acá.
   if (pathname.startsWith("/admin") || pathname.startsWith("/asesor")) {
     const rol = user?.app_metadata?.rol as string | undefined;
-    if (pathname.startsWith("/admin") && rol !== "admin_nucleo") {
+    if (pathname.startsWith("/admin") && rol && rol !== "admin_nucleo") {
       return NextResponse.redirect(new URL("/", req.url));
     }
-    if (pathname.startsWith("/asesor") && rol !== "asesor" && rol !== "admin_nucleo") {
+    if (pathname.startsWith("/asesor") && rol && rol !== "asesor" && rol !== "admin_nucleo") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }

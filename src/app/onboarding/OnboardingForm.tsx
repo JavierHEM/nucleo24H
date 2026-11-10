@@ -62,6 +62,7 @@ export function OnboardingForm({ next, nombreInicial }: { next: string; nombreIn
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre: data.nombre }),
     }).catch(() => {});
+    await supabase.auth.refreshSession();
 
     setStep("done");
     setTimeout(() => {

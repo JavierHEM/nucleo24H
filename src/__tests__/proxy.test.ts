@@ -95,8 +95,8 @@ describe("isPublic – rutas protegidas (requieren autenticación)", () => {
 
 describe("rbac – restricciones de rol en rutas /admin y /asesor", () => {
   function canAccess(pathname: string, rol: string | undefined): boolean {
-    if (pathname.startsWith("/admin") && rol !== "admin_nucleo") return false;
-    if (pathname.startsWith("/asesor") && rol !== "asesor" && rol !== "admin_nucleo") return false;
+    if (pathname.startsWith("/admin") && rol && rol !== "admin_nucleo") return false;
+    if (pathname.startsWith("/asesor") && rol && rol !== "asesor" && rol !== "admin_nucleo") return false;
     return true;
   }
 
@@ -125,9 +125,9 @@ describe("rbac – restricciones de rol en rutas /admin y /asesor", () => {
   it("admin_local NO puede acceder a /asesor/informes", () =>
     expect(canAccess("/asesor/informes", "admin_local")).toBe(false));
 
-  it("sin rol (undefined) no puede acceder a /admin ni /asesor", () => {
-    expect(canAccess("/admin", undefined)).toBe(false);
-    expect(canAccess("/asesor/informes", undefined)).toBe(false);
+  it("sin rol en el JWT no se corta: el layout confirma contra la DB", () => {
+    expect(canAccess("/admin", undefined)).toBe(true);
+    expect(canAccess("/asesor/informes", undefined)).toBe(true);
   });
 
   it("jefe_local no entra a /admin ni a /asesor", () => {

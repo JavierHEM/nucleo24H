@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { destinoTrasOnboarding, nextSeguro } from "@/lib/auth/enlaceInvitacion";
+import { syncUserClaims } from "@/lib/supabase/claims";
 
 const TIPOS_OTP: EmailOtpType[] = ["invite", "magiclink", "recovery", "signup", "email"];
 
@@ -46,6 +47,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${origin}/login?error=auth_callback`);
     }
 
+    if (data.user?.id) await syncUserClaims(data.user.id);
+
     const invitado = type === "invite" || Boolean(data.user?.invited_at);
     const rol = typeof data.user?.app_metadata?.rol === "string" ? data.user.app_metadata.rol : null;
     const despues = destinoTrasOnboarding(next, rol);
@@ -65,6 +68,8 @@ export async function GET(req: NextRequest) {
     console.error("[auth/callback] Error:", error.message);
     return NextResponse.redirect(`${origin}/login?error=auth_callback`);
   }
+
+  if (data.user?.id) await syncUserClaims(data.user.id);
 
   if (type === "invite" || data.user?.invited_at || data.user?.user_metadata?.invited_at) {
     const rol = typeof data.user?.app_metadata?.rol === "string" ? data.user.app_metadata.rol : null;

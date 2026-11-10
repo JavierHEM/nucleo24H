@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/server/db/prisma";
 import { normalizarEmail } from "@/lib/auth/email";
+import { syncUserClaims } from "@/lib/supabase/claims";
 
 const bodySchema = z.object({
   nombre: z.string().min(2).max(100),
@@ -28,6 +29,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nombre inválido" }, { status: 400 });
   }
 
+  const existente = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { rol: true },
+  });
+  const rol =
+    existente?.rol ??
+    (typeof user.app_metadata?.rol === "string" ? user.app_metadata.rol : "trabajador_local");
+
   await prisma.user.upsert({
     where: { id: user.id },
     update: { nombre: parsed.data.nombre },
@@ -35,9 +44,10 @@ export async function POST(req: NextRequest) {
       id: user.id,
       email: user.email ? normalizarEmail(user.email) : "",
       nombre: parsed.data.nombre,
-      rol: (user.app_metadata?.rol as string | undefined) ?? "trabajador_local",
+      rol,
     },
   });
+  await syncUserClaims(user.id);
 
   return NextResponse.json({ ok: true });
 }
